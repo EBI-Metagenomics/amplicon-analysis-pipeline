@@ -3,6 +3,26 @@ include { EXTRACT_RRNA_HITS_FROM_UNMERGED_READS } from '../../modules/local/extr
 include { REMOVE_AMBIGUOUS_READS } from '../../modules/local/remove_ambiguous_reads/main.nf'
 include { DADA2                  } from '../../modules/local/dada2/main.nf'
 
+process CLEANUP_ASV_DIR {
+    tag "$meta.id"
+    label "process_single"
+
+    input:
+    tuple val(meta), path(asv_folder)
+
+    output:
+    val(meta), emit: cleaned
+
+    script:
+    """
+    target_dir="${asv_folder}/${meta.id}/asv/"
+
+    if [ -d "\$target_dir" ]; then
+        rmdir "\$target_dir"
+    fi
+    """
+}
+
 workflow DADA2_SWF {
     
     take:
@@ -30,10 +50,21 @@ workflow DADA2_SWF {
         )
         ch_versions = ch_versions.mix(REMOVE_AMBIGUOUS_READS.out.versions.first())
 
+        dada2_input = REMOVE_AMBIGUOUS_READS.out.noambig_out
+
         DADA2(
-            REMOVE_AMBIGUOUS_READS.out.noambig_out
+            dada2_input
         )
         ch_versions = ch_versions.mix(DADA2.out.versions.first())
+
+        dada2_input.map { meta, path ->
+            [meta, file("${params.outdir}/${meta.id}/asv/") ]
+        }
+        .set { asv_output_dir }
+
+        CLEANUP_ASV_DIR(
+            asv_output_dir
+        )
 
     emit:
         dada2_out        = DADA2.out.dada2_out
