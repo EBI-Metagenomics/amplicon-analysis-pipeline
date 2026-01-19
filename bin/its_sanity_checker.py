@@ -1,13 +1,64 @@
 import logging
 from pathlib import Path
 
-
-import click
 from Bio import SeqIO
+import click
+import pandas as pd
 
 logging.basicConfig(level=logging.DEBUG)
 
+TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD = 500
+PROPORTION_TEST_THRESHOLD = 0.50
 
+
+def get_linecount(input_file: Path) -> int:
+    """Get number of lines in a file"""
+    linecount = sum(1 for _ in open(input_file, "r"))
+    return linecount
+
+
+def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> bool:
+    """
+    Tax Assignment Count test will check whether the number of reads with assignments
+    is above the `TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD` threshold
+    """
+    itsonedb_pass = itsonedb_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
+    unite_pass = unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
+
+    # both DBs have to be above threshold to pass
+    if itsonedb_pass and unite_pass:
+        return True
+    else:
+        return False
+
+
+def proportion_test(
+    itsonedb_linecount: int, unite_linecount: int, rrna_readcount: int
+) -> bool:
+    """
+    Proportion test will check whether the proportion of reads with assignments
+    is above the `PROPORTION_TEST_THRESHOLD` threshold
+    """
+
+    # immediate failure of this test in these =0 scenarios
+    if rrna_readcount == 0:
+        return False
+    if itsonedb_linecount == 0 and unite_linecount == 0:
+        return False
+
+    itsonedb_pass = (
+        itsonedb_linecount / float(rrna_readcount) > PROPORTION_TEST_THRESHOLD
+    )
+    unite_pass = unite_linecount / float(rrna_readcount) > PROPORTION_TEST_THRESHOLD
+
+    # both DBs have to be above threshold to pass
+    if itsonedb_pass and unite_pass:
+        return True
+    else:
+        return False
+
+
+############## ITS Sanity Checker ##############
 @click.command(
     options_metavar="-m <mapseq_output> -r <reads> -p <output_prefix>",
     short_help="Sanity check whether a potential ITS result isn't just a different marker gene",
@@ -45,35 +96,56 @@ def its_sanity_checker(
     output_prefix: str,
 ) -> None:
     """
-    Runs a bunch of sanity tests to verify whether a particular run is actually ITS
+    Runs some sanity tests to verify whether a particular run is actually ITS
     or just a different marker gene
-    # TODO: do these docstring params
-    :param mapseq_output: Description
-    :type mapseq_output: Path
-    :param rrna_extraction_output: Description
-    :type rrna_extraction_output: Path
-    :param output_prefix: Description
-    :type output_prefix: str
     """
     logging.info("Running ITS sanity checker on these inputs:")
     logging.info(
         f"{itsonedb_output=}, {unite_output=}, {rrna_extraction_output=}, {output_prefix=}"
     )
 
+    results_dict = {}
+
     itsonedb_linecount = get_linecount(itsonedb_output)
     unite_linecount = get_linecount(unite_output)
-    rrna_linecount = 0
+    rrna_readcount = 0
 
+    # get number of reads rather than number of lines
     with open(rrna_extraction_output) as fr:
         for _ in SeqIO.parse(fr, "fasta"):
-            rrna_linecount += 1
+            rrna_readcount += 1
 
-    logging.info(f"{rrna_linecount}, {itsonedb_linecount}, {unite_linecount}")
+    logging.info(f"Potential ITS reads count: {rrna_readcount}")
+    logging.info(f"ITSoneDB assignment count: {itsonedb_linecount}")
+    logging.info(f"UNITE assignment count: {unite_linecount}")
 
+    logging.info("Running Tax Assignment Count Test")
+    tax_assignment_count_pass = tax_assignment_count_test(
+        itsonedb_linecount, unite_linecount
+    )
+    results_dict["tax_assignment_count_test"] = tax_assignment_count_pass
 
-def get_linecount(input_file: Path) -> int:
-    linecount = sum(1 for i in open(input_file, "r"))
-    return linecount
+    logging.info("Running Proportion Test")
+    proportion_pass = proportion_test(
+        itsonedb_linecount, unite_linecount, rrna_readcount
+    )
+
+    results_dict["proportion_test"] = proportion_pass
+    if proportion_pass:
+        logging.info("Proportion test: PASSED")
+    else:
+        logging.info("Proportion test: FAILED")
+
+    if tax_assignment_count_pass:
+        logging.info("Tax Assignment Count test: PASSED")
+    else:
+        logging.info("Tax Assignment Count test: FAILED")
+
+    res_df = pd.DataFrame(results_dict, index=[0])
+
+    out_path = f"{output_prefix}_its_sanity_check.tsv"
+    logging.info(f"Saving results of tests to {out_path}")
+    res_df.to_csv(out_path, sep="\t", index=False)
 
 
 def main():
