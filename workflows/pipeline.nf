@@ -253,26 +253,28 @@ workflow AMPLICON_PIPELINE {
             sep: "\t",
         )
         .filter { meta, test_results ->
-            (test_results[0] && test_results[1])
+            (test_results["tax_assignment_count_test"] == "True" && test_results["proportion_test"] == "True")
         }
-        .view()
-    // .filter { meta, seqfu_res ->
-    //     seqfu_res[0] != "OK"
-    // }
+        .map { meta, test_results -> meta }
+        .set { real_its_runs }
 
 
-
-    ITS_SANITY_CHECKER.out.its_sanity_check_out
-        .mix(MASK_FASTA_SWF.out.masked_out)
+    MASK_FASTA_SWF.out.masked_out
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.mseq)
-        .mix(MAPSEQ_OTU_KRONA_UNITE.out.mseq)
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.krona_input)
-        .mix(MAPSEQ_OTU_KRONA_UNITE.out.krona_input)
+        .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.biom_out)
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.html)
+        .groupTuple()
+        .join(real_its_runs)
+
+    MASK_FASTA_SWF.out.masked_out
+        .mix(MAPSEQ_OTU_KRONA_UNITE.out.mseq)
+        .mix(MAPSEQ_OTU_KRONA_UNITE.out.krona_input)
+        .mix(MAPSEQ_OTU_KRONA_UNITE.out.biom_out)
         .mix(MAPSEQ_OTU_KRONA_UNITE.out.html)
+        .groupTuple()
+        .join(real_its_runs)
 
-
-    // .map{ its_sanity_check_out, reads, itsonedb_mseq, unite_mseq, itsonedb }
 
     // Infer amplified variable regions for SSU, extract reads for each amplified region if there are more than one //
     AMP_REGION_INFERENCE(

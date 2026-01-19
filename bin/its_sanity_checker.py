@@ -42,7 +42,7 @@ def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> 
     unite_pass = unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
 
     # both DBs have to be above threshold to pass
-    if itsonedb_pass and unite_pass:
+    if itsonedb_pass or unite_pass:
         return True
     else:
         return False
@@ -68,7 +68,7 @@ def proportion_test(
     unite_pass = unite_linecount / float(rrna_readcount) > PROPORTION_TEST_THRESHOLD
 
     # both DBs have to be above threshold to pass
-    if itsonedb_pass and unite_pass:
+    if itsonedb_pass or unite_pass:
         return True
     else:
         return False

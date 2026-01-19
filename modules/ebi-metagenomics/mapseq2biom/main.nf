@@ -13,10 +13,10 @@ process MAPSEQ2BIOM {
     tuple path(db_otu), val(db_label)
 
     output:
-    tuple val(meta), path("${meta.id}.txt")         , emit: krona_input
-    tuple val(meta), path("${meta.id}_biom.tsv")    , emit: biom_out
-    tuple val(meta), path("${meta.id}.notaxid.tsv") , emit: biom_notaxid_out
-    path "versions.yml"                             , emit: versions
+    tuple val(meta), path("${meta.id}_${task.ext.db_label}.txt"), emit: krona_input
+    tuple val(meta), path("${meta.id}_${task.ext.db_label}.tsv"), emit: biom_out
+    tuple val(meta), path("${meta.id}.notaxid.tsv")             , emit: biom_notaxid_out
+    path "versions.yml"                                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,12 +28,12 @@ process MAPSEQ2BIOM {
     """
     mapseq2biom \
         ${args} \
-        --krona ${prefix}.txt \
+        --krona ${prefix}_${task.ext.db_label}.txt \
         --no-tax-id-file ${prefix}.notaxid.tsv \
         --label ${db_label} \
         --query ${msq} \
         --otu-table ${db_otu} \
-        --out-file ${prefix}_biom.tsv
+        --out-file ${prefix}_${task.ext.db_label}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
