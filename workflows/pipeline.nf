@@ -247,6 +247,32 @@ workflow AMPLICON_PIPELINE {
 
     ITS_SANITY_CHECKER(its_sanity_check_input)
 
+    ITS_SANITY_CHECKER.out.its_sanity_check_out
+        .splitCsv(
+            header: true,
+            sep: "\t",
+        )
+        .filter { meta, test_results ->
+            (test_results[0] && test_results[1])
+        }
+        .view()
+    // .filter { meta, seqfu_res ->
+    //     seqfu_res[0] != "OK"
+    // }
+
+
+
+    ITS_SANITY_CHECKER.out.its_sanity_check_out
+        .mix(MASK_FASTA_SWF.out.masked_out)
+        .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.mseq)
+        .mix(MAPSEQ_OTU_KRONA_UNITE.out.mseq)
+        .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.krona_input)
+        .mix(MAPSEQ_OTU_KRONA_UNITE.out.krona_input)
+        .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.html)
+        .mix(MAPSEQ_OTU_KRONA_UNITE.out.html)
+
+
+    // .map{ its_sanity_check_out, reads, itsonedb_mseq, unite_mseq, itsonedb }
 
     // Infer amplified variable regions for SSU, extract reads for each amplified region if there are more than one //
     AMP_REGION_INFERENCE(

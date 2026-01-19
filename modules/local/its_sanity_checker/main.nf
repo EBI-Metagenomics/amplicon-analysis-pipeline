@@ -7,7 +7,7 @@ process ITS_SANITY_CHECKER {
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"
 
     input:
-    tuple val(meta), path(its_reads), path(itsonedb_assignments, stageAs: "ITSoneDB_assignments.mseq"), path(unite_assignments, stageAs: "UNITE_assignments.mseq")
+    tuple val(meta), path(its_reads), path(itsonedb_assignments), path(unite_assignments)
 
     output:
     tuple val(meta), path("*.tsv"), emit: its_sanity_check_out
