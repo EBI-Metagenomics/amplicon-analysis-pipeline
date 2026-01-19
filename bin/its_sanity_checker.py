@@ -60,7 +60,7 @@ def proportion_test(
 
 ############## ITS Sanity Checker ##############
 @click.command(
-    options_metavar="-m <mapseq_output> -r <reads> -p <output_prefix>",
+    options_metavar="--itsonedb_output <itsonedb_output> --unite_output <itsonedb_output> -r <reads> -p <output_prefix>",
     short_help="Sanity check whether a potential ITS result isn't just a different marker gene",
 )
 @click.option(
