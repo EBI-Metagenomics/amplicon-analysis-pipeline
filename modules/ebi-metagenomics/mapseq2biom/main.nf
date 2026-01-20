@@ -44,9 +44,8 @@ process MAPSEQ2BIOM {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    touch ${prefix}.txt
-    touch ${prefix}.notaxid.tsv
-    touch ${prefix}_biom.tsv
+    touch ${prefix}_${task.ext.db_label}.txt
+    touch ${prefix}_${task.ext.db_label}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
