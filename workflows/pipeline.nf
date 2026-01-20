@@ -21,6 +21,8 @@ include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_ITSONEDB } from '../subworkflows/
 
 include { MASK_FASTA_SWF } from '../subworkflows/local/mask_fasta_swf.nf'
 include { ITS_SANITY_CHECKER } from '../modules/local/its_sanity_checker/main'
+include { PUBLISH_ITS_RESULTS as PUBLISH_ITSONEDB_RESULTS } from '../modules/local/publish_its_results/main'
+include { PUBLISH_ITS_RESULTS as PUBLISH_UNITE_RESULTS } from '../modules/local/publish_its_results/main'
 include { AMP_REGION_INFERENCE } from '../subworkflows/local/amp_region_inference_swf.nf'
 include { PRIMER_IDENTIFICATION } from '../subworkflows/local/primer_identification_swf.nf'
 include { AUTOMATIC_PRIMER_PREDICTION } from '../subworkflows/local/automatic_primer_prediction.nf'
@@ -258,7 +260,6 @@ workflow AMPLICON_PIPELINE {
         .map { meta, test_results -> meta }
         .set { real_its_runs }
 
-
     MASK_FASTA_SWF.out.masked_out
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.mseq)
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.krona_input)
@@ -266,6 +267,7 @@ workflow AMPLICON_PIPELINE {
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.html)
         .groupTuple()
         .join(real_its_runs)
+        .set { itsonedb_its_runs }
 
     MASK_FASTA_SWF.out.masked_out
         .mix(MAPSEQ_OTU_KRONA_UNITE.out.mseq)
@@ -274,6 +276,15 @@ workflow AMPLICON_PIPELINE {
         .mix(MAPSEQ_OTU_KRONA_UNITE.out.html)
         .groupTuple()
         .join(real_its_runs)
+        .set { unite_its_runs }
+
+    PUBLISH_ITSONEDB_RESULTS(
+        itsonedb_its_runs
+    )
+
+    PUBLISH_UNITE_RESULTS(
+        unite_its_runs
+    )
 
 
     // Infer amplified variable regions for SSU, extract reads for each amplified region if there are more than one //

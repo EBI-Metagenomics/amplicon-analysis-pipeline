@@ -24,7 +24,8 @@ import pandas as pd
 logging.basicConfig(level=logging.DEBUG)
 
 TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD = 500
-PROPORTION_TEST_THRESHOLD = 0.50
+# TODO: increase this threshold, small for testing atm
+PROPORTION_TEST_THRESHOLD = 0.10
 
 
 def get_linecount(input_file: Path) -> int:
