@@ -4,13 +4,13 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { READS_QC } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
-include { READS_QC as READS_QC_MERGE } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
-include { DETECT_RNA } from '../subworkflows/ebi-metagenomics/detect_rna/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_SSU } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_LSU } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_PR2 } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_UNITE } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
+include { READS_QC                                      } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
+include { READS_QC as READS_QC_MERGE                    } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
+include { DETECT_RNA                                    } from '../subworkflows/ebi-metagenomics/detect_rna/main'
+include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_SSU      } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
+include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_LSU      } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
+include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_PR2      } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
+include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_UNITE    } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
 include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_ITSONEDB } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
 
 /*
@@ -19,30 +19,30 @@ include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_ITSONEDB } from '../subworkflows/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { MASK_FASTA_SWF } from '../subworkflows/local/mask_fasta_swf.nf'
-include { ITS_SANITY_CHECKER } from '../modules/local/its_sanity_checker/main'
+include { MASK_FASTA_SWF                                  } from '../subworkflows/local/mask_fasta_swf.nf'
+include { ITS_SANITY_CHECKER                              } from '../modules/local/its_sanity_checker/main'
 include { PUBLISH_ITS_RESULTS as PUBLISH_ITSONEDB_RESULTS } from '../modules/local/publish_its_results/main'
-include { PUBLISH_ITS_RESULTS as PUBLISH_UNITE_RESULTS } from '../modules/local/publish_its_results/main'
-include { AMP_REGION_INFERENCE } from '../subworkflows/local/amp_region_inference_swf.nf'
-include { PRIMER_IDENTIFICATION } from '../subworkflows/local/primer_identification_swf.nf'
-include { AUTOMATIC_PRIMER_PREDICTION } from '../subworkflows/local/automatic_primer_prediction.nf'
-include { CONCAT_PRIMER_CUTADAPT } from '../subworkflows/local/concat_primer_cutadapt.nf'
-include { DADA2_SWF } from '../subworkflows/local/dada2_swf.nf'
-include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_SILVA } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
-include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_PR2 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
-include { EXTRACT_ASV_READ_COUNTS } from '../modules/local/extract_asv_read_counts/main'
-include { EXTRACT_ASVS_LEFT as EXTRACT_ASVS_LEFT_SILVA } from '../modules/local/extract_asvs_left/main'
-include { EXTRACT_ASVS_LEFT as EXTRACT_ASVS_LEFT_PR2 } from '../modules/local/extract_asvs_left/main'
+include { PUBLISH_ITS_RESULTS as PUBLISH_UNITE_RESULTS    } from '../modules/local/publish_its_results/main'
+include { AMP_REGION_INFERENCE                            } from '../subworkflows/local/amp_region_inference_swf.nf'
+include { PRIMER_IDENTIFICATION                           } from '../subworkflows/local/primer_identification_swf.nf'
+include { AUTOMATIC_PRIMER_PREDICTION                     } from '../subworkflows/local/automatic_primer_prediction.nf'
+include { CONCAT_PRIMER_CUTADAPT                          } from '../subworkflows/local/concat_primer_cutadapt.nf'
+include { DADA2_SWF                                       } from '../subworkflows/local/dada2_swf.nf'
+include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_SILVA      } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
+include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_PR2        } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
+include { EXTRACT_ASV_READ_COUNTS                         } from '../modules/local/extract_asv_read_counts/main'
+include { EXTRACT_ASVS_LEFT as EXTRACT_ASVS_LEFT_SILVA    } from '../modules/local/extract_asvs_left/main'
+include { EXTRACT_ASVS_LEFT as EXTRACT_ASVS_LEFT_PR2      } from '../modules/local/extract_asvs_left/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { DOWNLOAD_FROM_FIRE } from '../modules/ebi-metagenomics/downloadfromfire/main'
+include { DOWNLOAD_FROM_FIRE          } from '../modules/ebi-metagenomics/downloadfromfire/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { MULTIQC as MULTIQC_RUN } from '../modules/nf-core/multiqc/main.nf'
-include { MULTIQC as MULTIQC_STUDY } from '../modules/nf-core/multiqc/main.nf'
+include { MULTIQC as MULTIQC_RUN      } from '../modules/nf-core/multiqc/main.nf'
+include { MULTIQC as MULTIQC_STUDY    } from '../modules/nf-core/multiqc/main.nf'
 
 // Import dada2 input preparation function (it's very big and deserved to be in its own file) //
 include { dada2_input_preparation_function } from '../lib/nf/dada2_input_preparation_function.nf'
