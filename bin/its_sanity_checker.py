@@ -23,14 +23,15 @@ import pandas as pd
 
 logging.basicConfig(level=logging.DEBUG)
 
-TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD = 500
-# TODO: increase this threshold, small for testing atm
-PROPORTION_TEST_THRESHOLD = 0.10
+TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD = 1000
+MAPPING_PROPORTION_TEST_THRESHOLD = 0.50
+RANK_PROPORTION_TEST_THRESHOLD = 0.50
 
 
 def get_linecount(input_file: Path) -> int:
-    """Get number of lines in a file"""
-    linecount = sum(1 for _ in open(input_file, "r"))
+    """Get number of non-header lines in a file"""
+    # the -1 is to not count headers
+    linecount = sum(1 for _ in open(input_file, "r")) - 1
     return linecount
 
 
@@ -42,14 +43,13 @@ def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> 
     itsonedb_pass = itsonedb_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
     unite_pass = unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
 
-    # both DBs have to be above threshold to pass
     if itsonedb_pass or unite_pass:
         return True
     else:
         return False
 
 
-def proportion_test(
+def mapping_proportion_test(
     itsonedb_linecount: int, unite_linecount: int, rrna_readcount: int
 ) -> bool:
     """
@@ -60,15 +60,66 @@ def proportion_test(
     # immediate failure of this test in these =0 scenarios
     if rrna_readcount == 0:
         return False
-    if itsonedb_linecount == 0 and unite_linecount == 0:
+    if itsonedb_linecount == 0:
+        itsonedb_pass = False
+    else:
+        itsonedb_pass = (
+            itsonedb_linecount / float(rrna_readcount)
+            > MAPPING_PROPORTION_TEST_THRESHOLD
+        )
+    if unite_linecount == 0:
+        unite_pass = False
+    else:
+        unite_pass = (
+            unite_linecount / float(rrna_readcount) > MAPPING_PROPORTION_TEST_THRESHOLD
+        )
+
+    if itsonedb_pass or unite_pass:
+        return True
+    else:
         return False
 
-    itsonedb_pass = (
-        itsonedb_linecount / float(rrna_readcount) > PROPORTION_TEST_THRESHOLD
-    )
-    unite_pass = unite_linecount / float(rrna_readcount) > PROPORTION_TEST_THRESHOLD
 
-    # both DBs have to be above threshold to pass
+def rank_proportion_test(
+    itsonedb_output: Path,
+    unite_output: Path,
+    itsonedb_linecount: int,
+    unite_linecount: int,
+) -> bool:
+    """
+    Proportion test will check whether the proportion of reads with assignments
+    below the rank of Kingdom is above the `RANK_PROPORTION_TEST_THRESHOLD` threshold
+    """
+
+    itsone_df = pd.read_csv(
+        itsonedb_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
+    )
+    unite_df = pd.read_csv(
+        unite_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
+    )
+
+    if itsonedb_linecount == 0:
+        itsone_ranks_below_kingdom = 0
+    else:
+        itsone_ranks_below_kingdom = len(
+            itsone_df[itsone_df["taxon"].str.contains("p__")]
+        ) / float(itsonedb_linecount)
+    if unite_linecount == 0:
+        unite_ranks_below_kingdom = 0
+    else:
+        unite_ranks_below_kingdom = len(
+            unite_df[unite_df["taxon"].str.contains("p__")]
+        ) / float(unite_linecount)
+
+    itsonedb_pass = (
+        itsone_ranks_below_kingdom > RANK_PROPORTION_TEST_THRESHOLD
+        and itsonedb_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
+    )
+    unite_pass = (
+        unite_ranks_below_kingdom > RANK_PROPORTION_TEST_THRESHOLD
+        and unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
+    )
+
     if itsonedb_pass or unite_pass:
         return True
     else:
@@ -142,21 +193,33 @@ def its_sanity_checker(
     )
     results_dict["tax_assignment_count_test"] = tax_assignment_count_pass
 
-    logging.info("Running Proportion Test")
-    proportion_pass = proportion_test(
+    logging.info("Running Mapping Proportion Test")
+    mapping_proportion_pass = mapping_proportion_test(
         itsonedb_linecount, unite_linecount, rrna_readcount
     )
+    results_dict["mapping_proportion_test"] = mapping_proportion_pass
 
-    results_dict["proportion_test"] = proportion_pass
-    if proportion_pass:
-        logging.info("Proportion test: PASSED")
+    logging.info("Running Rank Proportion Test")
+
+    rank_proportion_pass = rank_proportion_test(
+        itsonedb_output, unite_output, itsonedb_linecount, unite_linecount
+    )
+    results_dict["rank_proportion_test"] = rank_proportion_pass
+
+    if mapping_proportion_pass:
+        logging.info("Mapping Proportion test: PASSED")
     else:
-        logging.info("Proportion test: FAILED")
+        logging.info("Mapping Proportion test: FAILED")
 
     if tax_assignment_count_pass:
         logging.info("Tax Assignment Count test: PASSED")
     else:
         logging.info("Tax Assignment Count test: FAILED")
+
+    if rank_proportion_pass:
+        logging.info("Rank Proportion test: PASSED")
+    else:
+        logging.info("Rank Proportion test: FAILED")
 
     res_df = pd.DataFrame(results_dict, index=[0])
 

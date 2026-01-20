@@ -255,7 +255,7 @@ workflow AMPLICON_PIPELINE {
             sep: "\t",
         )
         .filter { meta, test_results ->
-            (test_results["tax_assignment_count_test"] == "True" && test_results["proportion_test"] == "True")
+            (test_results["tax_assignment_count_test"] == "True" && test_results["mapping_proportion_test"] == "True" && test_results["rank_proportion_test"] == "True")
         }
         .map { meta, test_results -> meta }
         .set { real_its_runs }
