@@ -15,7 +15,6 @@ process MAPSEQ2BIOM {
     output:
     tuple val(meta), path("${meta.id}_${task.ext.db_label}.txt"), emit: krona_input
     tuple val(meta), path("${meta.id}_${task.ext.db_label}.tsv"), emit: biom_out
-    tuple val(meta), path("${meta.id}.notaxid.tsv")             , emit: biom_notaxid_out
     path "versions.yml"                                         , emit: versions
 
     when:
