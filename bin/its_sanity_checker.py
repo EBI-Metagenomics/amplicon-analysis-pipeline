@@ -61,18 +61,19 @@ def mapping_proportion_test(
     if rrna_readcount == 0:
         return False
     if itsonedb_linecount == 0:
+        logging.info("ITSoneDB Mapping Proportion: 0")
         itsonedb_pass = False
     else:
-        itsonedb_pass = (
-            itsonedb_linecount / float(rrna_readcount)
-            > MAPPING_PROPORTION_TEST_THRESHOLD
-        )
+        itsonedb_reads_mapping = itsonedb_linecount / float(rrna_readcount)
+        logging.info(f"ITSoneDB Mapping Proportion: {itsonedb_reads_mapping}")
+        itsonedb_pass = itsonedb_reads_mapping > MAPPING_PROPORTION_TEST_THRESHOLD
     if unite_linecount == 0:
+        logging.info("UNITE Mapping Proportion: 0")
         unite_pass = False
     else:
-        unite_pass = (
-            unite_linecount / float(rrna_readcount) > MAPPING_PROPORTION_TEST_THRESHOLD
-        )
+        unite_reads_mapping = unite_linecount / float(rrna_readcount)
+        logging.info(f"UNITE Mapping Proportion: {unite_reads_mapping}")
+        unite_pass = unite_reads_mapping > MAPPING_PROPORTION_TEST_THRESHOLD
 
     if itsonedb_pass or unite_pass:
         return True
@@ -100,16 +101,22 @@ def rank_proportion_test(
 
     if itsonedb_linecount == 0:
         itsone_ranks_below_kingdom = 0
+        logging.info(f"ITSoneDB Rank Proportion: 0")
+
     else:
         itsone_ranks_below_kingdom = len(
             itsone_df[itsone_df["taxon"].str.contains("p__")]
         ) / float(itsonedb_linecount)
+        logging.info(f"ITSoneDB Rank Proportion: {itsone_ranks_below_kingdom}")
     if unite_linecount == 0:
         unite_ranks_below_kingdom = 0
+        logging.info(f"UNITE Rank Proportion: 0")
+
     else:
         unite_ranks_below_kingdom = len(
             unite_df[unite_df["taxon"].str.contains("p__")]
         ) / float(unite_linecount)
+        logging.info(f"UNITE Rank Proportion: {unite_ranks_below_kingdom}")
 
     itsonedb_pass = (
         itsone_ranks_below_kingdom > RANK_PROPORTION_TEST_THRESHOLD
