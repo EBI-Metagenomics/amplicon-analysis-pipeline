@@ -249,6 +249,7 @@ workflow AMPLICON_PIPELINE {
 
     ITS_SANITY_CHECKER(its_sanity_check_input)
 
+    // Filter out runs that don't pass all ITS sanity checker tests
     ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitCsv(
             header: true,
@@ -260,6 +261,7 @@ workflow AMPLICON_PIPELINE {
         .map { meta, test_results -> meta }
         .set { real_its_runs }
 
+    // Collect all ITSoneDB results that we want to publish
     MASK_FASTA_SWF.out.masked_out
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.mseq)
         .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.krona_input)
@@ -269,6 +271,7 @@ workflow AMPLICON_PIPELINE {
         .join(real_its_runs)
         .set { itsonedb_its_runs }
 
+    // Collect all UNITE results that we want to publish
     MASK_FASTA_SWF.out.masked_out
         .mix(MAPSEQ_OTU_KRONA_UNITE.out.mseq)
         .mix(MAPSEQ_OTU_KRONA_UNITE.out.krona_input)
@@ -278,14 +281,13 @@ workflow AMPLICON_PIPELINE {
         .join(real_its_runs)
         .set { unite_its_runs }
 
+    // publish them
     PUBLISH_ITSONEDB_RESULTS(
         itsonedb_its_runs
     )
-
     PUBLISH_UNITE_RESULTS(
         unite_its_runs
     )
-
 
     // Infer amplified variable regions for SSU, extract reads for each amplified region if there are more than one //
     AMP_REGION_INFERENCE(
