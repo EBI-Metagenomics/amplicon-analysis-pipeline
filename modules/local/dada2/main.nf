@@ -20,10 +20,10 @@ process DADA2 {
         """
         output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} $reads 2> \$error_file
+        dada2.R ${meta.id} $reads 2> \$output_file
 
         stats_fail=false
-        if [[ -s \$error_file ]] && grep -q "Caught an error" \$error_file; then
+        if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
             stats_fail=true
             mv \$output_file \$error_file
         fi
