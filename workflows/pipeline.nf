@@ -169,19 +169,19 @@ workflow AMPLICON_PIPELINE {
 
     // Sanity checking and quality control of reads //
     READS_QC_MERGE(
-        true,
+        true,       // check if amplicon
         ch_input,
-        "",
-        true,
+        "",         // don't discard trimmed reads
+        true,       // merge
     )
     ch_versions = ch_versions.mix(READS_QC_MERGE.out.versions)
 
     // Run it again without merging to keep PE files unmerged for primer trimming+DADA2 //
     READS_QC(
-        false,
+        false,      // don't check if amplicon
         ch_input,
-        "",
-        false,
+        "",         // don't discard trimmed reads
+        false,      // don't merge
     )
     ch_versions = ch_versions.mix(READS_QC.out.versions)
 
