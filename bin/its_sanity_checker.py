@@ -114,10 +114,8 @@ def rank_proportion_test(
         and unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
     )
 
-    if itsonedb_pass or unite_pass:
-        return True
-    else:
-        return False
+    return itsonedb_pass or unite_pass
+
 
 
 ############## ITS Sanity Checker ##############
