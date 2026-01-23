@@ -43,10 +43,7 @@ def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> 
     itsonedb_pass = itsonedb_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
     unite_pass = unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
 
-    if itsonedb_pass or unite_pass:
-        return True
-    else:
-        return False
+    return itsonedb_pass or unite_pass:
 
 
 def mapping_proportion_test(
