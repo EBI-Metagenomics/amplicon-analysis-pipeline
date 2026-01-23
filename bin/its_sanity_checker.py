@@ -43,7 +43,7 @@ def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> 
     itsonedb_pass = itsonedb_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
     unite_pass = unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
 
-    return itsonedb_pass or unite_pass:
+    return itsonedb_pass or unite_pass
 
 
 def mapping_proportion_test(
@@ -72,15 +72,12 @@ def mapping_proportion_test(
         logging.info(f"UNITE Mapping Proportion: {unite_reads_mapping}")
         unite_pass = unite_reads_mapping > MAPPING_PROPORTION_TEST_THRESHOLD
 
-    if itsonedb_pass or unite_pass:
-        return True
-    else:
-        return False
+    return itsonedb_pass or unite_pass
 
 
 def rank_proportion_test(
-    itsonedb_output: Path,
-    unite_output: Path,
+    itsonedb_df: pd.DataFrame,
+    unite_df: pd.DataFrame,
     itsonedb_linecount: int,
     unite_linecount: int,
 ) -> bool:
@@ -89,25 +86,18 @@ def rank_proportion_test(
     below the rank of Kingdom is above the `RANK_PROPORTION_TEST_THRESHOLD` threshold
     """
 
-    itsone_df = pd.read_csv(
-        itsonedb_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
-    )
-    unite_df = pd.read_csv(
-        unite_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
-    )
-
     if itsonedb_linecount == 0:
         itsone_ranks_below_kingdom = 0
-        logging.info(f"ITSoneDB Rank Proportion: 0")
+        logging.info("ITSoneDB Rank Proportion: 0")
 
     else:
         itsone_ranks_below_kingdom = len(
-            itsone_df[itsone_df["taxon"].str.contains("p__")]
+            itsonedb_df[itsonedb_df["taxon"].str.contains("p__")]
         ) / float(itsonedb_linecount)
         logging.info(f"ITSoneDB Rank Proportion: {itsone_ranks_below_kingdom}")
     if unite_linecount == 0:
         unite_ranks_below_kingdom = 0
-        logging.info(f"UNITE Rank Proportion: 0")
+        logging.info("UNITE Rank Proportion: 0")
 
     else:
         unite_ranks_below_kingdom = len(
@@ -178,8 +168,15 @@ def its_sanity_checker(
 
     results_dict = {}
 
-    itsonedb_linecount = get_linecount(itsonedb_output)
-    unite_linecount = get_linecount(unite_output)
+    itsonedb_df = pd.read_csv(
+        itsonedb_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
+    )
+    unite_df = pd.read_csv(
+        unite_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
+    )
+
+    itsonedb_linecount = len(itsonedb_df)
+    unite_linecount = len(unite_df)
     rrna_readcount = 0
 
     # get number of reads rather than number of lines
@@ -206,7 +203,7 @@ def its_sanity_checker(
     logging.info("Running Rank Proportion Test")
 
     rank_proportion_pass = rank_proportion_test(
-        itsonedb_output, unite_output, itsonedb_linecount, unite_linecount
+        itsonedb_df, unite_df, itsonedb_linecount, unite_linecount
     )
     results_dict["rank_proportion_test"] = rank_proportion_pass
 
