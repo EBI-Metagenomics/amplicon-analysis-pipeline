@@ -1,7 +1,6 @@
 
 include { CONCAT_PRIMERS          } from '../../modules/local/concat_primers/main.nf'
 include { FINAL_CONCAT_PRIMERS    } from '../../modules/local/final_concat_primers/main.nf'
-include { REV_COMP_SE_PRIMERS     } from '../../modules/local/rev_comp_se_primers/main.nf'
 include { SPLIT_PRIMERS_BY_STRAND } from '../../modules/local/split_primers_by_strand.nf'
 include { PRIMER_VALIDATION       } from '../../subworkflows/local/primer_validation_swf.nf'
 

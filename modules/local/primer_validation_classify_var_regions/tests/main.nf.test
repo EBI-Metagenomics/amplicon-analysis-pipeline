@@ -26,7 +26,33 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out.primer_validation_out).match("primer_validation_out") }
+                { assert snapshot(process.out.primer_validation_out, process.out.validated_primers).match() }
+            )
+        }
+
+    }
+
+    test("primer_validation_classify_var_regions but with SE flag so it does the rev comp of the reverse primer seq") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'ERR4334351', single_end:true ], // meta map
+                    file('${projectDir}/modules/local/primer_validation_classify_var_regions/tests/data/ERR4334351.tblout.deoverlapped', checkIfExists: true),
+                    file('${projectDir}/modules/local/primer_validation_classify_var_regions/tests/data/ERR4334351_permuted_primers.fasta', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.primer_validation_out, process.out.validated_primers).match() }
             )
         }
 

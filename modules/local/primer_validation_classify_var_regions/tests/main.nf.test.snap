@@ -1,5 +1,35 @@
 {
-    "primer_validation_out": {
+    "primer_validation_classify_var_regions but with SE flag so it does the rev comp of the reverse primer seq": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "ERR4334351",
+                        "single_end": true
+                    },
+                    "ERR4334351_primer_validation.tsv:md5,438b00766b1f24f02de89c99358f8972"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "ERR4334351",
+                        "single_end": true
+                    },
+                    [
+                        "fwd_primers.fasta:md5,d3e8e54f8760c09532deaf1f699bd2e0",
+                        "rev_primers.fasta:md5,54ac872f081eee1a531b676dbde5d427"
+                    ]
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.04.8"
+        },
+        "timestamp": "2025-11-13T14:26:52.691921"
+    },
+    "primer_validation_classify_var_regions - should have primers in F and R": {
         "content": [
             [
                 [
@@ -9,12 +39,24 @@
                     },
                     "ERR4334351_primer_validation.tsv:md5,438b00766b1f24f02de89c99358f8972"
                 ]
+            ],
+            [
+                [
+                    {
+                        "id": "ERR4334351",
+                        "single_end": false
+                    },
+                    [
+                        "fwd_primers.fasta:md5,d3e8e54f8760c09532deaf1f699bd2e0",
+                        "rev_primers.fasta:md5,85be59f336f4dd4b0419bfcfd62697fa"
+                    ]
+                ]
             ]
         ],
         "meta": {
             "nf-test": "0.9.2",
-            "nextflow": "25.04.7"
+            "nextflow": "25.04.8"
         },
-        "timestamp": "2025-10-09T15:16:17.626557"
+        "timestamp": "2025-11-13T14:26:38.508891"
     }
 }

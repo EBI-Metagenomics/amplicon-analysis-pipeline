@@ -1,59 +1,31 @@
 {
     "make_asv_count_tables test": {
         "content": [
-            {
-                "0": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false,
-                            "var_region": "16S-V3-V4"
-                        },
-                        "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_pr2_asv_krona_counts.txt:md5,ec5d39eef4d33386346c3f6fa007b59d"
-                    ]
-                ],
-                "1": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false,
-                            "var_region": "16S-V3-V4"
-                        },
-                        "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_asv_read_counts.tsv:md5,33b5f2e1b30e5bc48c1b8b2d16c84e0b"
-                    ]
-                ],
-                "2": [
-                    "versions.yml:md5,1b78e2f9eb6d992a58d3e1525375d376"
-                ],
-                "asv_krona_counts": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false,
-                            "var_region": "16S-V3-V4"
-                        },
-                        "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_pr2_asv_krona_counts.txt:md5,ec5d39eef4d33386346c3f6fa007b59d"
-                    ]
-                ],
-                "asv_read_counts": [
-                    [
-                        {
-                            "id": "test",
-                            "single_end": false,
-                            "var_region": "16S-V3-V4"
-                        },
-                        "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_asv_read_counts.tsv:md5,33b5f2e1b30e5bc48c1b8b2d16c84e0b"
-                    ]
-                ],
-                "versions": [
-                    "versions.yml:md5,1b78e2f9eb6d992a58d3e1525375d376"
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false,
+                        "var_region": "16S-V3-V4"
+                    },
+                    "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_PR2_asv_krona_counts.txt:md5,ec5d39eef4d33386346c3f6fa007b59d"
                 ]
-            }
+            ],
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false,
+                        "var_region": "16S-V3-V4"
+                    },
+                    "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_asv_read_counts.tsv:md5,33b5f2e1b30e5bc48c1b8b2d16c84e0b"
+                ]
+            ]
         ],
         "meta": {
             "nf-test": "0.9.2",
             "nextflow": "25.04.8"
         },
-        "timestamp": "2025-11-07T15:36:21.320654"
+        "timestamp": "2025-11-13T14:28:08.09548"
     }
 }
