@@ -17,22 +17,20 @@ workflow MAPSEQ_ASV_KRONA {
 
         ch_versions = channel.empty()
 
-        input = dada2_output
+        mapseq_in = dada2_output
+            .map{ meta, maps, asv_seqs, filt_reads -> [meta, [maps, asv_seqs, filt_reads]] }
             .combine(dbs_in)
-            .map { seqs_meta, seqs, db_meta, db_files ->
-                def meta = seqs_meta + ['db_id': db_meta.id, 'db_label': db_meta.label, 'dada2_label': db_meta.dada2_label]
-                def (fasta, tax, otu, mscluster, label) = db_files
-                return [meta, seqs, fasta, tax, otu, mscluster, label]
+            .map { asvs_meta, asv_files, db_meta, db_files ->
+                def meta = asvs_meta + ['db_id': db_meta.id, 'db_label': db_meta.label, 'dada2_label': db_meta.dada2_label]
+                def (fasta, tax, _otu, mscluster, label) = db_files
+                return [meta, asv_files, fasta, tax, mscluster, label]
             }
 
-        mapseq_in = input.map{ meta, reads, fasta, tax, _otu, mscluster, label -> 
-            [meta, reads, fasta, tax, mscluster, label]
-        }
         MAPSEQ(mapseq_in)
         ch_versions = ch_versions.mix(MAPSEQ.out.versions.first())
 
         mapseq2biom_in = MAPSEQ.out.mseq
-            .map { meta, mapseq_out -> [meta, mapseq_out, meta.db_label] }
+            .map { meta, mapseq_out -> [meta, mapseq_out, meta.dada2_label] }
         MAPSEQ2ASVTABLE(mapseq2biom_in)
         ch_versions = ch_versions.mix(MAPSEQ2ASVTABLE.out.versions.first())
 
