@@ -20,10 +20,11 @@ workflow MAPSEQ_ASV_KRONA {
         mapseq_in = dada2_output
             .map{ meta, maps, asv_seqs, filt_reads -> [meta, [maps, asv_seqs, filt_reads]] }
             .combine(dbs_in)
-            .map { asvs_meta, asv_files, db_meta, db_files ->
-                def meta = asvs_meta + ['db_id': db_meta.id, 'db_label': db_meta.label, 'dada2_label': db_meta.dada2_label]
+            .map { asv_meta, asv_files, db_meta, db_files ->
+                def meta = asv_meta + ['db_id': db_meta.id, 'db_label': db_meta.label, 'dada2_label': db_meta.dada2_label]
                 def (fasta, tax, _otu, mscluster, label) = db_files
-                return [meta, asv_files, fasta, tax, mscluster, label]
+                def (_maps, asv_seqs, _filt_reads) = asv_files
+                return [meta, asv_seqs, fasta, tax, mscluster, label]
             }
 
         MAPSEQ(mapseq_in)
