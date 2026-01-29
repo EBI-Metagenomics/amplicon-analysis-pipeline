@@ -27,7 +27,7 @@ process BBMAP_REFORMAT_STANDARDISE {
     in_reads  = single_file ? "in=${reads[0]}" : "in=${reads[0]} in2=${reads[1]}"
     out_reads = meta.single_end ? "out=${prefix}_reformated.${out_fmt}" : "out=${prefix}_1_reformated.${out_fmt} out2=${prefix}_2_reformated.${out_fmt} outs=${prefix}_singleton.${out_fmt}"
     interleaved_cmd = meta.interleaved ? "int=t verifyinterleaved=t" : ""
-    paired_cmd = meta.single_end ? "" : "addslash=t spaceslash=f verifypaired=t"
+    paired_cmd = meta.single_end ? "" : "addslash=t spaceslash=t verifypaired=t"
 
     """
     maxmem=\$(echo \"$task.memory\"| sed 's/ GB/g/g')
