@@ -7,7 +7,7 @@ process EXTRACT_ASV_READ_COUNTS {
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"
     
     input:
-    tuple val(meta), path(silva_asvs), path(pr2_asvs)
+    tuple val(meta), path(mapseq_asv_counts)
 
     output:
     tuple val(meta), path("*asv_read_counts.tsv"), emit: asvs_left
@@ -15,7 +15,7 @@ process EXTRACT_ASV_READ_COUNTS {
 
     script:
     """
-    cat ${silva_asvs} ${pr2_asvs} | sort | uniq > ${meta.id}_${meta.var_region}_asv_read_counts.tsv
+    cat ${mapseq_asv_counts} | sort | uniq > ${meta.id}_${meta.var_region}_asv_read_counts.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

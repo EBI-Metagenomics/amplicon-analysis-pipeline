@@ -20,7 +20,7 @@ workflow MAPSEQ_ASV_KRONA {
         input = dada2_output
             .combine(dbs_in)
             .map { seqs_meta, seqs, db_meta, db_files ->
-                def meta = seqs_meta + ['db_id': db_meta.id, 'db_label': db_files[4]]
+                def meta = seqs_meta + ['db_id': db_meta.id, 'db_label': db_meta.label, 'dada2_label': db_meta.dada2_label]
                 def (fasta, tax, otu, mscluster, label) = db_files
                 return [meta, seqs, fasta, tax, otu, mscluster, label]
             }

@@ -4,14 +4,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { READS_QC                                      } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
-include { READS_QC as READS_QC_MERGE                    } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
-include { DETECT_RNA                                    } from '../subworkflows/ebi-metagenomics/detect_rna/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_SSU      } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_LSU      } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_PR2      } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_UNITE    } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
-include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_ITSONEDB } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
+include { READS_QC                         } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
+include { READS_QC as READS_QC_MERGE       } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
+include { DETECT_RNA                       } from '../subworkflows/ebi-metagenomics/detect_rna/main'
+include { MAPSEQ_OTU_KRONA                 } from '../subworkflows/ebi-metagenomics/mapseq_otu_krona/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -19,35 +15,33 @@ include { MAPSEQ_OTU_KRONA as MAPSEQ_OTU_KRONA_ITSONEDB } from '../subworkflows/
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { BBMAP_REFORMAT_STANDARDISE                    } from '../modules/local/bbmap/reformat_standardise/main'
-include { MASK_FASTA_SWF                                } from '../subworkflows/local/mask_fasta_swf.nf'
-include { AMP_REGION_INFERENCE                          } from '../subworkflows/local/amp_region_inference_swf.nf'
-include { PRIMER_IDENTIFICATION                         } from '../subworkflows/local/primer_identification_swf.nf'
-include { AUTOMATIC_PRIMER_PREDICTION                   } from '../subworkflows/local/automatic_primer_prediction.nf'
-include { CONCAT_PRIMER_CUTADAPT                        } from '../subworkflows/local/concat_primer_cutadapt.nf'
-include { DADA2_SWF                                     } from '../subworkflows/local/dada2_swf.nf'
-include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_SILVA    } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
-include { MAPSEQ_ASV_KRONA as MAPSEQ_ASV_KRONA_PR2      } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
-include { EXTRACT_ASV_READ_COUNTS                       } from '../modules/local/extract_asv_read_counts/main'
-include { EXTRACT_ASVS_LEFT as EXTRACT_ASVS_LEFT_SILVA  } from '../modules/local/extract_asvs_left/main'
-include { EXTRACT_ASVS_LEFT as EXTRACT_ASVS_LEFT_PR2    } from '../modules/local/extract_asvs_left/main'
+include { BBMAP_REFORMAT_STANDARDISE       } from '../modules/local/bbmap/reformat_standardise/main'
+include { MASK_FASTA_SWF                   } from '../subworkflows/local/mask_fasta_swf.nf'
+include { AMP_REGION_INFERENCE             } from '../subworkflows/local/amp_region_inference_swf.nf'
+include { PRIMER_IDENTIFICATION            } from '../subworkflows/local/primer_identification_swf.nf'
+include { AUTOMATIC_PRIMER_PREDICTION      } from '../subworkflows/local/automatic_primer_prediction.nf'
+include { CONCAT_PRIMER_CUTADAPT           } from '../subworkflows/local/concat_primer_cutadapt.nf'
+include { DADA2_SWF                        } from '../subworkflows/local/dada2_swf.nf'
+include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
+include { EXTRACT_ASV_READ_COUNTS          } from '../modules/local/extract_asv_read_counts/main'
+include { EXTRACT_ASVS_LEFT                } from '../modules/local/extract_asvs_left/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { DOWNLOAD_FROM_FIRE                            } from '../modules/ebi-metagenomics/downloadfromfire/main'
-include { CUSTOM_DUMPSOFTWAREVERSIONS                   } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { MULTIQC as MULTIQC_RUN                        } from '../modules/nf-core/multiqc/main.nf'
-include { MULTIQC as MULTIQC_STUDY                      } from '../modules/nf-core/multiqc/main.nf'
+include { DOWNLOAD_FROM_FIRE               } from '../modules/ebi-metagenomics/downloadfromfire/main'
+include { CUSTOM_DUMPSOFTWAREVERSIONS      } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { MULTIQC as MULTIQC_RUN           } from '../modules/nf-core/multiqc/main.nf'
+include { MULTIQC as MULTIQC_STUDY         } from '../modules/nf-core/multiqc/main.nf'
 
 // Import dada2 input preparation function (it's very big and deserved to be in its own file) //
-include { dada2_input_preparation_function              } from '../lib/nf/dada2_input_preparation_function.nf'
+include { dada2_input_preparation_function } from '../lib/nf/dada2_input_preparation_function.nf'
 
 
 // Import samplesheetToList from nf-schema //
-include { samplesheetToList                             } from 'plugin/nf-schema'
+include { samplesheetToList                } from 'plugin/nf-schema'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,33 +49,6 @@ include { samplesheetToList                             } from 'plugin/nf-schema
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def mapseq_db_preparation(db) {
-    def ch = channel
-        .from(
-            params[db].collect { k, v ->
-                if (v instanceof Map) {
-                    if (v.containsKey('label')) {
-                        return [[id: k], v]
-                    }
-                }
-            }
-        )
-        .filter { it -> it }
-        .map { meta, files -> 
-            [
-                meta, 
-                tuple(
-                    file(files.fasta), 
-                    file(files.tax), 
-                    file(files.otu), 
-                    file(files.mscluster), 
-                    files.label
-                )
-            ]
-        }
-
-    return ch
-}
 
 workflow AMPLICON_PIPELINE {
 
@@ -90,6 +57,32 @@ workflow AMPLICON_PIPELINE {
         INITIALISE REFERENCE DATABASE INPUT TUPLES
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     */
+
+    // Parse config to get amplicon reference databases
+    mapseq_dbs_in = channel
+        .from(
+            params.databases.collect { k, v ->
+                if (v instanceof Map) {
+                    if (v.containsKey('label')) {
+                        return [[id: k], v]
+                    }
+                }
+            }
+        )
+        .filter { it -> it }
+        .map { meta, fields -> 
+            def dada2_label = fields.dada2 ? ['dada2_label': fields.dada2_label] : []
+            [
+                meta + ['label': fields.label, 'asv': fields.asv, 'otu': fields.otu] + dada2_label, 
+                tuple(
+                    file(fields.fasta), 
+                    file(fields.tax), 
+                    file(fields.otu), 
+                    file(fields.mscluster), 
+                    fields.label
+                )
+            ]
+        }
 
     // Initialise standard primer library for PIMENTO if user-given//
     // If there are no primers provided, it will fallback to use the default PIMENTO standard primer library
@@ -176,27 +169,13 @@ workflow AMPLICON_PIPELINE {
     )
     ch_versions = ch_versions.mix(MASK_FASTA_SWF.out.versions)
 
-
+    
+    // CHANGE HERE
     // Next five subworkflow calls are MAPseq annotation + Krona generation for SSU+LSU+ITS //
-    ssu_db_in = mapseq_db_preparation('ssu_dbs')
-    MAPSEQ_OTU_KRONA_SSU(DETECT_RNA.out.ssu_fasta, ssu_db_in)
-    ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA_SSU.out.versions)
 
-    pr2_db_in = mapseq_db_preparation('pr2_dbs')
-    MAPSEQ_OTU_KRONA_PR2(DETECT_RNA.out.ssu_fasta, pr2_db_in)
-    ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA_PR2.out.versions)
-
-    lsu_db_in = mapseq_db_preparation('lsu_dbs')
-    MAPSEQ_OTU_KRONA_LSU(DETECT_RNA.out.lsu_fasta, lsu_db_in)
-    ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA_LSU.out.versions)
-
-    its_db_in = mapseq_db_preparation('its_dbs')
-    MAPSEQ_OTU_KRONA_ITSONEDB(MASK_FASTA_SWF.out.masked_out, its_db_in)
-    ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.versions)
-
-    unite_db_in = mapseq_db_preparation('unite_dbs')
-    MAPSEQ_OTU_KRONA_UNITE(MASK_FASTA_SWF.out.masked_out, unite_db_in)
-    ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA_UNITE.out.versions)
+    mapseq_otu_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.otu }
+    MAPSEQ_OTU_KRONA(DETECT_RNA.out.ssu_fasta, mapseq_otu_dbs_in)
+    ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA.out.versions)
 
 
     if (!params.skip_asv) {
@@ -239,7 +218,7 @@ workflow AMPLICON_PIPELINE {
         ch_versions = ch_versions.mix(CONCAT_PRIMER_CUTADAPT.out.versions)
 
 
-        // Run the large dada2 imput preparation function //
+        // Run the large dada2 input preparation function //
         cutadapt_channel = CONCAT_PRIMER_CUTADAPT.out.cutadapt_out
                            .map { meta, reads -> 
                              [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
@@ -253,33 +232,26 @@ workflow AMPLICON_PIPELINE {
         )
         ch_versions = ch_versions.mix(DADA2_SWF.out.versions)
 
-        // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
-        ssu_db_asv_in = mapseq_db_preparation('ssu_dbs')
-        MAPSEQ_ASV_KRONA_SILVA(
-            DADA2_SWF.out.dada2_out,
-            AMP_REGION_INFERENCE.out.concat_var_regions,
-            AMP_REGION_INFERENCE.out.extracted_var_path,
-            ssu_db_asv_in,
-        )
-        ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA_SILVA.out.versions)
 
-        pr2_db_asv_in = mapseq_db_preparation('pr2_dbs')
-        MAPSEQ_ASV_KRONA_PR2(
+        // CHANGE FROM HERE
+        // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
+        mapseq_asv_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.asv }
+        MAPSEQ_ASV_KRONA(
             DADA2_SWF.out.dada2_out,
             AMP_REGION_INFERENCE.out.concat_var_regions,
             AMP_REGION_INFERENCE.out.extracted_var_path,
-            pr2_db_asv_in,
+            mapseq_asv_dbs_in,
         )
-        ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA_PR2.out.versions)
+        ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA.out.versions)
 
         /*  
         Multiple steps in ASV calling + annotation can result in lost ASVs
         These final modules make sure the set of ASVs being reported in the different outputs
         are consistent i.e. ASVs in read count files, ASV sequences in FASTA files, etc.
         */
-        extract_asv_read_counts_input = MAPSEQ_ASV_KRONA_SILVA.out.asv_read_counts
-            .join(MAPSEQ_ASV_KRONA_PR2.out.asv_read_counts)
-
+        extract_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
+            .map{ meta, counts -> [meta.subMap('id', 'var_region', 'db_label'), counts] }
+            .groupTuple()
         EXTRACT_ASV_READ_COUNTS(extract_asv_read_counts_input)
         ch_versions = ch_versions.mix(EXTRACT_ASV_READ_COUNTS.out.versions)
 
@@ -288,31 +260,79 @@ workflow AMPLICON_PIPELINE {
                             meta.var_region != "concat"
                          }
                         .map{ meta, asvs_left ->
-                            def key = groupKey(meta.subMap('id'), meta.var_regions_size)
+                            def key = groupKey(meta.subMap('id', 'db_label'), meta.var_regions_size)
                             [ key, asvs_left ]
                         }
                         .groupTuple(by:0)
                         .join(DADA2_SWF.out.dada2_out.map{meta, _maps, asv_seqs, _filt_reads ->
-                                            [['id':meta.id], asv_seqs]
+                                            [meta.subMap('id', 'db_label'), asv_seqs]
                                             }
                                 )
 
-        extract_asvs_input_silva = extract_asvs_input
-                        .join(MAPSEQ_ASV_KRONA_SILVA.out.asvtaxtable.map{meta, asvtaxtable ->
-                                            [['id':meta.id], asvtaxtable]
-                                            }
-                            )
-        extract_asvs_input_pr2 = extract_asvs_input
-                        .join(MAPSEQ_ASV_KRONA_PR2.out.asvtaxtable.map{meta, asvtaxtable ->
-                                            [['id':meta.id], asvtaxtable]
-                                            }
-                            )
+        extract_asvs_input = extract_asvs_input
+                        .join(
+                            MAPSEQ_ASV_KRONA.out.asvtaxtable
+                                .map{ meta, asvtaxtable ->
+                                      [meta.subMap('id', 'db_label'), asvtaxtable] }
+                        )
 
-        EXTRACT_ASVS_LEFT_SILVA(extract_asvs_input_silva.map{ meta, data -> [meta, data, meta.db_label] })
-        ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT_SILVA.out.versions.first())
+        EXTRACT_ASVS_LEFT(extract_asvs_input.map{ meta, data -> [meta, data, meta.db_label] })
+        ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())
 
-        EXTRACT_ASVS_LEFT_PR2(extract_asvs_input_pr2.map{ meta, data -> [meta, data, meta.db_label] })
-        ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT_PR2.out.versions.first())
+
+        // End of execution reports
+        def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
+                                    def key = meta.subMap('id', 'single_end')
+                                    return [key, stats_fail]
+                                }
+
+        // Extract passed runs, describe whether those passed runs also ASV results //
+        DADA2_SWF.out.dada2_report.map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
+        .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
+        .groupTuple()
+        .map { meta, results ->
+            if ( results.size() == 3 ) {
+                return "${meta.id},all_results"
+            }
+            else {
+                if (results[1] == "true"){
+                    return "${meta.id},dada2_stats_fail"
+                } else {
+                    return "${meta.id},no_asvs"
+                }
+            }
+            error "Unexpected. meta: ${meta}, results: ${results}"
+        }
+        .set { final_passed_runs }
+
+        // Save all passed runs to file //
+        final_passed_runs.collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+        .set { passed_runs_path }
+
+        // Summarise primer validation information into study-wide JSON file //
+        CONCAT_PRIMER_CUTADAPT.out.primer_validation_out
+            .splitCsv(sep: "\t", elem: 1, skip: 1)
+            .groupTuple()
+            .map { meta, primer_val ->
+
+                def json_map = ["id": "${meta.id}", "primers": []]
+
+                primer_val.each { _run_id, _ev, _met, _gene, region, name, strand, sequence ->
+                    def new_primer = [
+                        "name": name,
+                        "region": region,
+                        "strand": strand,
+                        "sequence": sequence,
+                        "identification_strategy": name.contains("_auto") ? "auto" : "std"
+                    ]
+                    json_map["primers"] << new_primer
+                }
+
+                json_map
+             }
+            .collect()
+            .map { collected_json_maps -> def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() }
+            .collectFile(name: "primer_validation_summary.json", storeDir: "${params.outdir}", newLine: true, cache: false)
     } 
 
     /*****************************/
@@ -412,61 +432,6 @@ workflow AMPLICON_PIPELINE {
     // Save all failed runs to file //
     all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, no_reads_fails )
     all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
-
-    if (!params.skip_asv) {
-        def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
-                                    def key = meta.subMap('id', 'single_end')
-                                    return [key, stats_fail]
-                                }
-
-        // Extract passed runs, describe whether those passed runs also ASV results //
-        DADA2_SWF.out.dada2_report.map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
-        .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
-        .groupTuple()
-        .map { meta, results ->
-            if ( results.size() == 3 ) {
-                return "${meta.id},all_results"
-            }
-            else {
-                if (results[1] == "true"){
-                    return "${meta.id},dada2_stats_fail"
-                } else {
-                    return "${meta.id},no_asvs"
-                }
-            }
-            error "Unexpected. meta: ${meta}, results: ${results}"
-        }
-        .set { final_passed_runs }
-
-        // Save all passed runs to file //
-        final_passed_runs.collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
-        .set { passed_runs_path }
-
-        // Summarise primer validation information into study-wide JSON file //
-        CONCAT_PRIMER_CUTADAPT.out.primer_validation_out
-            .splitCsv(sep: "\t", elem: 1, skip: 1)
-            .groupTuple()
-            .map { meta, primer_val ->
-
-                def json_map = ["id": "${meta.id}", "primers": []]
-
-                primer_val.each { _run_id, _ev, _met, _gene, region, name, strand, sequence ->
-                    def new_primer = [
-                        "name": name,
-                        "region": region,
-                        "strand": strand,
-                        "sequence": sequence,
-                        "identification_strategy": name.contains("_auto") ? "auto" : "std"
-                    ]
-                    json_map["primers"] << new_primer
-                }
-
-                json_map
-             }
-            .collect()
-            .map { collected_json_maps -> def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() }
-            .collectFile(name: "primer_validation_summary.json", storeDir: "${params.outdir}", newLine: true, cache: false)
-    }
 
 }
 

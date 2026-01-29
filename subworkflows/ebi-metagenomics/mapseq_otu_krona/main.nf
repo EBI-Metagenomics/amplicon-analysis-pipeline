@@ -16,7 +16,7 @@ workflow MAPSEQ_OTU_KRONA {
     input = ch_fasta
         .combine(ch_dbs)
         .map { reads_meta, reads, db_meta, db_files ->
-            def meta = reads_meta + ['db_id': db_meta.id, 'db_label': db_files[4]]
+            def meta = reads_meta + ['db_id': db_meta.id, 'db_label': db_meta.label]
             def (fasta, tax, otu, mscluster, label) = db_files
             return [meta, reads, fasta, tax, otu, mscluster, label]
         }
