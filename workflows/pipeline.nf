@@ -249,17 +249,37 @@ workflow AMPLICON_PIPELINE {
 
     ITS_SANITY_CHECKER(its_sanity_check_input)
 
-    // Filter out runs that don't pass all ITS sanity checker tests
+    // Only keep runs that pass ITS sanity checking
     ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitCsv(
             header: true,
             sep: "\t",
         )
         .filter { meta, test_results ->
-            (test_results["tax_assignment_count_test"] == "True" && test_results["mapping_proportion_test"] == "True" && test_results["rank_proportion_test"] == "True")
+            (
+                test_results["tax_assignment_count_test"] == "True"
+                && test_results["mapping_proportion_test"] == "True"
+                && test_results["rank_proportion_test"] == "True"
+            )
         }
         .map { meta, test_results -> meta }
         .set { real_its_runs }
+
+    // Identify runs that don't pass sanity checking for passing to `qc_failed_runs.tsv`
+    ITS_SANITY_CHECKER.out.its_sanity_check_out
+        .splitCsv(
+            header: true,
+            sep: "\t",
+        )
+        .filter { meta, test_results ->
+            (
+                test_results["tax_assignment_count_test"] == "False"
+                || test_results["mapping_proportion_test"] == "False"
+                || test_results["rank_proportion_test"] == "False"
+            )
+        }
+        .map { meta, test_results -> meta }
+        .set { failed_its_runs }
 
     // Collect all ITSoneDB results that we want to publish
     MASK_FASTA_SWF.out.masked_out
@@ -499,8 +519,12 @@ workflow AMPLICON_PIPELINE {
         .map { meta, __ -> "${meta.id},no_reads" }
         .set { no_reads_fails }
 
+    failed_its_runs
+        .map { meta -> "${meta.id},its_sanity_check_fail" }
+        .set { its_sanity_check_fails }
+
     // Save all failed runs to file //
-    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails)
+    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails, its_sanity_check_fails)
     all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
     // Extract passed runs, describe whether those passed runs also ASV results //
