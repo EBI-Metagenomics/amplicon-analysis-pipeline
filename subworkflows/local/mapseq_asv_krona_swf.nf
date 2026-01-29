@@ -24,8 +24,13 @@ workflow MAPSEQ_ASV_KRONA {
                 def meta = asv_meta + ['db_id': db_meta.id, 'db_label': db_meta.label, 'dada2_label': db_meta.dada2_label]
                 def (fasta, tax, _otu, mscluster, label) = db_files
                 def (_maps, asv_seqs, _filt_reads) = asv_files
-                return [meta, asv_seqs, fasta, tax, mscluster, label]
+                return [meta.id, meta, asv_seqs, fasta, tax, mscluster, label]
             }
+            .groupTuple()
+            .map { _meta_id, vs -> [vs.size(), vs] }
+            .flatten()
+            .map{ n, meta, asv_seqs, fasta, tax, mscluster, label -> 
+                  [groupKey(meta, size: n), asv_seqs, fasta, tax, mscluster, label] }
 
         MAPSEQ(mapseq_in)
         ch_versions = ch_versions.mix(MAPSEQ.out.versions.first())
@@ -37,43 +42,43 @@ workflow MAPSEQ_ASV_KRONA {
 
         // Transpose by var region in case any samples have more than one
         split_mapseq2asvtable = MAPSEQ2ASVTABLE.out.asvtaxtable
-                                .map { meta, asvtaxtable -> 
-                                     [ meta.subMap('id', 'single_end', 'var_regions_size'), meta['var_region'], asvtaxtable ]       
-                                    }
-                                .transpose(by: 1)
+            .groupTuple()
+            .map { meta, asvtaxtables -> 
+                   [meta.subMap('id', 'single_end', 'var_regions_size'), meta['var_region'], meta.dada2_label, asvtaxtables] }
+            .transpose(by: 1)
+        split_mapseq2asvtable.view{ it -> "split_mapseq2asvtable - ${it}"}
+
 
         // Transpose by var region in case any samples have more than one. Also reorder the inputs slightly
-        split_input = dada2_output
-                      .map { meta, maps, _asv_seqs, filt_reads -> 
-                        [ meta.subMap('id', 'single_end', 'var_regions_size'), meta['var_region'], maps, filt_reads ]
-                       }
-                      .transpose(by: 1)
-                      .join(extracted_var_path, by: [0, 1])
-                      .join(split_mapseq2asvtable, by: [0, 1])
-                      .map {
-                        meta, var_region, maps, filt_reads, extracted_var, asvtaxtable ->
-                        [ meta, var_region, maps, asvtaxtable, filt_reads, extracted_var ] 
-                      }
+        split_input_ = dada2_output
+            .map { meta, maps, _asv_seqs, filt_reads -> 
+                   [meta.subMap('id', 'single_end', 'var_regions_size'), meta['var_region'], maps, filt_reads] }
+            .transpose(by: 1)
+            .join(extracted_var_path, by: [0, 1])
+            .join(split_mapseq2asvtable, by: [0, 1])  // here's my trouble, could join and then flatten, or use a cross
+        split_input_.view{ it -> "split_input_ - ${it}"}
+        
+        split_input = split_input_
+            .transpose(by: -1)
+            .map { _submeta, var_region, meta, maps, filt_reads, extracted_var, dada2_label, asvtaxtable ->
+                   [meta, var_region, dada2_label, maps, asvtaxtable, filt_reads, extracted_var] }
+        split_input.view{ it -> "split_input - ${it}"}
 
         // Make a channel containing the concatenated var region for any sample that has more than one var region
         multi_region_concats = split_input
-                                .map { meta, var_region, maps, asvtaxtable, filt_reads, extracted_var ->
-                                    [ meta.subMap('id', 'single_end'), var_region, meta['var_regions_size'], maps, asvtaxtable, filt_reads, extracted_var ]
-                                }
-                               .join(concat_var_regions, by: 0)
-                               .map { meta, _var_region, var_regions_size, maps, asvtaxtable, filt_reads, __, concat_str, concat_vars ->
-                                    [ meta + ['var_regions_size':var_regions_size], concat_str, maps, asvtaxtable, filt_reads, concat_vars ]
-                               }
+            .map { meta, var_region, dada2_label, maps, asvtaxtable, filt_reads, extracted_var ->
+                   [meta.subMap('id', 'single_end'), var_region, dada2_label, meta['var_regions_size'], maps, asvtaxtable, filt_reads, extracted_var] }
+            .join(concat_var_regions, by: 0)
+            .map { meta, _var_region, dada2_label, var_regions_size, maps, asvtaxtable, filt_reads, _extracted_vars, concat_str, concat_vars ->
+                   [meta + ['var_regions_size':var_regions_size], concat_str, dada2_label, maps, asvtaxtable, filt_reads, concat_vars] }
+
         // Add in the concatenated var region channel to the rest of the input
         final_asv_count_table_input = split_input
-                                      .mix(multi_region_concats)
-                                      .map { meta, var_region, maps, asvtaxtable, filt_reads, extracted_var ->
-                                        [ meta + ['var_region': var_region], maps, asvtaxtable, filt_reads, extracted_var ]
-                                      }
+            .mix(multi_region_concats)
+            .map { meta, var_region, dada2_label, maps, asvtaxtable, filt_reads, extracted_var ->
+                   [meta + ['var_region': var_region], maps, asvtaxtable, filt_reads, extracted_var, dada2_label] }
         
-        make_table_input = final_asv_count_table_input
-            .map{ meta, table_input -> [meta, table_input, meta.dada2_label] }
-        MAKE_ASV_COUNT_TABLES(make_table_input)
+        MAKE_ASV_COUNT_TABLES(final_asv_count_table_input)
         ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions.first())
 
         KRONA_KTIMPORTTEXT(
