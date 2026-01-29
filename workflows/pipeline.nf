@@ -71,7 +71,7 @@ workflow AMPLICON_PIPELINE {
         )
         .filter { it -> it }
         .map { meta, fields -> 
-            def dada2_label = fields.dada2 ? ['dada2_label': fields.dada2_label] : []
+            def dada2_label = fields.run_asv ? ['dada2_label': fields.dada2_label] : []
             [
                 meta + ['label': fields.label, 'asv': fields.run_asv, 'otu': fields.run_otu] + dada2_label, 
                 tuple(
