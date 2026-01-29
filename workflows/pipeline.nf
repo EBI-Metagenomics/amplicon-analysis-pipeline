@@ -61,7 +61,7 @@ workflow AMPLICON_PIPELINE {
     // Parse config to get amplicon reference databases
     mapseq_dbs_in = channel
         .from(
-            params.databases.collect { k, v ->
+            params.mapseq_databases.collect { k, v ->
                 if (v instanceof Map) {
                     if (v.containsKey('label')) {
                         return [[id: k], v]

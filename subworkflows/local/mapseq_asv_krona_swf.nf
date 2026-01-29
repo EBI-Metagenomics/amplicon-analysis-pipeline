@@ -73,7 +73,7 @@ workflow MAPSEQ_ASV_KRONA {
                                       }
         
         make_table_input = final_asv_count_table_input
-            .map{ meta, table_input -> [meta, table_input, meta.db_label] }
+            .map{ meta, table_input -> [meta, table_input, meta.dada2_label] }
         MAKE_ASV_COUNT_TABLES(make_table_input)
         ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions.first())
 
