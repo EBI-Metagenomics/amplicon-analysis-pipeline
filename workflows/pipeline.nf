@@ -59,6 +59,32 @@ workflow AMPLICON_PIPELINE {
     */
 
     // Parse config to get amplicon reference databases
+    // mapseq_dbs_in = channel
+    //     .from(
+    //         params.mapseq_databases.collect { k, v ->
+    //             if (v instanceof Map) {
+    //                 if (v.containsKey('label')) {
+    //                     return [[id: k], v]
+    //                 }
+    //             }
+    //         }
+    //     )
+    //     .filter { it -> it }
+    //     .map { meta, fields -> 
+    //         def dada2_label = fields.run_asv ? ['dada2_label': fields.dada2_label] : []
+    //         def extra_meta = ['label': fields.label, 'asv': fields.run_asv, 'otu': fields.run_otu]
+    //         [
+    //             meta + extra_meta + dada2_label, 
+    //             tuple(
+    //                 file(fields.fasta), 
+    //                 file(fields.tax), 
+    //                 file(fields.otu), 
+    //                 file(fields.mscluster), 
+    //                 fields.label
+    //             )
+    //         ]
+    //     }
+
     mapseq_dbs_in = channel
         .from(
             params.mapseq_databases.collect { k, v ->
@@ -72,14 +98,31 @@ workflow AMPLICON_PIPELINE {
         .filter { it -> it }
         .map { meta, fields -> 
             def dada2_label = fields.run_asv ? ['dada2_label': fields.dada2_label] : []
+            def extra_meta = ['label': fields.label, 'asv': fields.run_asv, 'otu': fields.run_otu]
             [
-                meta + ['label': fields.label, 'asv': fields.run_asv, 'otu': fields.run_otu] + dada2_label, 
+                meta + extra_meta + dada2_label, 
                 tuple(
-                    file(fields.fasta), 
-                    file(fields.tax), 
-                    file(fields.otu), 
-                    file(fields.mscluster), 
+                    fields.fasta, 
+                    fields.tax, 
+                    fields.otu, 
+                    fields.mscluster, 
                     fields.label
+                )
+            ]
+        }
+    mapseq_dbs_in.view{ it -> "mapseq_dbs_in - ${it}"}
+    mapseq_dbs_in = mapseq_dbs_in
+        .map{ 
+            meta, files ->  
+            def (fasta, tax, otu, mscluster, label) = files
+            [
+                meta, 
+                tuple(
+                    file(fasta),
+                    file(tax),
+                    file(otu),
+                    file(mscluster),
+                    label
                 )
             ]
         }
@@ -220,9 +263,9 @@ workflow AMPLICON_PIPELINE {
 
         // Run the large dada2 input preparation function //
         cutadapt_channel = CONCAT_PRIMER_CUTADAPT.out.cutadapt_out
-                           .map { meta, reads -> 
-                             [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
-                           }
+            .map { meta, reads -> 
+                [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
+            }
 
         dada2_input = dada2_input_preparation_function(concat_input, READS_QC.out.reads, cutadapt_channel)
         // Run DADA2 ASV generation //
@@ -250,64 +293,72 @@ workflow AMPLICON_PIPELINE {
         are consistent i.e. ASVs in read count files, ASV sequences in FASTA files, etc.
         */
         extract_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
-            .map{ meta, counts -> [meta.subMap('id', 'var_region', 'db_label'), counts] }
+            .map{ meta, counts -> [meta.subMap('id', 'var_region', 'var_regions_size', 'db_label'), counts] }
             .groupTuple()
         EXTRACT_ASV_READ_COUNTS(extract_asv_read_counts_input)
         ch_versions = ch_versions.mix(EXTRACT_ASV_READ_COUNTS.out.versions)
-
+        
         extract_asvs_input = EXTRACT_ASV_READ_COUNTS.out.asvs_left
-                        .filter { meta, _asvs_left ->
-                            meta.var_region != "concat"
-                         }
-                        .map{ meta, asvs_left ->
-                            def key = groupKey(meta.subMap('id', 'db_label'), meta.var_regions_size)
-                            [ key, asvs_left ]
-                        }
-                        .groupTuple(by:0)
-                        .join(DADA2_SWF.out.dada2_out.map{meta, _maps, asv_seqs, _filt_reads ->
-                                            [meta.subMap('id', 'db_label'), asv_seqs]
-                                            }
-                                )
-
-        extract_asvs_input = extract_asvs_input
-                        .join(
-                            MAPSEQ_ASV_KRONA.out.asvtaxtable
-                                .map{ meta, asvtaxtable ->
-                                      [meta.subMap('id', 'db_label'), asvtaxtable] }
-                        )
-
-        EXTRACT_ASVS_LEFT(extract_asvs_input.map{ meta, data -> [meta, data, meta.db_label] })
+            .filter { meta, _asvs_left -> meta.var_region != "concat" }
+            .map{ meta, asvs_left ->
+                def renamed_meta = ['id': meta.id, 'dada2_label': meta.db_label]
+                def key = groupKey(renamed_meta, meta.var_regions_size)
+                return [ key, asvs_left ]
+            }
+            .groupTuple()
+            .map{ meta, asvs_left -> [meta.subMap('id'), meta, asvs_left] }
+            .combine(
+                DADA2_SWF.out.dada2_out
+                    .map { meta, _maps, asv_seqs, _filt_reads ->
+                           [meta.subMap('id'), meta, asv_seqs] },
+                by: 0
+            )
+            .map{ _meta_id, meta, asvs_left, _dada2_meta, asv_seqs -> 
+                  [meta, asvs_left, asv_seqs] }
+            .join(MAPSEQ_ASV_KRONA.out.asvtaxtable
+                .map{ meta, asvtaxtable ->
+                      [meta.subMap('id', 'dada2_label'), asvtaxtable] }
+            )
+            .map{ meta, asvs_left, asv_seqs, asvtaxtable -> 
+                  [meta, asvs_left, asv_seqs, asvtaxtable, meta.dada2_label] }
+        EXTRACT_ASVS_LEFT(extract_asvs_input)
         ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())
 
 
-        // End of execution reports
-        def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
-                                    def key = meta.subMap('id', 'single_end')
-                                    return [key, stats_fail]
-                                }
+        /*****************************/
+        /* End of execution reports */
+        /****************************/
+
+        def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail
+            .map { meta, stats_fail ->
+                def key = meta.subMap('id', 'single_end')
+                return [key, stats_fail]
+            }
 
         // Extract passed runs, describe whether those passed runs also ASV results //
-        DADA2_SWF.out.dada2_report.map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
-        .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
-        .groupTuple()
-        .map { meta, results ->
-            if ( results.size() == 3 ) {
-                return "${meta.id},all_results"
-            }
-            else {
-                if (results[1] == "true"){
-                    return "${meta.id},dada2_stats_fail"
-                } else {
-                    return "${meta.id},no_asvs"
+        DADA2_SWF.out.dada2_report
+            .map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
+            .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
+            .groupTuple()
+            .map { meta, results ->
+                if ( results.size() == 3 ) {
+                    return "${meta.id},all_results"
                 }
+                else {
+                    if (results[1] == "true"){
+                        return "${meta.id},dada2_stats_fail"
+                    } else {
+                        return "${meta.id},no_asvs"
+                    }
+                }
+                error "Unexpected. meta: ${meta}, results: ${results}"
             }
-            error "Unexpected. meta: ${meta}, results: ${results}"
-        }
-        .set { final_passed_runs }
+            .set { final_passed_runs }
 
         // Save all passed runs to file //
-        final_passed_runs.collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
-        .set { passed_runs_path }
+        final_passed_runs
+            .collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+            .set { passed_runs_path }
 
         // Summarise primer validation information into study-wide JSON file //
         CONCAT_PRIMER_CUTADAPT.out.primer_validation_out
@@ -328,11 +379,17 @@ workflow AMPLICON_PIPELINE {
                     json_map["primers"] << new_primer
                 }
 
-                json_map
+                return json_map
              }
             .collect()
-            .map { collected_json_maps -> def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() }
-            .collectFile(name: "primer_validation_summary.json", storeDir: "${params.outdir}", newLine: true, cache: false)
+            .map { collected_json_maps -> 
+                def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() }
+            .collectFile(
+                name: "primer_validation_summary.json", 
+                storeDir: "${params.outdir}", 
+                newLine: true, 
+                cache: false
+            )
     } 
 
     /*****************************/
@@ -431,7 +488,12 @@ workflow AMPLICON_PIPELINE {
 
     // Save all failed runs to file //
     all_failed_runs = seqfu_fails.concat( sfxhd_fails, libstrat_fails, no_reads_fails )
-    all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+    all_failed_runs.collectFile(
+        name: "qc_failed_runs.csv", 
+        storeDir: "${params.outdir}", 
+        newLine: true, 
+        cache: false
+    )
 
 }
 
