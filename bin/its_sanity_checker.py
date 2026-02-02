@@ -156,8 +156,21 @@ def its_sanity_checker(
     output_prefix: str,
 ) -> None:
     """
-    Runs some sanity tests to verify whether a particular run is actually ITS
-    or just a different marker gene
+    Runs three sanity tests to verify whether reads are actually from ITS or from a different marker gene.
+    Inputs are: 
+        - Uses mapping output files from MAPseq and UNITE + ITSoneDB reference databases
+        - rRNA extraction output reads which are 'potential' ITS reads
+    
+    The tests are:
+        - **Tax Assignment Count Test**: Check whether the number of reads with assignments
+        is above the `TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD` threshold
+        - **Mapping Proportion Test**: Check whether the proportion of reads with assignments
+        is above the `PROPORTION_TEST_THRESHOLD` threshold
+        - **Tax Assignment Count Test**: Check whether the proportion of reads with assignments
+        below the rank of Kingdom is above the `RANK_PROPORTION_TEST_THRESHOLD` threshold
+
+    Outputs are:
+        - A `tsv` file containing the result for each test for the input
     """
     logging.info("Running ITS sanity checker on these inputs:")
     logging.info(
