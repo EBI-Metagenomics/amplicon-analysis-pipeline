@@ -48,7 +48,7 @@ def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> 
 
 def mapping_proportion_test(
     itsonedb_linecount: int, unite_linecount: int, rrna_readcount: int
-) -> bool:
+) -> tuple[bool, float, float]:
     """
     Proportion test will check whether the proportion of reads with assignments
     is above the `PROPORTION_TEST_THRESHOLD` threshold
@@ -56,10 +56,11 @@ def mapping_proportion_test(
 
     # immediate failure of this test in these =0 scenarios
     if rrna_readcount == 0:
-        return False
+        return False, 0.0, 0.0
     if itsonedb_linecount == 0:
         logging.info("ITSoneDB Mapping Proportion: 0")
         itsonedb_pass = False
+        itsonedb_reads_mapping = 0.0
     else:
         itsonedb_reads_mapping = itsonedb_linecount / float(rrna_readcount)
         logging.info(f"ITSoneDB Mapping Proportion: {itsonedb_reads_mapping}")
@@ -67,12 +68,13 @@ def mapping_proportion_test(
     if unite_linecount == 0:
         logging.info("UNITE Mapping Proportion: 0")
         unite_pass = False
+        unite_reads_mapping = 0.0
     else:
         unite_reads_mapping = unite_linecount / float(rrna_readcount)
         logging.info(f"UNITE Mapping Proportion: {unite_reads_mapping}")
         unite_pass = unite_reads_mapping > MAPPING_PROPORTION_TEST_THRESHOLD
 
-    return itsonedb_pass or unite_pass
+    return itsonedb_pass or unite_pass, itsonedb_reads_mapping, unite_reads_mapping
 
 
 def rank_proportion_test(
@@ -80,7 +82,7 @@ def rank_proportion_test(
     unite_df: pd.DataFrame,
     itsonedb_linecount: int,
     unite_linecount: int,
-) -> bool:
+) -> tuple[bool, float, float]:
     """
     Proportion test will check whether the proportion of reads with assignments
     below the rank of Kingdom is above the `RANK_PROPORTION_TEST_THRESHOLD` threshold
@@ -89,16 +91,15 @@ def rank_proportion_test(
     if itsonedb_linecount == 0:
         itsone_ranks_below_kingdom = 0
         logging.info("ITSoneDB Rank Proportion: 0")
-
     else:
         itsone_ranks_below_kingdom = len(
             itsonedb_df[itsonedb_df["taxon"].str.contains("p__")]
         ) / float(itsonedb_linecount)
         logging.info(f"ITSoneDB Rank Proportion: {itsone_ranks_below_kingdom}")
+
     if unite_linecount == 0:
         unite_ranks_below_kingdom = 0
         logging.info("UNITE Rank Proportion: 0")
-
     else:
         unite_ranks_below_kingdom = len(
             unite_df[unite_df["taxon"].str.contains("p__")]
@@ -114,8 +115,11 @@ def rank_proportion_test(
         and unite_linecount > TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
     )
 
-    return itsonedb_pass or unite_pass
-
+    return (
+        itsonedb_pass or unite_pass,
+        itsone_ranks_below_kingdom,
+        unite_ranks_below_kingdom,
+    )
 
 
 ############## ITS Sanity Checker ##############
@@ -157,10 +161,10 @@ def its_sanity_checker(
 ) -> None:
     """
     Runs three sanity tests to verify whether reads are actually from ITS or from a different marker gene.
-    Inputs are: 
+    Inputs are:
         - Uses mapping output files from MAPseq and UNITE + ITSoneDB reference databases
         - rRNA extraction output reads which are 'potential' ITS reads
-    
+
     The tests are:
         - **Tax Assignment Count Test**: Check whether the number of reads with assignments
         is above the `TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD` threshold
@@ -206,15 +210,15 @@ def its_sanity_checker(
     results_dict["tax_assignment_count_test"] = tax_assignment_count_pass
 
     logging.info("Running Mapping Proportion Test")
-    mapping_proportion_pass = mapping_proportion_test(
-        itsonedb_linecount, unite_linecount, rrna_readcount
+    mapping_proportion_pass, itsonedb_reads_mapping, unite_reads_mapping = (
+        mapping_proportion_test(itsonedb_linecount, unite_linecount, rrna_readcount)
     )
     results_dict["mapping_proportion_test"] = mapping_proportion_pass
 
     logging.info("Running Rank Proportion Test")
 
-    rank_proportion_pass = rank_proportion_test(
-        itsonedb_df, unite_df, itsonedb_linecount, unite_linecount
+    rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
+        rank_proportion_test(itsonedb_df, unite_df, itsonedb_linecount, unite_linecount)
     )
     results_dict["rank_proportion_test"] = rank_proportion_pass
 
@@ -233,11 +237,20 @@ def its_sanity_checker(
     else:
         logging.info("Rank Proportion test: FAILED")
 
+    # Add a couple more numbers into the dictionary for debugging
+    results_dict["rrna_readcount"] = rrna_readcount
+    results_dict["itsonedb_linecount"] = itsonedb_linecount
+    results_dict["unite_linecount"] = unite_linecount
+    results_dict["itsonedb_reads_mapping"] = itsonedb_reads_mapping
+    results_dict["unite_reads_mapping"] = unite_reads_mapping
+    results_dict["itsone_ranks_below_kingdom"] = itsone_ranks_below_kingdom
+    results_dict["unite_ranks_below_kingdom"] = unite_ranks_below_kingdom
+
     res_df = pd.DataFrame(results_dict, index=[0])
 
-    out_path = f"{output_prefix}_its_sanity_check.tsv"
+    out_path = f"{output_prefix}_its_sanity_check.json"
     logging.info(f"Saving results of tests to {out_path}")
-    res_df.to_csv(out_path, sep="\t", index=False)
+    res_df.to_json(out_path, orient="records", double_precision=3, indent=2)
 
 
 def main():

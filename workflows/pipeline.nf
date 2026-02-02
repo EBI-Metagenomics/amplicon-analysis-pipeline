@@ -252,15 +252,12 @@ workflow AMPLICON_PIPELINE {
     // Only keep runs that pass ITS sanity checking
     // Which only happens for runs that pass all three tests
     ITS_SANITY_CHECKER.out.its_sanity_check_out
-        .splitCsv(
-            header: true,
-            sep: "\t",
-        )
+        .splitJson()
         .filter { meta, test_results ->
             (
-                test_results["tax_assignment_count_test"] == "True"
-                && test_results["mapping_proportion_test"] == "True"
-                && test_results["rank_proportion_test"] == "True"
+                test_results["tax_assignment_count_test"] &&
+                test_results["mapping_proportion_test"] &&
+                test_results["rank_proportion_test"]
             )
         }
         .map { meta, test_results -> meta  }
@@ -268,15 +265,12 @@ workflow AMPLICON_PIPELINE {
 
     // Identify potential ITS runs that don't pass ITS sanity checking
     ITS_SANITY_CHECKER.out.its_sanity_check_out
-        .splitCsv(
-            header: true,
-            sep: "\t",
-        )
+        .splitJson()
         .filter { meta, test_results ->
             (
-                test_results["tax_assignment_count_test"] == "False"
-                || test_results["mapping_proportion_test"] == "False"
-                || test_results["rank_proportion_test"] == "False"
+                !test_results["tax_assignment_count_test"] ||
+                !test_results["mapping_proportion_test"] ||
+                !test_results["rank_proportion_test"]
             )
         }
         .map { meta, test_results -> ["${meta.id}", "failed"] }

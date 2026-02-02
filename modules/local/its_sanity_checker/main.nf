@@ -10,7 +10,7 @@ process ITS_SANITY_CHECKER {
     tuple val(meta), path(its_reads), path(itsonedb_assignments), path(unite_assignments)
 
     output:
-    tuple val(meta), path("*.tsv"), emit: its_sanity_check_out
+    tuple val(meta), path("*.json"), emit: its_sanity_check_out
     path "versions.yml"           , emit: versions
 
     script:
