@@ -246,11 +246,17 @@ def its_sanity_checker(
     results_dict["itsone_ranks_below_kingdom"] = itsone_ranks_below_kingdom
     results_dict["unite_ranks_below_kingdom"] = unite_ranks_below_kingdom
 
+    # set the prefix as the index, implied that it's the run ID for our purposes
+    results_dict["run"] = output_prefix
+
     res_df = pd.DataFrame(results_dict, index=[0])
+    res_df.set_index("run", inplace=True)
 
     out_path = f"{output_prefix}_its_sanity_check.json"
+    out_path_tsv = f"{output_prefix}_its_sanity_check_mqc.tsv"
     logging.info(f"Saving results of tests to {out_path}")
     res_df.to_json(out_path, orient="records", double_precision=3, indent=2)
+    res_df.to_csv(out_path_tsv, sep="\t")
 
 
 def main():

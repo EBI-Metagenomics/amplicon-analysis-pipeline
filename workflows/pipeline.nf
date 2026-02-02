@@ -433,13 +433,17 @@ workflow AMPLICON_PIPELINE {
             },
             remainder: true
         )
-        .map { meta, cutadapt, fastp, dada2 ->
-            def final_inputs = [cutadapt, fastp, dada2]
+        .join(ITS_SANITY_CHECKER.out.its_sanity_check_out_tsv, remainder: true)
+        .map { meta, cutadapt, fastp, dada2, its_sanity_check_out->
+            def final_inputs = [cutadapt, fastp, dada2, its_sanity_check_out]
             if (!cutadapt) {
                 final_inputs -= cutadapt
             }
             if (!dada2) {
                 final_inputs -= dada2
+            }
+            if (!its_sanity_check_out) {
+                final_inputs -= its_sanity_check_out
             }
 
             [meta, final_inputs]
@@ -456,14 +460,23 @@ workflow AMPLICON_PIPELINE {
         [],
     )
 
+    ITS_SANITY_CHECKER.out.its_sanity_check_out_tsv
+    .map { meta, its_sanity_check -> its_sanity_check}
+    .collectFile(name: "study_its_sanity_check_mqc.tsv", storeDir: "${params.outdir}", keepHeader: true, cache: false)
+    .set { study_its_sanity_check_path }
+
     // MultiQC for study !! assuming we do not have multiple studies in one samplesheet !! //
     multiqc_study = multiqc_input
         .flatten()
         .collect()
         .map { item -> item.findAll { !(it instanceof Map) } }
         .map { dataList ->
-            [['id': 'study_multiqc_report'], dataList]
+            def its_files_to_remove = dataList.findAll { file -> file.name.contains("its_sanity_check_mqc.tsv") }
+            dataList -= its_files_to_remove
         }
+        .mix(study_its_sanity_check_path)
+        .collect()
+        .map { dataList -> [['id': 'study_multiqc_report'], dataList] }
 
     MULTIQC_STUDY(
         multiqc_study,
