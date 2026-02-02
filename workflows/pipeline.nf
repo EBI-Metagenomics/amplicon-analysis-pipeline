@@ -260,7 +260,7 @@ workflow AMPLICON_PIPELINE {
         extract_asvs_input = EXTRACT_ASV_READ_COUNTS.out.asvs_left
             .filter { meta, _asvs_left -> meta.var_region != "concat" }
             .map{ meta, asvs_left ->
-                def renamed_meta = ['id': meta.id, 'dada2_label': meta.db_label]
+                def renamed_meta = ['id': meta.id, 'db_label': meta.db_label]
                 def key = groupKey(renamed_meta, meta.var_regions_size)
                 return [ key, asvs_left ]
             }
@@ -276,10 +276,10 @@ workflow AMPLICON_PIPELINE {
                   [meta, asvs_left, asv_seqs] }
             .join(MAPSEQ_ASV_KRONA.out.asvtaxtable
                 .map{ meta, asvtaxtable ->
-                      [meta.subMap('id', 'dada2_label'), asvtaxtable] }
+                      [meta.subMap('id', 'db_label'), asvtaxtable] }
             )
             .map{ meta, asvs_left, asv_seqs, asvtaxtable -> 
-                  [meta, asvs_left, asv_seqs, asvtaxtable, meta.dada2_label] }
+                  [meta, asvs_left, asv_seqs, asvtaxtable, meta.db_label] }
         EXTRACT_ASVS_LEFT(extract_asvs_input)
         ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())
 
