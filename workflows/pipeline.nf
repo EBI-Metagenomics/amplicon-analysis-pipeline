@@ -59,32 +59,6 @@ workflow AMPLICON_PIPELINE {
     */
 
     // Parse config to get amplicon reference databases
-    // mapseq_dbs_in = channel
-    //     .from(
-    //         params.mapseq_databases.collect { k, v ->
-    //             if (v instanceof Map) {
-    //                 if (v.containsKey('label')) {
-    //                     return [[id: k], v]
-    //                 }
-    //             }
-    //         }
-    //     )
-    //     .filter { it -> it }
-    //     .map { meta, fields -> 
-    //         def dada2_label = fields.run_asv ? ['dada2_label': fields.dada2_label] : []
-    //         def extra_meta = ['label': fields.label, 'asv': fields.run_asv, 'otu': fields.run_otu]
-    //         [
-    //             meta + extra_meta + dada2_label, 
-    //             tuple(
-    //                 file(fields.fasta), 
-    //                 file(fields.tax), 
-    //                 file(fields.otu), 
-    //                 file(fields.mscluster), 
-    //                 fields.label
-    //             )
-    //         ]
-    //     }
-
     mapseq_dbs_in = channel
         .from(
             params.mapseq_databases.collect { k, v ->
@@ -102,30 +76,15 @@ workflow AMPLICON_PIPELINE {
             [
                 meta + extra_meta + dada2_label, 
                 tuple(
-                    fields.fasta, 
-                    fields.tax, 
-                    fields.otu, 
-                    fields.mscluster, 
+                    file(fields.fasta), 
+                    file(fields.tax), 
+                    file(fields.otu), 
+                    file(fields.mscluster), 
                     fields.label
                 )
             ]
         }
     mapseq_dbs_in.view{ it -> "mapseq_dbs_in - ${it}"}
-    mapseq_dbs_in = mapseq_dbs_in
-        .map{ 
-            meta, files ->  
-            def (fasta, tax, otu, mscluster, label) = files
-            [
-                meta, 
-                tuple(
-                    file(fasta),
-                    file(tax),
-                    file(otu),
-                    file(mscluster),
-                    label
-                )
-            ]
-        }
 
     // Initialise standard primer library for PIMENTO if user-given//
     // If there are no primers provided, it will fallback to use the default PIMENTO standard primer library
