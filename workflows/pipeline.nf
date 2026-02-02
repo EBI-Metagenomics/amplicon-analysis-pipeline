@@ -250,6 +250,7 @@ workflow AMPLICON_PIPELINE {
     ITS_SANITY_CHECKER(its_sanity_check_input)
 
     // Only keep runs that pass ITS sanity checking
+    // Which only happens for runs that pass all three tests
     ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitCsv(
             header: true,
@@ -262,10 +263,10 @@ workflow AMPLICON_PIPELINE {
                 && test_results["rank_proportion_test"] == "True"
             )
         }
-        .map { meta, test_results -> meta }
+        .map { meta, test_results -> meta  }
         .set { real_its_runs }
 
-    // Identify runs that don't pass sanity checking for passing to `qc_failed_runs.tsv`
+    // Identify potential ITS runs that don't pass ITS sanity checking
     ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitCsv(
             header: true,
@@ -278,8 +279,8 @@ workflow AMPLICON_PIPELINE {
                 || test_results["rank_proportion_test"] == "False"
             )
         }
-        .map { meta, test_results -> meta }
-        .set { failed_its_runs }
+        .map { meta, test_results -> ["${meta.id}", "failed"] }
+        .set { its_sanity_check_fails }
 
     // Collect all ITSoneDB results that we want to publish
     MASK_FASTA_SWF.out.masked_out
@@ -358,11 +359,6 @@ workflow AMPLICON_PIPELINE {
         DETECT_RNA.out.cmsearch_deoverlap_coords,
     )
     ch_versions = ch_versions.mix(DADA2_SWF.out.versions)
-
-    def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
-        def key = meta.subMap('id', 'single_end')
-        return [key, stats_fail]
-    }
 
     // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
     MAPSEQ_ASV_KRONA_SILVA(
@@ -489,6 +485,90 @@ workflow AMPLICON_PIPELINE {
     /* End of execution reports */
     /****************************/
 
+
+    // Runs can fail ITS sanity checking, but still have taxonomy results for various reasons
+    // So we can't just automatically assign runs that fail ITS sanity checking as failed runs
+    // And we definitely don't want runs that are labeled as succeeding and failing at the same time
+    // The next bits of processing will handle this by grabbing all runs that have any kind of
+    // taxonomic assignment results (SSU/LSU/ITS/ASV) and these will make up the subset of
+    // passed runs. We will then filter out any runs that fail ITS sanity checking but are
+    // in this subset of successful runs.
+
+    // label runs that have ITS taxonomies (succeed at ITS sanity checking)
+    real_its_runs
+        .map{ meta ->
+            [meta, "has_its_taxonomies"]
+        }
+        .set{ passed_its_checks }
+
+    // label runs that have SSU/LSU taxonomies
+    MAPSEQ_OTU_KRONA_SSU.out.mseq
+        .mix(MAPSEQ_OTU_KRONA_PR2.out.mseq, MAPSEQ_OTU_KRONA_LSU.out.mseq)
+        .groupTuple()
+        .map { meta, mseq_results ->
+            [ meta, "has_ssu_lsu_taxonomies" ]
+        }
+        .set{ runs_with_ssu_lsu_taxonomies }
+
+    // get status of runs that reach DADA2 but might fail for quality reasons
+    def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
+        def key = meta.subMap('id', 'single_end')
+        return [key, ["stats_fail": stats_fail]]
+    }
+
+    // Label runs that have reach DADA2 and whether they succeed/fail
+    DADA2_SWF.out.dada2_report
+        .map { meta, dada2_report -> [["id": meta.id, "single_end": meta.single_end], dada2_report] }
+        .concat(dada2_stats_fail)
+        .groupTuple()
+        .map{ meta, dada2_results ->
+            if (dada2_results[1]["stats_fail"] == "true"){
+                [meta, "dada2_stats_fail"]
+            }
+            else{
+                [meta, "has_dada2_results"]
+            }
+        }
+        .set{ has_dada2_results }
+
+    // groups all runs that have some taxonomy results
+    has_dada2_results
+        .concat(runs_with_ssu_lsu_taxonomies, passed_its_checks)
+        .groupTuple()
+        .set{ all_taxonomy_results }
+
+    // Extract passed runs, describe whether those passed runs also ASV results //
+    // Rules are:
+    //      if you have DADA2 results and SSU/LSU taxonomy results, you have `all_results`
+    //      if you don't have DADA2 results but have ITS/SSU/LSU results
+    //          if you have the dada2_stats_fail status, you have `dada2_stats_fail`
+    //          if you don't have the dada2_stats_fail status, it means you have `no_asvs`
+    all_taxonomy_results
+        .map { meta, results ->
+            if ("has_dada2_results" in results && "has_ssu_lsu_taxonomies" in results) {
+                return "${meta.id},all_results"
+            }
+            else if ("has_its_taxonomies" in results || "has_ssu_lsu_taxonomies" in results) {
+                if ("dada2_stats_fail" in results) {
+                    return "${meta.id},dada2_stats_fail"
+                }
+                else {
+                    return "${meta.id},no_asvs"
+                }
+            }
+            error("Unexpected. meta: ${meta}, results: ${results}")
+        }
+        .set { final_passed_runs }
+
+    // Save all passed runs to file //
+    final_passed_runs
+        .collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+        .set { passed_runs_path }
+
+    all_taxonomy_results
+        .map{ meta, results -> ["${meta.id}", "passed"] }
+        .set{ runs_with_taxonomies }
+
     // Extract runs that failed SeqFu check //
     READS_QC.out.seqfu_check
         .splitCsv(sep: "\t", elem: 1)
@@ -519,39 +599,21 @@ workflow AMPLICON_PIPELINE {
         .map { meta, __ -> "${meta.id},no_reads" }
         .set { no_reads_fails }
 
-    failed_its_runs
-        .map { meta -> "${meta.id},its_sanity_check_fail" }
-        .set { its_sanity_check_fails }
+    // filter out runs that fail ITS sanity checking but have other taxonomy results
+    its_sanity_check_fails
+        .mix(runs_with_taxonomies)
+        .groupTuple()
+        .filter{ run, result ->
+            result == ["failed"]
+        }
+        .map { run, result ->
+            "${run},its_sanity_check_fail"
+        }
+        .set{ failed_its_runs }
 
     // Save all failed runs to file //
-    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails, its_sanity_check_fails)
+    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails, failed_its_runs)
     all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
-
-    // Extract passed runs, describe whether those passed runs also ASV results //
-    DADA2_SWF.out.dada2_report
-        .map { meta, dada2_report -> [["id": meta.id, "single_end": meta.single_end], dada2_report] }
-        .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
-        .groupTuple()
-        .map { meta, results ->
-            if (results.size() == 3) {
-                return "${meta.id},all_results"
-            }
-            else {
-                if (results[1] == "true") {
-                    return "${meta.id},dada2_stats_fail"
-                }
-                else {
-                    return "${meta.id},no_asvs"
-                }
-            }
-            error("Unexpected. meta: ${meta}, results: ${results}")
-        }
-        .set { final_passed_runs }
-
-    // Save all passed runs to file //
-    final_passed_runs
-        .collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
-        .set { passed_runs_path }
 
     // Summarise primer validation information into study-wide JSON file //
     CONCAT_PRIMER_CUTADAPT.out.primer_validation_out
