@@ -174,7 +174,8 @@ def its_sanity_checker(
         below the rank of Kingdom is above the `RANK_PROPORTION_TEST_THRESHOLD` threshold
 
     Outputs are:
-        - A `tsv` file containing the result for each test for the input
+        - A `json` file containing the result for each test for the input
+        - A `tsv` file containing the result for each test for the input. Mainly used for multiqc in the amplicon analysis pipeline
     """
     logging.info("Running ITS sanity checker on these inputs:")
     logging.info(
