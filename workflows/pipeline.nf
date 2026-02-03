@@ -433,9 +433,11 @@ workflow AMPLICON_PIPELINE {
             },
             remainder: true
         )
-        .join(ITS_SANITY_CHECKER.out.its_sanity_check_out_tsv, remainder: true)
+        .join(ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc, remainder: true)
         .map { meta, cutadapt, fastp, dada2, its_sanity_check_out->
             def final_inputs = [cutadapt, fastp, dada2, its_sanity_check_out]
+            // `remainder: true` will return `null` for that particular item during joining instead of discarding
+            // these conditionals remove said nulls in case we don't have results for these modules
             if (!cutadapt) {
                 final_inputs -= cutadapt
             }
@@ -460,9 +462,10 @@ workflow AMPLICON_PIPELINE {
         [],
     )
 
-    ITS_SANITY_CHECKER.out.its_sanity_check_out_tsv
+    // generate aggregate summary of all its sanity check outputs
+    ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
     .map { meta, its_sanity_check -> its_sanity_check}
-    .collectFile(name: "study_its_sanity_check_mqc.tsv", storeDir: "${params.outdir}", keepHeader: true, cache: false)
+    .collectFile(name: "study_its_sanity_check_mqc.tsv", storeDir: workDir, keepHeader: true, cache: false)
     .set { study_its_sanity_check_path }
 
     // MultiQC for study !! assuming we do not have multiple studies in one samplesheet !! //
@@ -471,6 +474,7 @@ workflow AMPLICON_PIPELINE {
         .collect()
         .map { item -> item.findAll { !(it instanceof Map) } }
         .map { dataList ->
+            // have to remove the individual ITS sanity check outputs before including the study-wide file
             def its_files_to_remove = dataList.findAll { file -> file.name.contains("its_sanity_check_mqc.tsv") }
             dataList -= its_files_to_remove
         }

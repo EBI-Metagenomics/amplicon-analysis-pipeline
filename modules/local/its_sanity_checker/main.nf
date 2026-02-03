@@ -11,8 +11,8 @@ process ITS_SANITY_CHECKER {
 
     output:
     tuple val(meta), path("*.json"), emit: its_sanity_check_out
-    tuple val(meta), path("*.tsv"), emit: its_sanity_check_out_tsv
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("*.tsv") , emit: its_sanity_check_out_mqc
+    path "versions.yml"            , emit: versions
 
     script:
     """

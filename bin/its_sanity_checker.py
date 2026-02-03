@@ -253,10 +253,12 @@ def its_sanity_checker(
     res_df.set_index("run", inplace=True)
 
     out_path = f"{output_prefix}_its_sanity_check.json"
-    out_path_tsv = f"{output_prefix}_its_sanity_check_mqc.tsv"
-    logging.info(f"Saving results of tests to {out_path}")
+    # multiqc processing is easier if the file is a tsv/csv
+    out_path_mqc = f"{output_prefix}_its_sanity_check_mqc.tsv"
+
+    logging.info(f"Saving results of tests to {out_path} and {out_path_mqc}")
     res_df.to_json(out_path, orient="records", double_precision=3, indent=2)
-    res_df.to_csv(out_path_tsv, sep="\t")
+    res_df.to_csv(out_path_mqc, sep="\t")
 
 
 def main():
