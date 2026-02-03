@@ -465,7 +465,7 @@ workflow AMPLICON_PIPELINE {
     // generate aggregate summary of all its sanity check outputs
     ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
     .map { meta, its_sanity_check -> its_sanity_check}
-    .collectFile(name: "study_its_sanity_check_mqc.tsv", storeDir: workDir, keepHeader: true, cache: false)
+    .collectFile(name: "study_its_sanity_check_mqc.tsv", keepHeader: true, cache: false)
     .set { study_its_sanity_check_path }
 
     // MultiQC for study !! assuming we do not have multiple studies in one samplesheet !! //
