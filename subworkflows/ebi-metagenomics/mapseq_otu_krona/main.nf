@@ -41,7 +41,6 @@ workflow MAPSEQ_OTU_KRONA {
     mseq                  = MAPSEQ.out.mseq                   // channel: [ val(meta), [ mseq ] ]
     krona_input           = MAPSEQ2BIOM.out.krona_input       // channel: [ val(meta), [ txt ] ]
     biom_out              = MAPSEQ2BIOM.out.biom_out          // channel: [ val(meta), [ tsv ] ]
-    biom_notaxid_out      = MAPSEQ2BIOM.out.biom_notaxid_out  // channel: [ val(meta), [ tsv ] ]
     html                  = KRONA_KTIMPORTTEXT.out.html       // channel: [ val(meta), [ html ] ]
     versions              = ch_versions                       // channel: [ versions.yml ]
 }

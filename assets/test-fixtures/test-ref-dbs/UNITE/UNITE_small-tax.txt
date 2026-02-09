@@ -2,3 +2,4 @@
 #levels: Superkingdom Kingdom Phylum Class Order Family Genus Species
 #name: UNITE
 UDB01664900	sk__Eukaryota;k__Fungi;p__Ascomycota;c__Dothideomycetes;o__Mytilinidales;f__Gloniaceae;g__Cenococcum;s__Cenococcum_sp
+ITS1DB01190195|72897|Aster_amellus	sk__Eukaryota;k__Viridiplantae;p__Streptophyta;c__Magnoliopsida;o__Asterales;f__Asteraceae;g__Aster;s__Aster_amellus

@@ -1,4 +1,3 @@
-# mapseq v1.2.6 (Jan 20 2023)
 #query	dbhit	bitscore	identity	matches	mismatches	gaps	query_start	query_end	dbhit_start	dbhit_end	strand		PR2	
 ERR4674646.100-SSU_rRNA_bacteria/1-440	AY145589.1.1390_U	430	0.9886363744735718	435	5	0	0	440	279	719	+		d__Bacteria;sg__PANNAM;dv__Proteobacteria;sdv__Proteobacteria_X;c__Alphaproteobacteria;o__Rhodobacterales;f__Rhodobacteraceae	
 ERR4674646.100595-SSU_rRNA_bacteria/1-439	AY145589.1.1390_U	425	0.986270010471344	431	6	0	0	437	279	716	+		d__Bacteria;sg__PANNAM;dv__Proteobacteria;sdv__Proteobacteria_X;c__Alphaproteobacteria;o__Rhodobacterales;f__Rhodobacteraceae	
