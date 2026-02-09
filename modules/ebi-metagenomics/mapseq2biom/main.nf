@@ -5,18 +5,17 @@ process MAPSEQ2BIOM {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mgnify-pipelines-toolkit:1.2.11--pyhdfd78af_0' :
-        'biocontainers/mgnify-pipelines-toolkit:1.2.11--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/mgnify-pipelines-toolkit:1.4.12--pyhdfd78af_0' :
+        'biocontainers/mgnify-pipelines-toolkit:1.4.12--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(msq)
     tuple path(db_otu), val(db_label)
 
     output:
-    tuple val(meta), path("${meta.id}.txt")         , emit: krona_input
-    tuple val(meta), path("${meta.id}_biom.tsv")    , emit: biom_out
-    tuple val(meta), path("${meta.id}.notaxid.tsv") , emit: biom_notaxid_out
-    path "versions.yml"                             , emit: versions
+    tuple val(meta), path("${meta.id}_${task.ext.db_label}.txt"), emit: krona_input
+    tuple val(meta), path("${meta.id}_${task.ext.db_label}.tsv"), emit: biom_out
+    path "versions.yml"                                         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -28,12 +27,12 @@ process MAPSEQ2BIOM {
     """
     mapseq2biom \
         ${args} \
-        --krona ${prefix}.txt \
+        --krona ${prefix}_${task.ext.db_label}.txt \
         --no-tax-id-file ${prefix}.notaxid.tsv \
         --label ${db_label} \
         --query ${msq} \
         --otu-table ${db_otu} \
-        --out-file ${prefix}_biom.tsv
+        --out-file ${prefix}_${task.ext.db_label}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -45,9 +44,8 @@ process MAPSEQ2BIOM {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    touch ${prefix}.txt
-    touch ${prefix}.notaxid.tsv
-    touch ${prefix}_biom.tsv
+    touch ${prefix}_${task.ext.db_label}.txt
+    touch ${prefix}_${task.ext.db_label}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

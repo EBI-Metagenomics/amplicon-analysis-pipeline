@@ -1,0 +1,63 @@
+nextflow_process {
+
+    name "Test Process ITS_SANITY_CHECKER"
+    script "../main.nf"
+    process "ITS_SANITY_CHECKER"
+    tag "modules"
+    tag "its_sanity_checker"
+
+    test("its_sanity_checker successful test") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false], // meta map
+                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_rRNA.fa', checkIfExists: true),
+                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_ITSoneDB.mseq', checkIfExists: true),
+                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_UNITE.mseq', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.its_sanity_check_out, process.out.its_sanity_check_out_mqc).match() }
+            )
+        }
+
+    }
+
+    test("its_sanity_checker unsuccessful test") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false], // meta map
+                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_rRNA.fa', checkIfExists: true),
+                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_ITSoneDB.mseq', checkIfExists: true),
+                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_UNITE.mseq', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.its_sanity_check_out, process.out.its_sanity_check_out_mqc).match() }
+            )
+        }
+
+    }
+
+}

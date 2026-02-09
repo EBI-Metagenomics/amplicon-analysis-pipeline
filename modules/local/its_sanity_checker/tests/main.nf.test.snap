@@ -1,0 +1,56 @@
+{
+    "its_sanity_checker successful test": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false
+                    },
+                    "test_its_sanity_check.json:md5,28d10d1753d44d66bb1b62294c7a8c3a"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false
+                    },
+                    "test_its_sanity_check_mqc.tsv:md5,fb44e71af3e9c3a011f8012e05f0af25"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
+        },
+        "timestamp": "2026-02-03T15:18:21.044630168"
+    },
+    "its_sanity_checker unsuccessful test": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false
+                    },
+                    "test_its_sanity_check.json:md5,928ae970fe43f68b552ebc6c8b31ed53"
+                ]
+            ],
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false
+                    },
+                    "test_its_sanity_check_mqc.tsv:md5,4bba0d9e30f51a9888c0045c41843dec"
+                ]
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.4"
+        },
+        "timestamp": "2026-02-03T15:28:04.255576631"
+    }
+}
