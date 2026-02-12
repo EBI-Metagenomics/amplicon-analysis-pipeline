@@ -71,10 +71,10 @@ workflow AMPLICON_PIPELINE {
         )
         .filter { it -> it }
         .map { meta, fields -> 
-            def dada2_label = fields.run_asv ? ['dada2_label': fields.dada2_label] : []
+            def asv_label = fields.run_asv ? ['asv_label': fields.asv_label] : []
             def extra_meta = ['label': fields.label, 'asv': fields.run_asv, 'otu': fields.run_otu]
             [
-                meta + extra_meta + dada2_label, 
+                meta + extra_meta + asv_label, 
                 tuple(
                     file(fields.fasta), 
                     file(fields.tax), 
@@ -252,7 +252,7 @@ workflow AMPLICON_PIPELINE {
         are consistent i.e. ASVs in read count files, ASV sequences in FASTA files, etc.
         */
         extract_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
-            .map{ meta, counts -> [meta.subMap('id', 'var_region', 'var_regions_size', 'db_label'), counts] }
+            .map{ meta, counts -> [meta.subMap('id', 'var_region', 'var_regions_size', 'asv_label'), counts] }
             .groupTuple()
         EXTRACT_ASV_READ_COUNTS(extract_asv_read_counts_input)
         ch_versions = ch_versions.mix(EXTRACT_ASV_READ_COUNTS.out.versions)
@@ -260,7 +260,7 @@ workflow AMPLICON_PIPELINE {
         extract_asvs_input = EXTRACT_ASV_READ_COUNTS.out.asvs_left
             .filter { meta, _asvs_left -> meta.var_region != "concat" }
             .map{ meta, asvs_left ->
-                def renamed_meta = ['id': meta.id, 'db_label': meta.db_label]
+                def renamed_meta = ['id': meta.id, 'asv_label': meta.asv_label]
                 def key = groupKey(renamed_meta, meta.var_regions_size)
                 return [ key, asvs_left ]
             }
@@ -276,10 +276,10 @@ workflow AMPLICON_PIPELINE {
                   [meta, asvs_left, asv_seqs] }
             .join(MAPSEQ_ASV_KRONA.out.asvtaxtable
                 .map{ meta, asvtaxtable ->
-                      [meta.subMap('id', 'db_label'), asvtaxtable] }
+                      [meta.subMap('id', 'asv_label'), asvtaxtable] }
             )
             .map{ meta, asvs_left, asv_seqs, asvtaxtable -> 
-                  [meta, asvs_left, asv_seqs, asvtaxtable, meta.db_label] }
+                  [meta, asvs_left, asv_seqs, asvtaxtable, meta.asv_label] }
         EXTRACT_ASVS_LEFT(extract_asvs_input)
         ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())
 
