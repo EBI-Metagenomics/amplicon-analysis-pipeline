@@ -147,11 +147,12 @@ workflow AMPLICON_PIPELINE {
     ch_versions = ch_versions.mix(READS_QC.out.versions)
 
     // Removes reads that passed sanity checks but are empty after QC with fastp //
-    READS_QC_MERGE.out.reads_fasta.branch{ _meta, reads ->
-                                qc_pass: reads.countFasta() > 0
-                                qc_empty: reads.countFasta() == 0
-                            }
-                            .set { extended_reads_qc }
+    READS_QC_MERGE.out.reads_fasta
+        .branch{ _meta, reads ->
+            qc_pass: reads.countFasta() > 0
+            qc_empty: reads.countFasta() == 0
+        }
+        .set { extended_reads_qc }
 
     // rRNA extraction subworkflow to find rRNA reads for SSU+LSU //
     DETECT_RNA(
