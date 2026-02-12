@@ -83,7 +83,7 @@ workflow MAPSEQ_ASV_KRONA {
 
         KRONA_KTIMPORTTEXT(
             MAKE_ASV_COUNT_TABLES.out.asv_krona_counts
-                .map { meta, asv_counts -> [meta, asv_counts, meta.db_label] }
+                .map { meta, asv_counts -> [meta, asv_counts, meta.asv_label] }
         )
         ch_versions = ch_versions.mix(KRONA_KTIMPORTTEXT.out.versions.first())
 
