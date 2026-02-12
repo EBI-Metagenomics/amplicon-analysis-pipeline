@@ -11,7 +11,9 @@ process DADA2 {
     output:
     tuple val(meta), path("*map.txt"), path("*asvs.fasta"), path("*_filt.fastq.gz"), optional: true, emit: dada2_out
     tuple val(meta), path("*_dada2_stats.tsv")                                     , optional: true, emit: dada2_stats
+    tuple val(meta), path("*_dada2_output.txt")                                    , optional: true, emit: dada2_stdout
     tuple val(meta), path("*_dada2_errors.txt")                                    , optional: true, emit: dada2_errors
+    tuple val(meta), path("*_dada2_truncation_points.txt")                         , optional: true, emit: dada2_truncation_points
     tuple val(meta), env(stats_fail)                                               , optional: true, emit: dada2_stats_fail
     path "versions.yml"                                                            , emit: versions
     
@@ -20,12 +22,13 @@ process DADA2 {
         """
         output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} $reads 2> \$output_file
+        dada2.R ${meta.id} $reads 1> \$output_file 2> \$error_file
+
+        grep -E "The (forward|reverse) strand truncation point is: " \$output_file > ${meta.id}_dada2_truncation_points.txt
 
         stats_fail=false
-        if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
+        if [[ -s \$error_file ]] && grep -q "Caught an error" \$error_file; then
             stats_fail=true
-            mv \$output_file \$error_file
         fi
 
         cat <<-END_VERSIONS > versions.yml
@@ -38,12 +41,13 @@ process DADA2 {
         """
         output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} ${reads[0]} ${reads[1]} 2> \$output_file
+        dada2.R ${meta.id} ${reads[0]} ${reads[1]} 1> \$output_file 2> \$error_file
+
+        grep -E "The (forward|reverse) strand truncation point is: " \$output_file > ${meta.id}_dada2_truncation_points.txt
 
         stats_fail=false
-        if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
+        if [[ -s \$error_file ]] && grep -q "Caught an error" \$error_file; then
             stats_fail=true
-            mv \$output_file \$error_file
         fi
 
         cat <<-END_VERSIONS > versions.yml
