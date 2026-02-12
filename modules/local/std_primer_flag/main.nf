@@ -17,7 +17,6 @@ process STD_PRIMER_FLAG {
 
     script:
     def std_primer_library_arg = "${std_primer_library}" ? "-p ${std_primer_library}" : ""
-    print(std_primer_library)
 
     """
     pimento std -i ${reads_merged} ${std_primer_library_arg} --merged -o ${meta.id}_${meta.var_region}

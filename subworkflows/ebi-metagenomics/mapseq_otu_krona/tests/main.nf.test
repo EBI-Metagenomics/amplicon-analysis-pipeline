@@ -38,10 +38,9 @@ nextflow_workflow {
                 // These tests mainly check for headers rather than content because MAPseq is not deterministic. 
                 // This will change soon though so we can update these tests later.
                 { assert workflow.success},
-                { assert snapshot(path(workflow.out.mseq.get(0).get(1)).readLines()[0].contains("# mapseq v1.2.6 (Jan 20 2023)")).match("mapseq_output") },
+                { assert snapshot(path(workflow.out.mseq.get(0).get(1)).readLines()[1].contains("AF350223.1.1756")).match("mapseq_output") },
                 { assert snapshot(path(workflow.out.krona_input.get(0).get(1)).readLines()[0].contains("sk__Bacteria")).match("mapseq2biom_output_krona") },
                 { assert snapshot(path(workflow.out.biom_out.get(0).get(1)).readLines()[0].contains("# Constructed from biom file")).match("mapseq2biom_output_biom") },
-                { assert snapshot(path(workflow.out.biom_notaxid_out.get(0).get(1)).readLines()[0].contains("# Constructed from biom file")).match("mapseq2biom_output_biom_notaxid") },
                 { assert snapshot(path(workflow.out.html.get(0).get(1)).readLines()[0].contains("DOCTYPE html PUBLIC")).match("krona_output") },                
             )
         }

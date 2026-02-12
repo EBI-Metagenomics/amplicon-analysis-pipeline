@@ -1,0 +1,111 @@
+Changes in component 'ebi-metagenomics/mapseq_otu_krona'
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/meta.yml' is unchanged
+Changes in 'mapseq_otu_krona/main.nf':
+--- subworkflows/ebi-metagenomics/mapseq_otu_krona/main.nf
++++ subworkflows/ebi-metagenomics/mapseq_otu_krona/main.nf
+@@ -6,26 +6,19 @@
+ workflow MAPSEQ_OTU_KRONA {
+ 
+     take:
+-    ch_fasta    // channel: [ val(meta), [ bam ] ]
++    ch_fasta    // channel: [ val(meta), [ fasta ] ]
+     ch_dbs      // channel: [ path(fasta), path(tax), path(otu), path(mscluster), val(label) ]
+ 
+     main:
+ 
+     ch_versions = Channel.empty()
+ 
+-    // db_fasta = ch_dbs[0]
+-    // db_tax = ch_dbs[1]
+-    // db_otu = ch_dbs[2]
+-    // db_mscluster = ch_dbs[3]
+-    // db_label = ch_dbs[4]
+-
+     ch_dbs.multiMap { fasta, tax, otu, mscluster, label ->
+-            mapseq_input: [fasta, tax, mscluster]
++            mapseq_input: [ fasta, tax, mscluster ]
+             mapseq_to_biom_input: [ otu, label ]
+         }.set {
+             input
+         }
+-
+ 
+     MAPSEQ(
+         ch_fasta,
+@@ -48,7 +41,6 @@
+     mseq                  = MAPSEQ.out.mseq                   // channel: [ val(meta), [ mseq ] ]
+     krona_input           = MAPSEQ2BIOM.out.krona_input       // channel: [ val(meta), [ txt ] ]
+     biom_out              = MAPSEQ2BIOM.out.biom_out          // channel: [ val(meta), [ tsv ] ]
+-    biom_notaxid_out      = MAPSEQ2BIOM.out.biom_notaxid_out  // channel: [ val(meta), [ tsv ] ]
+     html                  = KRONA_KTIMPORTTEXT.out.html       // channel: [ val(meta), [ html ] ]
+     versions              = ch_versions                       // channel: [ versions.yml ]
+ }
+
+Changes in 'mapseq_otu_krona/tests/main.nf.test.snap':
+--- subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/main.nf.test.snap
++++ subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/main.nf.test.snap
+@@ -24,20 +24,10 @@
+             true
+         ],
+         "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.04.3"
++            "nf-test": "0.9.2",
++            "nextflow": "25.04.8"
+         },
+-        "timestamp": "2024-04-18T12:06:53.975004502"
+-    },
+-    "mapseq2biom_output_biom_notaxid": {
+-        "content": [
+-            true
+-        ],
+-        "meta": {
+-            "nf-test": "0.8.4",
+-            "nextflow": "23.04.3"
+-        },
+-        "timestamp": "2024-04-18T12:06:54.025478915"
++        "timestamp": "2026-01-20T10:41:40.760421"
+     },
+     "krona_output": {
+         "content": [
+
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/subunit_silva_SSU.fasta' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/tags.yml' is unchanged
+Changes in 'mapseq_otu_krona/tests/nextflow.config':
+--- subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/nextflow.config
++++ subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/nextflow.config
+@@ -1,7 +1,12 @@
+ process{
++
++    withName: MAPSEQ {
++        ext.db_label = "SILVA-SSU"
++    }
+ 
+     withName: MAPSEQ2BIOM {
+         ext.args = '--taxid'
++        ext.db_label = "SILVA-SSU"
+     }
+ 
+ }
+
+Changes in 'mapseq_otu_krona/tests/main.nf.test':
+--- subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/main.nf.test
++++ subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/main.nf.test
+@@ -38,10 +38,9 @@
+                 // These tests mainly check for headers rather than content because MAPseq is not deterministic. 
+                 // This will change soon though so we can update these tests later.
+                 { assert workflow.success},
+-                { assert snapshot(path(workflow.out.mseq.get(0).get(1)).readLines()[0].contains("# mapseq v1.2.6 (Jan 20 2023)")).match("mapseq_output") },
++                { assert snapshot(path(workflow.out.mseq.get(0).get(1)).readLines()[1].contains("AF350223.1.1756")).match("mapseq_output") },
+                 { assert snapshot(path(workflow.out.krona_input.get(0).get(1)).readLines()[0].contains("sk__Bacteria")).match("mapseq2biom_output_krona") },
+                 { assert snapshot(path(workflow.out.biom_out.get(0).get(1)).readLines()[0].contains("# Constructed from biom file")).match("mapseq2biom_output_biom") },
+-                { assert snapshot(path(workflow.out.biom_notaxid_out.get(0).get(1)).readLines()[0].contains("# Constructed from biom file")).match("mapseq2biom_output_biom_notaxid") },
+                 { assert snapshot(path(workflow.out.html.get(0).get(1)).readLines()[0].contains("DOCTYPE html PUBLIC")).match("krona_output") },                
+             )
+         }
+
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.otu' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_filtered2.txt' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta.mscluster' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta' is unchanged
+************************************************************
