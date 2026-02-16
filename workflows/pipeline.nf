@@ -26,6 +26,7 @@ include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_
 include { EXTRACT_ASV_READ_COUNTS          } from '../modules/local/extract_asv_read_counts/main'
 include { EXTRACT_ASVS_LEFT                } from '../modules/local/extract_asvs_left/main'
 include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
+include { PUBLISH_OTU_RESULTS              } from '../modules/local/publish_otu_results/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -379,6 +380,66 @@ workflow AMPLICON_PIPELINE {
         }
     ITS_SANITY_CHECKER(read_assignment_counts)
 
+    // Only keep runs that pass ITS sanity checking
+    // Which only happens for runs that pass all three tests
+    ITS_SANITY_CHECKER.out.its_sanity_check_out
+        .splitJson()
+        .filter { meta, test_results ->
+            (
+                test_results["tax_assignment_count_test"] &&
+                test_results["mapping_proportion_test"] &&
+                test_results["rank_proportion_test"]
+            )
+        }
+        .map { meta, test_results -> meta  }
+        .set { real_its_runs }
+
+    // Identify potential ITS runs that don't pass ITS sanity checking
+    ITS_SANITY_CHECKER.out.its_sanity_check_out
+        .splitJson()
+        .filter { meta, test_results ->
+            (
+                !test_results["tax_assignment_count_test"] ||
+                !test_results["mapping_proportion_test"] ||
+                !test_results["rank_proportion_test"]
+            )
+        }
+        .map { meta, test_results -> ["${meta.id}", "failed"] }
+        .set { its_sanity_check_fails }
+
+    /*****************************/
+    /* Publish OTU results */
+    /****************************/
+
+    // Join all MAPSEQ_OTU_KRONA outputs per sample+db combination
+    otu_all_results = MAPSEQ_OTU_KRONA.out.mseq
+        .join(MAPSEQ_OTU_KRONA.out.krona_input)
+        .join(MAPSEQ_OTU_KRONA.out.biom_out)
+        .join(MAPSEQ_OTU_KRONA.out.html)
+
+    // Branch into ITS and non-ITS databases
+    otu_all_results
+        .branch { meta, _mseq, _krona_input, _biom_out, _html ->
+            its: meta.db_label in ["ITSone", "UNITE"]
+            non_its: true
+        }
+        .set { otu_branched }
+
+    // Filter ITS results to only include samples that pass ITS sanity check
+    otu_branched.its
+        .map { meta, mseq, krona_input, biom_out, html ->
+            [meta.subMap('id'), meta, mseq, krona_input, biom_out, html]
+        }
+        .combine(real_its_runs.map { meta -> [meta, true] }, by: 0)
+        .map { _id_meta, meta, mseq, krona_input, biom_out, html, _flag ->
+            [meta, mseq, krona_input, biom_out, html]
+        }
+        .set { filtered_its_results }
+
+    // Publish all non-ITS results + ITS results that pass sanity check
+    publish_otu_input = otu_branched.non_its.mix(filtered_its_results)
+    PUBLISH_OTU_RESULTS(publish_otu_input)
+    ch_versions = ch_versions.mix(PUBLISH_OTU_RESULTS.out.versions.first())
 
     /*****************************/
     /* MultiQC reports */
@@ -414,6 +475,7 @@ workflow AMPLICON_PIPELINE {
 
                 [meta, final_inputs]
             }
+            .join(ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc, remainder: true)
             .map { meta, cutadapt, fastp, dada2 ->
                 def final_inputs = [cutadapt, fastp, dada2]
                 // `remainder: true` will return `null` for that particular item during joining instead of discarding
@@ -440,11 +502,23 @@ workflow AMPLICON_PIPELINE {
         [],
     )
 
+    // generate aggregate summary of all its sanity check outputs
+    ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
+        .map { meta, its_sanity_check -> its_sanity_check}
+        .collectFile(name: "study_its_sanity_check_mqc.tsv", keepHeader: true, cache: false)
+        .set { study_its_sanity_check_path }
+
     // MultiQC for study !! assuming we do not have multiple studies in one samplesheet !! //
     multiqc_study = multiqc_input
         .flatten()
         .collect()
         .map { item -> item.findAll { !(it instanceof Map) } }
+        .map { dataList ->
+            // have to remove the individual ITS sanity check outputs before including the study-wide file
+            def its_files_to_remove = dataList.findAll { file -> file.name.contains("its_sanity_check_mqc.tsv") }
+            dataList -= its_files_to_remove
+        }
+        .mix(study_its_sanity_check_path)
         .collect()
         .map { dataList -> [['id': 'study_multiqc_report'], dataList] }
 
@@ -471,6 +545,12 @@ workflow AMPLICON_PIPELINE {
     // passed runs. We will then filter out any runs that fail ITS sanity checking but are
     // in this subset of successful runs.
 
+    // label runs that have ITS taxonomies (succeed at ITS sanity checking)
+    real_its_runs
+        .map{ meta ->
+            [meta, "has_its_taxonomies"]
+        }
+        .set{ passed_its_checks }
 
     // get status of runs that reach DADA2 but might fail for quality reasons
     def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
@@ -560,8 +640,20 @@ workflow AMPLICON_PIPELINE {
         .map { meta, __ -> "${meta.id},no_reads" }
         .set { no_reads_fails }
 
+    // filter out runs that fail ITS sanity checking but have other taxonomy results
+    its_sanity_check_fails
+        .mix(runs_with_taxonomies)
+        .groupTuple()
+        .filter{ run, result ->
+            result == ["failed"]
+        }
+        .map { run, result ->
+            "${run},its_sanity_check_fail"
+        }
+        .set{ failed_its_runs }
+
     // Save all failed runs to file //
-    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails)
+    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails, failed_its_runs)
     all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
     // Summarise primer validation information into study-wide JSON file //
