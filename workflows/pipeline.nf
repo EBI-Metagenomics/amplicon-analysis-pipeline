@@ -290,42 +290,6 @@ workflow AMPLICON_PIPELINE {
         EXTRACT_ASVS_LEFT(extract_asvs_input)
         ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())
 
-
-        /*****************************/
-        /* End of execution reports */
-        /****************************/
-
-        def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail
-            .map { meta, stats_fail ->
-                def key = meta.subMap('id', 'single_end')
-                return [key, stats_fail]
-            }
-
-        // Extract passed runs, describe whether those passed runs also ASV results //
-        DADA2_SWF.out.dada2_report
-            .map { meta, dada2_report -> [ ["id": meta.id, "single_end": meta.single_end], dada2_report ] }
-            .concat(extended_reads_qc.qc_pass, dada2_stats_fail)
-            .groupTuple()
-            .map { meta, results ->
-                if ( results.size() == 3 ) {
-                    return "${meta.id},all_results"
-                }
-                else {
-                    if (results[1] == "true"){
-                        return "${meta.id},dada2_stats_fail"
-                    } else {
-                        return "${meta.id},no_asvs"
-                    }
-                }
-                error "Unexpected. meta: ${meta}, results: ${results}"
-            }
-            .set { final_passed_runs }
-
-        // Save all passed runs to file //
-        final_passed_runs
-            .collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
-            .set { passed_runs_path }
-
         // Summarise primer validation information into study-wide JSON file //
         CONCAT_PRIMER_CUTADAPT.out.primer_validation_out
             .splitCsv(sep: "\t", elem: 1, skip: 1)
@@ -475,19 +439,18 @@ workflow AMPLICON_PIPELINE {
 
                 [meta, final_inputs]
             }
-            .join(ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc, remainder: true)
-            .map { meta, cutadapt, fastp, dada2 ->
-                def final_inputs = [cutadapt, fastp, dada2]
-                // `remainder: true` will return `null` for that particular item during joining instead of discarding
-                // these conditionals remove said nulls in case we don't have results for these modules
-                if (!cutadapt) {
-                    final_inputs -= cutadapt
+            .map { meta, final_inputs -> [meta.id, meta, final_inputs] }
+            .join(
+                ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
+                    .map { meta, mqc -> [meta.id, mqc] },
+                remainder: true
+            )
+            .map { _id, meta, final_inputs, its_sanity_check_mqc ->
+                def all_inputs = final_inputs instanceof List ? final_inputs.collect() : [final_inputs]
+                if (its_sanity_check_mqc) {
+                    all_inputs.add(its_sanity_check_mqc)
                 }
-                if (!dada2) {
-                    final_inputs -= dada2
-                }
-
-                [meta, final_inputs]
+                [meta, all_inputs]
             }
     }
     
@@ -552,15 +515,23 @@ workflow AMPLICON_PIPELINE {
         }
         .set{ passed_its_checks }
 
+    // label runs that have SSU/LSU taxonomies (non-ITS OTU results)
+    otu_branched.non_its
+        .map { meta, _mseq, _krona_input, _biom_out, _html ->
+            [meta.subMap('id'), "has_ssu_lsu_taxonomies"]
+        }
+        .unique()
+        .set { has_ssu_lsu_taxonomies }
+
     // get status of runs that reach DADA2 but might fail for quality reasons
     def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
-        def key = meta.subMap('id', 'single_end')
+        def key = meta.subMap('id')
         return [key, ["stats_fail": stats_fail]]
     }
 
     // Label runs that have reach DADA2 and whether they succeed/fail
     DADA2_SWF.out.dada2_report
-        .map { meta, dada2_report -> [["id": meta.id, "single_end": meta.single_end], dada2_report] }
+        .map { meta, dada2_report -> [meta.subMap('id'), dada2_report] }
         .concat(dada2_stats_fail)
         .groupTuple()
         .map{ meta, dada2_results ->
@@ -575,6 +546,7 @@ workflow AMPLICON_PIPELINE {
 
     // groups all runs that have some taxonomy results
     has_dada2_results
+        .mix(passed_its_checks, has_ssu_lsu_taxonomies)
         .groupTuple()
         .set{ all_taxonomy_results }
 

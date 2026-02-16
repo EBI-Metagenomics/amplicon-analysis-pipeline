@@ -16,7 +16,8 @@ process ITS_SANITY_CHECKER {
     path "versions.yml"                                , emit: versions
 
     script:
-    def read_assignments_json = new groovy.json.JsonBuilder(read_assignments).toString()
+    def serializable = read_assignments.collectEntries { k, v -> [k, (v instanceof Number) ? v : v.toString()] }
+    def read_assignments_json = new groovy.json.JsonBuilder(serializable).toString()
     """
     echo '${read_assignments_json}' > read_assignments.json
     its_sanity_checker.py --read_assignments read_assignments.json -p ${meta.id}
