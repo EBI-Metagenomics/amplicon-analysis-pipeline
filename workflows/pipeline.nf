@@ -25,9 +25,6 @@ include { DADA2_SWF                        } from '../subworkflows/local/dada2_s
 include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
 include { EXTRACT_ASV_READ_COUNTS          } from '../modules/local/extract_asv_read_counts/main'
 include { EXTRACT_ASVS_LEFT                } from '../modules/local/extract_asvs_left/main'
-include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
-include { PUBLISH_ITS_RESULTS as PUBLISH_ITSONEDB_RESULTS } from '../modules/local/publish_its_results/main'
-include { PUBLISH_ITS_RESULTS as PUBLISH_UNITE_RESULTS    } from '../modules/local/publish_its_results/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -75,7 +72,13 @@ workflow AMPLICON_PIPELINE {
         .filter { it -> it }
         .map { meta, fields -> 
             def asv_label = fields.run_asv ? ['asv_label': fields.asv_label] : []
-            def extra_meta = ['label': fields.label, 'asv': fields.run_asv, 'otu': fields.run_otu]
+            def extra_meta = [
+                'label': fields.label, 
+                'asv': fields.run_asv, 
+                'otu': fields.run_otu, 
+                'its_sanity_check': fields.run_its_sanity_check
+            ]
+
             [
                 meta + extra_meta + asv_label, 
                 tuple(
@@ -216,69 +219,6 @@ workflow AMPLICON_PIPELINE {
         concat_input = PRIMER_IDENTIFICATION.out.std_primer_out
                        .join(AUTOMATIC_PRIMER_PREDICTION.out.auto_primer_trimming_out, by: [0])
    
-
-        // Sanity check that masked out ITS reads are not just a different marker gene
-        its_sanity_check_input = MASK_FASTA_SWF.out.masked_out
-            .join(MAPSEQ_OTU_KRONA_ITSONEDB.out.mseq)
-            .join(MAPSEQ_OTU_KRONA_UNITE.out.mseq)
-
-        ITS_SANITY_CHECKER(its_sanity_check_input)
-
-        // Only keep runs that pass ITS sanity checking
-        // Which only happens for runs that pass all three tests
-        ITS_SANITY_CHECKER.out.its_sanity_check_out
-            .splitJson()
-            .filter { meta, test_results ->
-                (
-                    test_results["tax_assignment_count_test"] &&
-                    test_results["mapping_proportion_test"] &&
-                    test_results["rank_proportion_test"]
-                )
-            }
-            .map { meta, test_results -> meta  }
-            .set { real_its_runs }
-
-        // Identify potential ITS runs that don't pass ITS sanity checking
-        ITS_SANITY_CHECKER.out.its_sanity_check_out
-            .splitJson()
-            .filter { meta, test_results ->
-                (
-                    !test_results["tax_assignment_count_test"] ||
-                    !test_results["mapping_proportion_test"] ||
-                    !test_results["rank_proportion_test"]
-                )
-            }
-            .map { meta, test_results -> ["${meta.id}", "failed"] }
-            .set { its_sanity_check_fails }
-
-        // Collect all ITSoneDB results that we want to publish
-        MASK_FASTA_SWF.out.masked_out
-            .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.mseq)
-            .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.krona_input)
-            .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.biom_out)
-            .mix(MAPSEQ_OTU_KRONA_ITSONEDB.out.html)
-            .groupTuple()
-            .join(real_its_runs)
-            .set { itsonedb_its_runs }
-
-        // Collect all UNITE results that we want to publish
-        MASK_FASTA_SWF.out.masked_out
-            .mix(MAPSEQ_OTU_KRONA_UNITE.out.mseq)
-            .mix(MAPSEQ_OTU_KRONA_UNITE.out.krona_input)
-            .mix(MAPSEQ_OTU_KRONA_UNITE.out.biom_out)
-            .mix(MAPSEQ_OTU_KRONA_UNITE.out.html)
-            .groupTuple()
-            .join(real_its_runs)
-            .set { unite_its_runs }
-
-        // publish them
-        PUBLISH_ITSONEDB_RESULTS(
-            itsonedb_its_runs
-        )
-        PUBLISH_UNITE_RESULTS(
-            unite_its_runs
-        )
-
         // Concatenate all primers for for a run, send them to cutadapt with original QCd reads for primer trimming //
         CONCAT_PRIMER_CUTADAPT(
             concat_input,
@@ -451,7 +391,6 @@ workflow AMPLICON_PIPELINE {
 
                 [meta, final_inputs]
             }
-            .join(ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc, remainder: true)
             .map { meta, cutadapt, fastp, dada2, its_sanity_check_out->
                 def final_inputs = [cutadapt, fastp, dada2, its_sanity_check_out]
                 // `remainder: true` will return `null` for that particular item during joining instead of discarding
@@ -481,12 +420,6 @@ workflow AMPLICON_PIPELINE {
         [],
     )
 
-    // generate aggregate summary of all its sanity check outputs
-    ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
-    .map { meta, its_sanity_check -> its_sanity_check}
-    .collectFile(name: "study_its_sanity_check_mqc.tsv", keepHeader: true, cache: false)
-    .set { study_its_sanity_check_path }
-
     // MultiQC for study !! assuming we do not have multiple studies in one samplesheet !! //
     multiqc_study = multiqc_input
         .flatten()
@@ -497,7 +430,6 @@ workflow AMPLICON_PIPELINE {
             def its_files_to_remove = dataList.findAll { file -> file.name.contains("its_sanity_check_mqc.tsv") }
             dataList -= its_files_to_remove
         }
-        .mix(study_its_sanity_check_path)
         .collect()
         .map { dataList -> [['id': 'study_multiqc_report'], dataList] }
 
@@ -524,21 +456,6 @@ workflow AMPLICON_PIPELINE {
     // passed runs. We will then filter out any runs that fail ITS sanity checking but are
     // in this subset of successful runs.
 
-    // label runs that have ITS taxonomies (succeed at ITS sanity checking)
-    real_its_runs
-        .map{ meta ->
-            [meta, "has_its_taxonomies"]
-        }
-        .set{ passed_its_checks }
-
-    // label runs that have SSU/LSU taxonomies
-    MAPSEQ_OTU_KRONA_SSU.out.mseq
-        .mix(MAPSEQ_OTU_KRONA_PR2.out.mseq, MAPSEQ_OTU_KRONA_LSU.out.mseq)
-        .groupTuple()
-        .map { meta, mseq_results ->
-            [ meta, "has_ssu_lsu_taxonomies" ]
-        }
-        .set{ runs_with_ssu_lsu_taxonomies }
 
     // get status of runs that reach DADA2 but might fail for quality reasons
     def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
@@ -563,7 +480,6 @@ workflow AMPLICON_PIPELINE {
 
     // groups all runs that have some taxonomy results
     has_dada2_results
-        .concat(runs_with_ssu_lsu_taxonomies, passed_its_checks)
         .groupTuple()
         .set{ all_taxonomy_results }
 
@@ -629,20 +545,8 @@ workflow AMPLICON_PIPELINE {
         .map { meta, __ -> "${meta.id},no_reads" }
         .set { no_reads_fails }
 
-    // filter out runs that fail ITS sanity checking but have other taxonomy results
-    its_sanity_check_fails
-        .mix(runs_with_taxonomies)
-        .groupTuple()
-        .filter{ run, result ->
-            result == ["failed"]
-        }
-        .map { run, result ->
-            "${run},its_sanity_check_fail"
-        }
-        .set{ failed_its_runs }
-
     // Save all failed runs to file //
-    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails, failed_its_runs)
+    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails)
     all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
     // Summarise primer validation information into study-wide JSON file //
