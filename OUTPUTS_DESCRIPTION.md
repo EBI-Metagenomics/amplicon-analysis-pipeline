@@ -140,6 +140,7 @@ The `asv` directory contains output files related to the calling of ASVs and the
 │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
 │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
 │   ├── ERR4334351_dada2_stats.tsv
+│   ├── ERR4334351_dada2_truncation_points.txt
 │   └── 16S-V3-V4
 │       └── ERR4334351_16S-V3-V4_asv_read_counts.tsv
 └── taxonomy-summary
@@ -155,6 +156,7 @@ The subdirectories are dynamic based on the inferred amplified region. As the pi
 - **ERR4334351_DADA2-SILVA_asv_tax.tsv**: This `tsv` file contains the assigned taxonomy of every ASV, performed by `MAPseq`, using the SILVA reference database.
 - **ERR4334351_DADA2-PR2_asv_tax.tsv**: This `tsv` file contains the assigned taxonomy of every ASV, performed by `MAPseq`, using the PR2 reference database.
 - **ERR4334351_dada2_stats.tsv**: This `tsv` file contains some ASV-specific QC stats, such as the proportion of reads that were removed after filtering out chimeric ASVs. This `tsv` file is also used later by `MultiQC` to generate its report files.
+- **ERR4334351_truncation_points.txt**: This `txv` file contains some lines from the `DADA2` log that contain information about truncation points that have been chosen automatically.
 - **16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv**: This `tsv` file contains the read counts for each ASV, and is specific to the inferred amplified region. As described previously, the naming of this output is dynamic based on the amount and identity of the inferred amplified region(s). 
 
 ### taxonomy-summary
