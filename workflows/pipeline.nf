@@ -131,9 +131,11 @@ workflow AMPLICON_PIPELINE {
         ch_input = DOWNLOAD_FROM_FIRE.out.downloaded_files
     }
 
-    // De-interleave interleaved paired-end reads
-    BBMAP_REFORMAT_STANDARDISE(ch_input, 'fastq.gz')
-    ch_input = BBMAP_REFORMAT_STANDARDISE.out.reformated
+    if (!params.skip_standardise) {
+        // De-interleave interleaved paired-end reads
+        BBMAP_REFORMAT_STANDARDISE(ch_input, 'fastq.gz')
+        ch_input = BBMAP_REFORMAT_STANDARDISE.out.reformated
+    }
 
     // Sanity checking and quality control of reads //
     READS_QC_MERGE(
