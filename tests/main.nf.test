@@ -12,7 +12,6 @@ nextflow_pipeline {
                 input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet.csv"
                 outdir = "$outputDir"
                 non_insdc = true
-                skip_standardise = true
             }
         }
 
