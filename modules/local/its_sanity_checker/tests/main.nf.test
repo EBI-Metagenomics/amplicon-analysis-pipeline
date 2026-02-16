@@ -14,11 +14,18 @@ nextflow_process {
             }
             process {
                 """
+                def itsone_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_ITSoneDB.mseq', checkIfExists: true)
+                def unite_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_UNITE.mseq', checkIfExists: true)
+
                 input[0] = [
-                    [ id:'test', single_end:false], // meta map
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_rRNA.fa', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_ITSoneDB.mseq', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_UNITE.mseq', checkIfExists: true),
+                    [ id:'test', single_end:false ],
+                    [
+                        'ITSone': itsone_fp.readLines().size(),
+                        'UNITE': unite_fp.readLines().size(),
+                        'Rfam_SSU_LSU': file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_rRNA.fa', checkIfExists: true).readLines().findAll { it.startsWith('>') }.size(),
+                        'ITSone_fp': itsone_fp,
+                        'UNITE_fp': unite_fp,
+                    ]
                 ]
                 """
             }
@@ -41,11 +48,18 @@ nextflow_process {
             }
             process {
                 """
+                def itsone_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_ITSoneDB.mseq', checkIfExists: true)
+                def unite_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_UNITE.mseq', checkIfExists: true)
+
                 input[0] = [
-                    [ id:'test', single_end:false], // meta map
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_rRNA.fa', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_ITSoneDB.mseq', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_UNITE.mseq', checkIfExists: true),
+                    [ id:'test', single_end:false ],
+                    [
+                        'ITSone': itsone_fp.readLines().size(),
+                        'UNITE': unite_fp.readLines().size(),
+                        'Rfam_SSU_LSU': file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_rRNA.fa', checkIfExists: true).readLines().findAll { it.startsWith('>') }.size(),
+                        'ITSone_fp': itsone_fp,
+                        'UNITE_fp': unite_fp,
+                    ]
                 ]
                 """
             }

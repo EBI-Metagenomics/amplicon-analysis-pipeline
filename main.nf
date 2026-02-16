@@ -6,7 +6,7 @@ if (params.help) {
    exit 0
 }
 // Validate input parameters
-// validateParameters()
+validateParameters()
 
 // Print summary of supplied parameters
 log.info paramsSummaryLog(workflow)

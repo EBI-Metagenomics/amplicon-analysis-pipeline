@@ -1,0 +1,52 @@
+{
+    "paired-end fastq - stub": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false,
+                        "interleaved": false
+                    },
+                    [
+                        "test_1_reformated.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940",
+                        "test_2_reformated.fastq.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
+                    ]
+                ]
+            ],
+            [
+                "versions.yml:md5,0ab1d8143bd1544270934927271e7172"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-02-16T16:12:27.034168"
+    },
+    "paired-end fastq": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test",
+                        "single_end": false,
+                        "interleaved": false
+                    },
+                    [
+                        "test_1_reformated.fastq.gz:md5,f17017afc5027ae04d55ce8138e67e6d",
+                        "test_2_reformated.fastq.gz:md5,f224591861b3b8a39e9232dea0caa20a"
+                    ]
+                ]
+            ],
+            [
+                "versions.yml:md5,0ab1d8143bd1544270934927271e7172"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-02-16T16:12:22.17052"
+    }
+}

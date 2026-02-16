@@ -7,7 +7,7 @@
                         "id": "test",
                         "single_end": false
                     },
-                    "test_its_sanity_check.json:md5,28d10d1753d44d66bb1b62294c7a8c3a"
+                    "test_its_sanity_check.json:md5,4f1468381fed30c3f59b340561c46e87"
                 ]
             ],
             [
@@ -16,15 +16,15 @@
                         "id": "test",
                         "single_end": false
                     },
-                    "test_its_sanity_check_mqc.tsv:md5,fb44e71af3e9c3a011f8012e05f0af25"
+                    "test_its_sanity_check_mqc.tsv:md5,509340c6bf295f6cb7c45f3a49e0a20a"
                 ]
             ]
         ],
         "meta": {
             "nf-test": "0.9.2",
-            "nextflow": "24.10.4"
+            "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-03T15:18:21.044630168"
+        "timestamp": "2026-02-16T16:03:28.071451"
     },
     "its_sanity_checker unsuccessful test": {
         "content": [
@@ -34,7 +34,7 @@
                         "id": "test",
                         "single_end": false
                     },
-                    "test_its_sanity_check.json:md5,928ae970fe43f68b552ebc6c8b31ed53"
+                    "test_its_sanity_check.json:md5,766f4e0449bd81163c53898903e082f8"
                 ]
             ],
             [
@@ -43,14 +43,14 @@
                         "id": "test",
                         "single_end": false
                     },
-                    "test_its_sanity_check_mqc.tsv:md5,4bba0d9e30f51a9888c0045c41843dec"
+                    "test_its_sanity_check_mqc.tsv:md5,3ff4f799301d4bb9a025db24323b084a"
                 ]
             ]
         ],
         "meta": {
             "nf-test": "0.9.2",
-            "nextflow": "24.10.4"
+            "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-03T15:28:04.255576631"
+        "timestamp": "2026-02-16T16:03:33.079704"
     }
 }
