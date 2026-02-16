@@ -8,3 +8,5 @@ old_scripts/
 
 work/
 test-workdir/
+.claude
+CLAUDE.md

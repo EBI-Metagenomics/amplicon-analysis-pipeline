@@ -12,6 +12,7 @@ process FILTER_MASKED_N {
 
     output:
     tuple val(meta), path("*_ITS_rRNA.fa"), emit: filtered_its_fasta, optional: true
+    tuple val(meta), path("*n_seqs.txt")  , emit: num_seqs          , optional: true
     path "versions.yml"                   , emit: versions
 
     script:
@@ -20,6 +21,7 @@ process FILTER_MASKED_N {
         | awk '\$3 > 50' > temp_fasta.tab
 
     num_lines=\$(wc -l temp_fasta.tab | cut -d' ' -f1)
+    echo \$num_lines > ${meta.id}_n_seqs.txt
 
     if [ \$num_lines -gt 0 ]
     then

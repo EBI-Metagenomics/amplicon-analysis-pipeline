@@ -14,10 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import logging
-from pathlib import Path
 
-from Bio import SeqIO
 import click
 import pandas as pd
 
@@ -27,12 +26,6 @@ TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD = 1000
 MAPPING_PROPORTION_TEST_THRESHOLD = 0.50
 RANK_PROPORTION_TEST_THRESHOLD = 0.50
 
-
-def get_linecount(input_file: Path) -> int:
-    """Get number of non-header lines in a file"""
-    # the -1 is to not count headers
-    linecount = sum(1 for _ in open(input_file, "r")) - 1
-    return linecount
 
 
 def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> bool:
@@ -124,27 +117,13 @@ def rank_proportion_test(
 
 ############## ITS Sanity Checker ##############
 @click.command(
-    options_metavar="--itsonedb_output <itsonedb_output> --unite_output <itsonedb_output> -r <reads> -p <output_prefix>",
     short_help="Sanity check whether a potential ITS result isn't just a different marker gene",
 )
 @click.option(
-    "--itsonedb_output",
+    "--read_assignments",
     required=True,
-    help="Output from MAPseq containing ITSoneDB taxonomic assignments",
-    type=click.Path(exists=True, path_type=Path, dir_okay=False),
-)
-@click.option(
-    "--unite_output",
-    required=True,
-    help="Output from MAPseq containing UNITE taxonomic assignments",
-    type=click.Path(exists=True, path_type=Path, dir_okay=False),
-)
-@click.option(
-    "-r",
-    "--rrna_extraction_output",
-    required=True,
-    help="Output reads FASTA file from `MASK_FASTA_SWF:FILTER_MASKED_N` module which contains potential ITS assignments",
-    type=click.Path(exists=True, path_type=Path, dir_okay=False),
+    help="JSON file containing read assignment counts and file paths keyed by database name",
+    type=click.Path(exists=True, dir_okay=False),
 )
 @click.option(
     "-p",
@@ -154,23 +133,21 @@ def rank_proportion_test(
     type=str,
 )
 def its_sanity_checker(
-    itsonedb_output: Path,
-    unite_output: Path,
-    rrna_extraction_output: Path,
+    read_assignments: str,
     output_prefix: str,
 ) -> None:
     """
     Runs three sanity tests to verify whether reads are actually from ITS or from a different marker gene.
     Inputs are:
-        - Uses mapping output files from MAPseq and UNITE + ITSoneDB reference databases
-        - rRNA extraction output reads which are 'potential' ITS reads
+        - A JSON file containing read assignment counts (ITSone, UNITE, Rfam_SSU_LSU)
+          and MAPseq output file paths (ITSone_fp, UNITE_fp) keyed by database name
 
     The tests are:
         - **Tax Assignment Count Test**: Check whether the number of reads with assignments
         is above the `TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD` threshold
         - **Mapping Proportion Test**: Check whether the proportion of reads with assignments
         is above the `PROPORTION_TEST_THRESHOLD` threshold
-        - **Tax Assignment Count Test**: Check whether the proportion of reads with assignments
+        - **Rank Proportion Test**: Check whether the proportion of reads with assignments
         below the rank of Kingdom is above the `RANK_PROPORTION_TEST_THRESHOLD` threshold
 
     Outputs are:
@@ -179,48 +156,74 @@ def its_sanity_checker(
     """
     logging.info("Running ITS sanity checker on these inputs:")
     logging.info(
-        f"{itsonedb_output=}, {unite_output=}, {rrna_extraction_output=}, {output_prefix=}"
+        f"{read_assignments=}, {output_prefix=}"
     )
 
-    results_dict = {}
+    with open(read_assignments) as f:
+        counts = json.load(f)
 
-    itsonedb_df = pd.read_csv(
-        itsonedb_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
-    )
-    unite_df = pd.read_csv(
-        unite_output, header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
-    )
+    # Log any missing keys
+    expected_keys = ["ITSone", "UNITE", "Rfam_SSU_LSU", "ITSone_fp", "UNITE_fp"]
+    missing_keys = [k for k in expected_keys if k not in counts]
+    if missing_keys:
+        logging.warning(f"Missing keys in read assignments JSON: {missing_keys}")
 
-    itsonedb_linecount = len(itsonedb_df)
-    unite_linecount = len(unite_df)
-    rrna_readcount = 0
-
-    # get number of reads rather than number of lines
-    with open(rrna_extraction_output) as fr:
-        for _ in SeqIO.parse(fr, "fasta"):
-            rrna_readcount += 1
+    itsonedb_linecount = counts.get("ITSone", 0)
+    unite_linecount = counts.get("UNITE", 0)
+    rrna_readcount = counts.get("Rfam_SSU_LSU", 0)
 
     logging.info(f"Potential ITS reads count: {rrna_readcount}")
     logging.info(f"ITSoneDB assignment count: {itsonedb_linecount}")
     logging.info(f"UNITE assignment count: {unite_linecount}")
 
+    results_dict = {}
+
+    # Tax Assignment Count Test requires: ITSone, UNITE
     logging.info("Running Tax Assignment Count Test")
-    tax_assignment_count_pass = tax_assignment_count_test(
-        itsonedb_linecount, unite_linecount
-    )
+    if "ITSone" in counts and "UNITE" in counts:
+        tax_assignment_count_pass = tax_assignment_count_test(
+            itsonedb_linecount, unite_linecount
+        )
+    else:
+        logging.warning("Tax Assignment Count Test FAILED: missing required keys "
+                        f"{[k for k in ['ITSone', 'UNITE'] if k not in counts]}")
+        tax_assignment_count_pass = False
     results_dict["tax_assignment_count_test"] = tax_assignment_count_pass
 
+    # Mapping Proportion Test requires: ITSone, UNITE, Rfam_SSU_LSU
     logging.info("Running Mapping Proportion Test")
-    mapping_proportion_pass, itsonedb_reads_mapping, unite_reads_mapping = (
-        mapping_proportion_test(itsonedb_linecount, unite_linecount, rrna_readcount)
-    )
+    mapping_proportion_keys = ["ITSone", "UNITE", "Rfam_SSU_LSU"]
+    if all(k in counts for k in mapping_proportion_keys):
+        mapping_proportion_pass, itsonedb_reads_mapping, unite_reads_mapping = (
+            mapping_proportion_test(itsonedb_linecount, unite_linecount, rrna_readcount)
+        )
+    else:
+        logging.warning("Mapping Proportion Test FAILED: missing required keys "
+                        f"{[k for k in mapping_proportion_keys if k not in counts]}")
+        mapping_proportion_pass = False
+        itsonedb_reads_mapping = 0.0
+        unite_reads_mapping = 0.0
     results_dict["mapping_proportion_test"] = mapping_proportion_pass
 
+    # Rank Proportion Test requires: ITSone, UNITE, ITSone_fp, UNITE_fp
     logging.info("Running Rank Proportion Test")
-
-    rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
-        rank_proportion_test(itsonedb_df, unite_df, itsonedb_linecount, unite_linecount)
-    )
+    rank_proportion_keys = ["ITSone", "UNITE", "ITSone_fp", "UNITE_fp"]
+    if all(k in counts for k in rank_proportion_keys):
+        itsonedb_df = pd.read_csv(
+            counts["ITSone_fp"], header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
+        )
+        unite_df = pd.read_csv(
+            counts["UNITE_fp"], header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
+        )
+        rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
+            rank_proportion_test(itsonedb_df, unite_df, itsonedb_linecount, unite_linecount)
+        )
+    else:
+        logging.warning("Rank Proportion Test FAILED: missing required keys "
+                        f"{[k for k in rank_proportion_keys if k not in counts]}")
+        rank_proportion_pass = False
+        itsone_ranks_below_kingdom = 0.0
+        unite_ranks_below_kingdom = 0.0
     results_dict["rank_proportion_test"] = rank_proportion_pass
 
     if mapping_proportion_pass:
@@ -250,16 +253,22 @@ def its_sanity_checker(
     # set the prefix as the index, implied that it's the run ID for our purposes
     results_dict["run"] = output_prefix
 
-    res_df = pd.DataFrame(results_dict, index=[0])
-    res_df.set_index("run", inplace=True)
-
     out_path = f"{output_prefix}_its_sanity_check.json"
     # multiqc processing is easier if the file is a tsv/csv
     out_path_mqc = f"{output_prefix}_its_sanity_check_mqc.tsv"
 
     logging.info(f"Saving results of tests to {out_path} and {out_path_mqc}")
-    res_df.to_json(out_path, orient="records", double_precision=3, indent=2)
-    res_df.to_csv(out_path_mqc, sep="\t")
+
+    # Write JSON output
+    with open(out_path, "w") as f:
+        json.dump([results_dict], f, indent=2)
+
+    # Write TSV output for multiqc
+    header = "\t".join(k for k in results_dict if k != "run")
+    values = "\t".join(str(results_dict[k]) for k in results_dict if k != "run")
+    with open(out_path_mqc, "w") as f:
+        f.write(f"run\t{header}\n")
+        f.write(f"{output_prefix}\t{values}\n")
 
 
 def main():

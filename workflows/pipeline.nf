@@ -25,6 +25,7 @@ include { DADA2_SWF                        } from '../subworkflows/local/dada2_s
 include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
 include { EXTRACT_ASV_READ_COUNTS          } from '../modules/local/extract_asv_read_counts/main'
 include { EXTRACT_ASVS_LEFT                } from '../modules/local/extract_asvs_left/main'
+include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,7 +77,6 @@ workflow AMPLICON_PIPELINE {
                 'label': fields.label, 
                 'asv': fields.run_asv, 
                 'otu': fields.run_otu, 
-                'its_sanity_check': fields.run_its_sanity_check
             ]
 
             [
@@ -357,6 +357,29 @@ workflow AMPLICON_PIPELINE {
             )
     } 
 
+    
+    /*****************************/
+    /* ITS sanity check */
+    /****************************/
+    read_assignment_counts = MAPSEQ_OTU_KRONA.out.mseq
+        .map { meta, mseq ->
+            [meta.subMap('id'), [(meta.db_label): mseq.readLines().size(), (meta.db_label + '_fp'): mseq]]
+        }
+        .mix(
+            MASK_FASTA_SWF.out.num_seqs
+                .map { meta, num_seqs ->
+                    [meta.subMap('id'), [('Rfam_SSU_LSU'): num_seqs.text.trim().toInteger()]]
+                }
+        )
+        .groupTuple()
+        .map { meta, counts_list ->
+            def counts = [:]
+            counts_list.each { counts.putAll(it) }
+            [meta, counts]
+        }
+    ITS_SANITY_CHECKER(read_assignment_counts)
+
+
     /*****************************/
     /* MultiQC reports */
     /****************************/
@@ -391,8 +414,8 @@ workflow AMPLICON_PIPELINE {
 
                 [meta, final_inputs]
             }
-            .map { meta, cutadapt, fastp, dada2, its_sanity_check_out->
-                def final_inputs = [cutadapt, fastp, dada2, its_sanity_check_out]
+            .map { meta, cutadapt, fastp, dada2 ->
+                def final_inputs = [cutadapt, fastp, dada2]
                 // `remainder: true` will return `null` for that particular item during joining instead of discarding
                 // these conditionals remove said nulls in case we don't have results for these modules
                 if (!cutadapt) {
@@ -400,9 +423,6 @@ workflow AMPLICON_PIPELINE {
                 }
                 if (!dada2) {
                     final_inputs -= dada2
-                }
-                if (!its_sanity_check_out) {
-                    final_inputs -= its_sanity_check_out
                 }
 
                 [meta, final_inputs]
@@ -425,11 +445,6 @@ workflow AMPLICON_PIPELINE {
         .flatten()
         .collect()
         .map { item -> item.findAll { !(it instanceof Map) } }
-        .map { dataList ->
-            // have to remove the individual ITS sanity check outputs before including the study-wide file
-            def its_files_to_remove = dataList.findAll { file -> file.name.contains("its_sanity_check_mqc.tsv") }
-            dataList -= its_files_to_remove
-        }
         .collect()
         .map { dataList -> [['id': 'study_multiqc_report'], dataList] }
 

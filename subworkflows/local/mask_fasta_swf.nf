@@ -31,5 +31,6 @@ workflow MASK_FASTA_SWF {
 
     emit:
         masked_out = FILTER_MASKED_N.out.filtered_its_fasta
+        num_seqs = FILTER_MASKED_N.out.num_seqs
         versions = ch_versions
 }
