@@ -128,7 +128,8 @@ Example output directory structure for one run (`ERR4334351`):
 │   │   ├── ERR4334351_asv_seqs.fasta
 │   │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
 │   │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
-│   │   └── ERR4334351_dada2_stats.tsv
+│   │   ├── ERR4334351_dada2_stats.tsv
+│   │   └── ERR4334351_dada2_truncation_points.txt
 │   ├── primer-identification
 │   │   ├── ERR4334351.cutadapt.json
 │   │   ├── fwd_primers.fasta
