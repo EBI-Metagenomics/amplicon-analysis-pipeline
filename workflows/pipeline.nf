@@ -91,7 +91,6 @@ workflow AMPLICON_PIPELINE {
                 )
             ]
         }
-    mapseq_dbs_in.view{ it -> "mapseq_dbs_in - ${it}"}
 
     // Initialise standard primer library for PIMENTO if user-given//
     // If there are no primers provided, it will fallback to use the default PIMENTO standard primer library

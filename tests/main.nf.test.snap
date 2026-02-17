@@ -77,15 +77,15 @@
             [
                 "ERR4334351.16S.V3-V4.txt:md5,184deb4ff99714b4c71ebc9f2e75eac7",
                 "ERR4334351.tsv:md5,3ddd8162ce28f63c89e770f1d15065f4",
-                "ERR4334351_16S-V3-V4_asv_read_counts.tsv:md5,08ce35799e884f0684d7cb4e4e4c12b2",
-                "ERR4334351_asv_seqs.fasta:md5,e8e69fba548090fe2d89995787257cac",
+                "ERR4334351_16S-V3-V4_asv_read_counts.tsv:md5,bbe6d470d8328746fdead314d727672f",
+                "ERR4334351_asv_seqs.fasta:md5,b7aae7dd872f192639b33cf8d25cf1ec",
                 "ERR4334351_dada2_stats.tsv:md5,f7921090cba5fe24fff77d3a529dccaf",
                 "ERR4334351_dada2_truncation_points.txt:md5,3e0c607db1e36f425d9013e2f8473a4c",
                 "ERR4334351.cutadapt.json:md5,bd2db828792e12a9296e6c5572982717",
                 "ERR4334351_primer_validation.tsv:md5,438b00766b1f24f02de89c99358f8972",
                 "fwd_primers.fasta:md5,d3e8e54f8760c09532deaf1f699bd2e0",
                 "rev_primers.fasta:md5,85be59f336f4dd4b0419bfcfd62697fa",
-                "ERR4334351.fastp.json:md5,787e504e9cfe1e885e4811b8fdc325a6",
+                "ERR4334351.fastp.json:md5,f32c8f9f7dbdea5807151dd04d2b6ab2",
                 "ERR4334351_seqfu.tsv:md5,76e1391d4e77b52a44cbaffa6c77975a",
                 "ERR4334351_suffix_header_err.json:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "ERR4334351.tblout.deoverlapped:md5,b64fff6e87a05f29cec264f7ad52c0d7",
@@ -100,7 +100,7 @@
                 "ERR4334351_SILVA-LSU.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "ERR4334351_SILVA-SSU.tsv:md5,41609bbbcacc98dcc295aa1f840969a9",
                 "ERR4334351_SILVA-SSU.txt:md5,fa97f9a0cbbfdcc8737e65667e56c6c2",
-                "ERRNOREADS.fastp.json:md5,4666c192fac9ea373ec7debc0d74da87",
+                "ERRNOREADS.fastp.json:md5,3d908856f064840005e5fa51cd034603",
                 "ERRNOREADS_seqfu.tsv:md5,23318103da5360a407d8b5d5ec8784f8",
                 "ERRNOREADS_suffix_header_err.json:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "ERRSEQFUFAIL_seqfu.tsv:md5,ecab44c2ab1eeeebbc1ae2d9641d60de",
@@ -129,6 +129,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-16T15:35:11.219018"
+        "timestamp": "2026-02-17T10:12:12.673187"
     }
 }
