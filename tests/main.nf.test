@@ -27,7 +27,7 @@ nextflow_pipeline {
                         def fileSizes = allFiles.collect { file ->
                             "${file.name} - ${file.size()} bytes"
                         }.sort()
-                        assert snapshot(fileSizes).match()
+                        assert snapshot(fileSizes).match("samplesheet_file_sizes")
                     },
 
                     // Snapshot line counts for JSON, TSV, and FASTA files
@@ -37,7 +37,7 @@ nextflow_pipeline {
                             def lineCount = file.text.isEmpty() ? 0 : file.text.trim().split('\n').size()
                             "${file.name} - ${lineCount} lines"
                         }.sort()
-                        assert snapshot(lineCounts).match()
+                        assert snapshot(lineCounts).match("samplesheet_line_counts")
                     },
 
                     // Check that critical output files exist
@@ -82,7 +82,7 @@ nextflow_pipeline {
                         assert silva_ssu.contains("SILVA-SSU")
 
                         def silva_lsu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-LSU/ERR4334351_SILVA-LSU.tsv").text
-                        assert silva_lsu.exists() && !silva_lsu.empty
+                        assert !silva_lsu.isEmpty()
 
                         def pr2 = path("${params.outdir}/ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.tsv").text
                         assert pr2.contains("# Constructed from biom file")
@@ -145,11 +145,11 @@ nextflow_pipeline {
                     {
                         def fwd_primers = path("${params.outdir}/ERR4334351/primer-identification/fwd_primers.fasta").text
                         assert fwd_primers.contains(">")
-                        assert fwd_primers.matches("(?s).*^[ACGTN]+.*") : "Should contain DNA sequences"
+                        assert fwd_primers.matches("(?sm).*^[ACGTRYMKSWHBVDN]+\$.*") : "Should contain DNA sequences"
 
                         def rev_primers = path("${params.outdir}/ERR4334351/primer-identification/rev_primers.fasta").text
                         assert rev_primers.contains(">")
-                        assert rev_primers.matches("(?s).*^[ACGTN]+.*") : "Should contain DNA sequences"
+                        assert rev_primers.matches("(?sm).*^[ACGTRYMKSWHBVDN]+\$.*") : "Should contain DNA sequences"
                     },
 
                     // Verify sequence categorisation files (FASTA format)
@@ -185,6 +185,227 @@ nextflow_pipeline {
                         def amp_region = path("${params.outdir}/ERR4334351/amplified-region-inference/ERR4334351.tsv").text
                         assert !amp_region.empty
                         assert amp_region.contains("16S") || amp_region.contains("V3") || amp_region.contains("V4")
+                    },
+
+                    // Verify software versions file exists and is valid YAML
+                    {
+                        def versions = path("${params.outdir}/pipeline_info/software_versions.yml").text
+                        assert !versions.empty
+                        assert versions.contains(":")
+                    }
+                )
+            }
+        }
+    }
+
+    test("Double amplicon amplicon-pipeline") {
+
+        tag "double_amp"
+
+        setup {
+            // Create samplesheet with resolved projectDir paths for local test fixtures
+            def samplesheet = new File("${outputDir}/test_samplesheet_double_amp.csv")
+            samplesheet.text = """\
+sample,fastq_1,fastq_2,single_end
+ERRSEQFUFAIL,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSEQFUFAIL_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSEQFUFAIL_2.fastq.gz,false
+ERRSFXHDFAIL,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSFXHDFAIL_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSFXHDFAIL_2.fastq.gz,false
+ERRNOREADS,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRNOREADS_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRNOREADS_2.fastq.gz,false
+MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fastq.gz,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_2.fastq.gz,false
+"""
+        }
+
+        when {
+            params {
+                input  = "${outputDir}/test_samplesheet_double_amp.csv"
+                outdir = "$outputDir"
+                non_insdc = true
+            }
+        }
+
+        then {
+
+            with(workflow) {
+                assertAll(
+                    { assert success },
+
+                    // Snapshot all output file sizes for regression detection
+                    {
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_double_amp.csv'])
+                        def fileSizes = allFiles.collect { file ->
+                            "${file.name} - ${file.size()} bytes"
+                        }.sort()
+                        assert snapshot(fileSizes).match("double_amp_file_sizes")
+                    },
+
+                    // Snapshot line counts for JSON, TSV, and FASTA files
+                    {
+                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*', 'test_samplesheet_double_amp.csv'])
+                        def lineCounts = dataFiles.collect { file ->
+                            def lineCount = file.text.isEmpty() ? 0 : file.text.trim().split('\n').size()
+                            "${file.name} - ${lineCount} lines"
+                        }.sort()
+                        assert snapshot(lineCounts).match("double_amp_line_counts")
+                    },
+
+                    // Check that critical output files exist
+                    { assert path("${params.outdir}/qc_passed_runs.csv").exists() },
+                    { assert path("${params.outdir}/qc_failed_runs.csv").exists() },
+                    { assert path("${params.outdir}/primer_validation_summary.json").exists() },
+
+                    // Verify qc_passed_runs.csv content
+                    {
+                        def content = path("${params.outdir}/qc_passed_runs.csv").text
+                        assert content.contains("MOCKDOUBLEAMP,all_results") || content.contains("MOCKDOUBLEAMP,no_asvs")
+                    },
+
+                    // Verify qc_failed_runs.csv has all expected failures
+                    {
+                        def content = path("${params.outdir}/qc_failed_runs.csv").text
+                        def lines = content.trim().split('\n')
+                        assert lines.size() == 3 : "Expected 3 failed runs"
+                        assert content.contains("ERRNOREADS,no_reads")
+                        assert content.contains("ERRSFXHDFAIL,sfxhd_fail")
+                        assert content.contains("ERRSEQFUFAIL,seqfu_fail")
+                    },
+
+                    // Verify primer_validation_summary.json structure and content (should have both V3-V4 and V9 primers)
+                    {
+                        def json = new groovy.json.JsonSlurper().parseText(
+                            path("${params.outdir}/primer_validation_summary.json").text
+                        )
+                        assert json instanceof List
+                        assert json.size() > 0
+                        def sample = json.find { it.id == "MOCKDOUBLEAMP" }
+                        assert sample != null
+                        assert sample.primers instanceof List
+                        assert sample.primers.size() == 4 : "Expected 4 primers (2 for V3-V4, 2 for V9)"
+                        assert sample.primers.any { p -> p.name == "341F" && p.strand == "fwd" }
+                        assert sample.primers.any { p -> p.name == "805R" && p.strand == "rev" }
+                        assert sample.primers.any { p -> p.name == "1391F" && p.strand == "fwd" }
+                        assert sample.primers.any { p -> p.name == "1510R" && p.strand == "rev" }
+                    },
+
+                    // Verify amplified region inference detects both 16S V3-V4 and 18S V9
+                    {
+                        def amp_region = path("${params.outdir}/MOCKDOUBLEAMP/amplified-region-inference/MOCKDOUBLEAMP.tsv").text
+                        assert !amp_region.isEmpty()
+                        assert amp_region.contains("16S") && amp_region.contains("V3-V4")
+                        assert amp_region.contains("18S") && amp_region.contains("V9")
+                    },
+
+                    // Verify OTU taxonomy outputs have content and proper structure
+                    {
+                        def silva_ssu = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.tsv").text
+                        assert silva_ssu.contains("# Constructed from biom file")
+                        assert silva_ssu.contains("sk__Bacteria")
+                        assert silva_ssu.contains("SILVA-SSU")
+
+                        def silva_lsu = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/SILVA-LSU/MOCKDOUBLEAMP_SILVA-LSU.tsv").text
+                        assert !silva_lsu.isEmpty()
+
+                        def pr2 = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/PR2/MOCKDOUBLEAMP_PR2.tsv").text
+                        assert pr2.contains("# Constructed from biom file")
+                    },
+
+                    // Verify ASV sequence file contains FASTA format
+                    {
+                        def asv_seqs = path("${params.outdir}/MOCKDOUBLEAMP/asv/MOCKDOUBLEAMP_asv_seqs.fasta").text
+                        def lines = asv_seqs.trim().split('\n')
+                        assert lines.size() > 0
+                        assert lines[0].startsWith(">") : "First line should be FASTA header"
+                        def hasSequences = lines.any { line -> !line.startsWith(">") && line.matches("^[ACGTN]+\$") }
+                        assert hasSequences : "Should contain DNA sequences"
+                    },
+
+                    // Verify ASV taxonomy outputs have proper structure
+                    {
+                        def dada2_silva = path("${params.outdir}/MOCKDOUBLEAMP/asv/MOCKDOUBLEAMP_DADA2-SILVA_asv_tax.tsv").text
+                        def dada2_silva_lines = dada2_silva.trim().split('\n')
+                        assert dada2_silva_lines.size() > 0
+                        assert dada2_silva_lines[0].contains("ASV") || dada2_silva_lines[0].contains("asv")
+                        assert dada2_silva_lines.any { line -> line.contains("sk__") }
+
+                        def dada2_pr2 = path("${params.outdir}/MOCKDOUBLEAMP/asv/MOCKDOUBLEAMP_DADA2-PR2_asv_tax.tsv").text
+                        assert dada2_pr2.contains("d__Bacteria") || dada2_pr2.contains("sk__")
+                    },
+
+                    // Verify DADA2 stats file has expected metrics
+                    {
+                        def stats_content = path("${params.outdir}/MOCKDOUBLEAMP/asv/MOCKDOUBLEAMP_dada2_stats.tsv").text
+                        assert stats_content.contains("initial_number_of_reads")
+                        assert stats_content.contains("proportion_matched")
+                        assert stats_content.contains("proportion_chimeric")
+                        assert stats_content.contains("final_number_of_reads")
+                    },
+
+                    // Verify ASV read counts for both amplified regions
+                    {
+                        def asv_counts_16s = path("${params.outdir}/MOCKDOUBLEAMP/asv/16S-V3-V4/MOCKDOUBLEAMP_16S-V3-V4_asv_read_counts.tsv").text
+                        assert !asv_counts_16s.isEmpty()
+                        assert asv_counts_16s.contains("asv") && asv_counts_16s.contains("count")
+
+                        def asv_counts_18s = path("${params.outdir}/MOCKDOUBLEAMP/asv/18S-V9/MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv").text
+                        assert !asv_counts_18s.isEmpty()
+                        assert asv_counts_18s.contains("asv") && asv_counts_18s.contains("count")
+
+                        def asv_counts_concat = path("${params.outdir}/MOCKDOUBLEAMP/asv/concat/MOCKDOUBLEAMP_concat_asv_read_counts.tsv").text
+                        assert !asv_counts_concat.isEmpty()
+                        assert asv_counts_concat.contains("asv") && asv_counts_concat.contains("count")
+                    },
+
+                    // Verify primer identification outputs
+                    {
+                        def primer_val = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP_primer_validation.tsv").text
+                        assert primer_val.contains("Run")
+                        assert primer_val.contains("MOCKDOUBLEAMP")
+                        assert primer_val.contains("341F") && primer_val.contains("805R")
+                        assert primer_val.contains("1391F") && primer_val.contains("1510R")
+                        assert primer_val.contains("fwd") && primer_val.contains("rev")
+
+                        def cutadapt_json = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.cutadapt.json").text
+                        def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
+                        assert cutadapt instanceof Map
+                    },
+
+                    // Verify primer FASTA files contain sequences for both amplicon regions
+                    {
+                        def fwd_primers = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/fwd_primers.fasta").text
+                        assert fwd_primers.contains(">341F")
+                        assert fwd_primers.contains(">1391F")
+                        assert fwd_primers.matches("(?sm).*^[ACGTRYMKSWHBVDN]+\$.*") : "Should contain DNA sequences"
+
+                        def rev_primers = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/rev_primers.fasta").text
+                        assert rev_primers.contains(">805R")
+                        assert rev_primers.contains(">1510R")
+                        assert rev_primers.matches("(?sm).*^[ACGTRYMKSWHBVDN]+\$.*") : "Should contain DNA sequences"
+                    },
+
+                    // Verify sequence categorisation files (FASTA format, should have bacteria and eukarya)
+                    {
+                        def ssu = path("${params.outdir}/MOCKDOUBLEAMP/sequence-categorisation/MOCKDOUBLEAMP_SSU.fasta").text
+                        assert ssu.contains(">")
+                        def ssu_lines = ssu.trim().split('\n')
+                        assert ssu_lines.any { line -> line.startsWith(">") }
+
+                        def bacteria = path("${params.outdir}/MOCKDOUBLEAMP/sequence-categorisation/MOCKDOUBLEAMP_SSU_rRNA_bacteria.RF00177.fasta").text
+                        assert bacteria.contains(">")
+
+                        def eukarya = path("${params.outdir}/MOCKDOUBLEAMP/sequence-categorisation/MOCKDOUBLEAMP_SSU_rRNA_eukarya.RF01960.fasta").text
+                        assert eukarya.contains(">")
+                    },
+
+                    // Verify QC outputs
+                    {
+                        def fastp_json = path("${params.outdir}/MOCKDOUBLEAMP/qc/MOCKDOUBLEAMP.fastp.json").text
+                        def fastp = new groovy.json.JsonSlurper().parseText(fastp_json)
+                        assert fastp instanceof Map
+                        assert fastp.summary || fastp.before_filtering
+
+                        def seqfu_tsv = path("${params.outdir}/MOCKDOUBLEAMP/qc/MOCKDOUBLEAMP_seqfu.tsv").text
+                        assert seqfu_tsv.contains("OK") || seqfu_tsv.contains("PE") || seqfu_tsv.contains("SE")
+
+                        def suffix_header = path("${params.outdir}/MOCKDOUBLEAMP/qc/MOCKDOUBLEAMP_suffix_header_err.json").text
+                        assert suffix_header.empty || new groovy.json.JsonSlurper().parseText(suffix_header) instanceof Map
                     },
 
                     // Verify software versions file exists and is valid YAML

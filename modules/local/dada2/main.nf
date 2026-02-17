@@ -13,7 +13,7 @@ process DADA2 {
     tuple val(meta), path("*_dada2_stats.tsv")                                     , optional: true, emit: dada2_stats
     tuple val(meta), path("*_dada2_output.txt")                                    , optional: true, emit: dada2_stdout
     tuple val(meta), path("*_dada2_errors.txt")                                    , optional: true, emit: dada2_errors
-    tuple val(meta), path("*_dada2_truncation_points.txt")                         , optional: true, emit: dada2_truncation_points
+    tuple val(meta), path("*_dada2_truncation_points.tsv")                         , optional: true, emit: dada2_truncation_points
     tuple val(meta), env(stats_fail)                                               , optional: true, emit: dada2_stats_fail
     path "versions.yml"                                                            , emit: versions
     
@@ -24,7 +24,17 @@ process DADA2 {
         error_file="${meta.id}_dada2_errors.txt"
         dada2.R ${meta.id} $reads 1> \$output_file 2> \$error_file
 
-        grep -E "The (forward|reverse) strand truncation point is: " \$output_file > ${meta.id}_dada2_truncation_points.txt
+        fwd_trunc=\$(grep -E "The forward strand truncation point is: " \$output_file | sed -E 's/^[^0-9]*([0-9]+)[^0-9]*\$/\\1/')
+        rev_trunc=\$(grep -E "The reverse strand truncation point is: " \$output_file | sed -E 's/^[^0-9]*([0-9]+)[^0-9]*\$/\\1/')
+        
+        trunc_fp="${meta.id}_dada2_truncation_points.tsv"
+        echo "pair\\tposition" > \$trunc_fp
+        if [ -n \$fwd_trunc ]; then
+            echo "forward\\t\$fwd_trunc" >> \$trunc_fp
+        fi
+        if [ -n \$rev_trunc ]; then
+            echo "reverse\\t\$rev_trunc" >> \$trunc_fp
+        fi
 
         stats_fail=false
         if [[ -s \$error_file ]] && grep -q "Caught an error" \$error_file; then
@@ -43,7 +53,17 @@ process DADA2 {
         error_file="${meta.id}_dada2_errors.txt"
         dada2.R ${meta.id} ${reads[0]} ${reads[1]} 1> \$output_file 2> \$error_file
 
-        grep -E "The (forward|reverse) strand truncation point is: " \$output_file > ${meta.id}_dada2_truncation_points.txt
+        fwd_trunc=\$(grep -E "The forward strand truncation point is: " \$output_file | sed -E 's/^[^0-9]*([0-9]+)[^0-9]*\$/\\1/')
+        rev_trunc=\$(grep -E "The reverse strand truncation point is: " \$output_file | sed -E 's/^[^0-9]*([0-9]+)[^0-9]*\$/\\1/')
+        
+        trunc_fp="${meta.id}_dada2_truncation_points.tsv"
+        echo "pair\\tposition" > \$trunc_fp
+        if [ -n \$fwd_trunc ]; then
+            echo "forward\\t\$fwd_trunc" >> \$trunc_fp
+        fi
+        if [ -n \$rev_trunc ]; then
+            echo "reverse\\t\$rev_trunc" >> \$trunc_fp
+        fi
 
         stats_fail=false
         if [[ -s \$error_file ]] && grep -q "Caught an error" \$error_file; then
