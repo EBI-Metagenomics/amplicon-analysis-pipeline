@@ -41,6 +41,7 @@ At this stage, the only sequence amplicons that this pipeline is built for are:
 | Tool                                                                                            | Version  | Purpose                                                |
 | ----------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------ |
 | [fastp](https://github.com/OpenGene/fastp)                                                      | 1.0.1    | Read quality control                                   |
+| [bbmap](https://sourceforge.net/projects/bbmap)                                                 | 35.85    | Standardise paired-end fastq files                     |
 | [SeqFu](https://github.com/telatin/seqfu2)                                                      | 1.20.3   | FASTQ sanity checking                                  |
 | [seqtk](https://github.com/lh3/seqtk)                                                           | 1.4      | FASTQ file manipulation                                |
 | [SeqKit](https://bioinf.shenwei.me/seqkit/)                                                     | 2.9.0    | FASTQ file manipulation                                |
@@ -88,6 +89,27 @@ sample,fastq_1,fastq_2,single_end
 SRR9674618,/path/to/reads/SRR9674618.fastq.gz,,true
 SRR17062740,/path/to/reads/SRR17062740_1.fastq.gz,/path/to/reads/SRR17062740_2.fastq.gz,false
 ```
+
+### Defining reference MapSeq databases
+
+MapSeq databases for assigning taxonomy to sequences (i.e. reads or ASVs) are defined in a Nextflow config file as parameters. These definitions must adhere to a structure which describes 
+1. filepaths
+2. flags determining how the database will be used by the pipeline
+3. labels for naming results files
+
+The structure is as follows:
+* `params.databases`
+  * `<database_name>`
+    * `fasta`: filepath of MapSeq FASTA file containing reference sequences
+    * `tax`: filepath of MapSeq taxonomy of reference sequences
+    * `otu`: filepath of MapSeq pre-clustered OTU reference
+    * `cluster`: filepath of MapSeq pre-computed k-mer clustering reference
+    * `run_otu`: true/false for whether this database is used to run OTU analysis
+    * `run_asv`: true/false for whether this database is used to run ASV analysis
+    * `label`: label to be used for naming OTU analysis outputs
+    * `asv_label`: label to be used for naming ASV analysis outputs (Required only if `run_asv = true`)
+
+Examples can be found in `conf/test_dbs.config`.
 
 ### Execution
 
