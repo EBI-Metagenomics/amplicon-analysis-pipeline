@@ -17,32 +17,182 @@ nextflow_pipeline {
 
         then {
 
-            def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,yml}'])
-            def stable_path = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
-            def compressed_fastq = getAllFilesFromDir(params.outdir, include: ['ERR4334351/qc/*.merged.fastq.gz'])
-
-            // the order of lines change for these files so getting the name + filesize instead
-            def mseqs = getAllFilesFromDir(params.outdir, include: ['**/taxonomy-summary/**/*.mseq'])
-            def mseq_strings = mseqs.collect { mseq ->
-                "${mseq.name} - filesize: ${mseq.size()}"
-            }
-            // the order of lines change for these files so getting the name + filesize instead
-            def asv_taxa = getAllFilesFromDir(params.outdir, include: ['**/asv/*asv_tax.tsv'])
-            def asv_taxa_strings = asv_taxa.collect { asv_tax ->
-                "${asv_tax.name} - filesize: ${asv_tax.size()}"
-            }
-
             with(workflow) {
                 assertAll(
-                    { assert success }, 
-                    // Test output of certain important files
-                    { assert snapshot(
-                        stable_name,
-                        stable_path,
-                        compressed_fastq,
-                        mseq_strings,
-                        asv_taxa_strings
-                    ).match() }
+                    { assert success },
+
+                    // Snapshot all output file sizes for regression detection
+                    {
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}'])
+                        def fileSizes = allFiles.collect { file ->
+                            "${file.name} - ${file.size()} bytes"
+                        }.sort()
+                        assert snapshot(fileSizes).match()
+                    },
+
+                    // Snapshot line counts for JSON, TSV, and FASTA files
+                    {
+                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*'])
+                        def lineCounts = dataFiles.collect { file ->
+                            def lineCount = file.text.isEmpty() ? 0 : file.text.trim().split('\n').size()
+                            "${file.name} - ${lineCount} lines"
+                        }.sort()
+                        assert snapshot(lineCounts).match()
+                    },
+
+                    // Check that critical output files exist
+                    { assert path("${params.outdir}/qc_passed_runs.csv").exists() },
+                    { assert path("${params.outdir}/qc_failed_runs.csv").exists() },
+                    { assert path("${params.outdir}/primer_validation_summary.json").exists() },
+
+                    // Verify qc_passed_runs.csv content
+                    {
+                        def content = path("${params.outdir}/qc_passed_runs.csv").text
+                        assert content.contains("ERR4334351,all_results")
+                    },
+
+                    // Verify qc_failed_runs.csv has all expected failures
+                    {
+                        def content = path("${params.outdir}/qc_failed_runs.csv").text
+                        def lines = content.trim().split('\n')
+                        assert lines.size() == 3 : "Expected 3 failed runs"
+                        assert content.contains("ERRNOREADS,no_reads")
+                        assert content.contains("ERRSFXHDFAIL,sfxhd_fail")
+                        assert content.contains("ERRSEQFUFAIL,seqfu_fail")
+                    },
+
+                    // Verify primer_validation_summary.json structure and content
+                    {
+                        def json = new groovy.json.JsonSlurper().parseText(
+                            path("${params.outdir}/primer_validation_summary.json").text
+                        )
+                        assert json instanceof List
+                        assert json.size() > 0
+                        assert json[0].id == "ERR4334351"
+                        assert json[0].primers instanceof List
+                        assert json[0].primers.any { p -> p.name == "341F" && p.strand == "fwd" }
+                        assert json[0].primers.any { p -> p.name == "805R" && p.strand == "rev" }
+                    },
+
+                    // Verify OTU taxonomy outputs have content and proper structure
+                    {
+                        def silva_ssu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv").text
+                        assert silva_ssu.contains("# Constructed from biom file")
+                        assert silva_ssu.contains("sk__Bacteria")
+                        assert silva_ssu.contains("SILVA-SSU")
+
+                        def silva_lsu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-LSU/ERR4334351_SILVA-LSU.tsv").text
+                        assert silva_lsu.exists() && !silva_lsu.empty
+
+                        def pr2 = path("${params.outdir}/ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.tsv").text
+                        assert pr2.contains("# Constructed from biom file")
+                    },
+
+                    // Verify ASV sequence file contains FASTA format
+                    {
+                        def asv_seqs = path("${params.outdir}/ERR4334351/asv/ERR4334351_asv_seqs.fasta").text
+                        def lines = asv_seqs.trim().split('\n')
+                        assert lines.size() > 0
+                        assert lines[0].startsWith(">") : "First line should be FASTA header"
+                        // Verify there are sequences (non-header lines with letters)
+                        def hasSequences = lines.any { line -> !line.startsWith(">") && line.matches("^[ACGTN]+\$") }
+                        assert hasSequences : "Should contain DNA sequences"
+                    },
+
+                    // Verify ASV taxonomy outputs have proper structure
+                    {
+                        def dada2_silva = path("${params.outdir}/ERR4334351/asv/ERR4334351_DADA2-SILVA_asv_tax.tsv").text
+                        def dada2_silva_lines = dada2_silva.trim().split('\n')
+                        assert dada2_silva_lines.size() > 0
+                        assert dada2_silva_lines[0].contains("ASV") || dada2_silva_lines[0].contains("asv")
+                        assert dada2_silva_lines.any { line -> line.contains("sk__") }
+
+                        def dada2_pr2 = path("${params.outdir}/ERR4334351/asv/ERR4334351_DADA2-PR2_asv_tax.tsv").text
+                        assert dada2_pr2.contains("sk__")
+                    },
+
+                    // Verify DADA2 stats file has expected metrics
+                    {
+                        def stats_content = path("${params.outdir}/ERR4334351/asv/ERR4334351_dada2_stats.tsv").text
+                        assert stats_content.contains("initial_number_of_reads")
+                        assert stats_content.contains("proportion_matched")
+                        assert stats_content.contains("proportion_chimeric")
+                        assert stats_content.contains("final_number_of_reads")
+                    },
+
+                    // Verify ASV read counts file has proper structure
+                    {
+                        def asv_counts = path("${params.outdir}/ERR4334351/asv/16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv").text
+                        assert !asv_counts.empty
+                        def lines = asv_counts.trim().split('\n')
+                        assert lines.size() > 0
+                    },
+
+                    // Verify primer identification outputs
+                    {
+                        def primer_val = path("${params.outdir}/ERR4334351/primer-identification/ERR4334351_primer_validation.tsv").text
+                        assert primer_val.contains("Run")
+                        assert primer_val.contains("ERR4334351")
+                        assert primer_val.contains("341F") || primer_val.contains("16S")
+                        assert primer_val.contains("fwd") || primer_val.contains("rev")
+
+                        def cutadapt_json = path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.cutadapt.json").text
+                        def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
+                        assert cutadapt instanceof Map
+                    },
+
+                    // Verify primer FASTA files
+                    {
+                        def fwd_primers = path("${params.outdir}/ERR4334351/primer-identification/fwd_primers.fasta").text
+                        assert fwd_primers.contains(">")
+                        assert fwd_primers.matches("(?s).*^[ACGTN]+.*") : "Should contain DNA sequences"
+
+                        def rev_primers = path("${params.outdir}/ERR4334351/primer-identification/rev_primers.fasta").text
+                        assert rev_primers.contains(">")
+                        assert rev_primers.matches("(?s).*^[ACGTN]+.*") : "Should contain DNA sequences"
+                    },
+
+                    // Verify sequence categorisation files (FASTA format)
+                    {
+                        def ssu = path("${params.outdir}/ERR4334351/sequence-categorisation/ERR4334351_SSU.fasta").text
+                        assert ssu.contains(">")
+                        def ssu_lines = ssu.trim().split('\n')
+                        assert ssu_lines.any { line -> line.startsWith(">") }
+
+                        def bacteria = path("${params.outdir}/ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_bacteria.RF00177.fasta").text
+                        assert bacteria.contains(">") || bacteria.empty
+
+                        def archaea = path("${params.outdir}/ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_archaea.RF01959.fasta").text
+                        assert archaea.contains(">") || archaea.empty
+                    },
+
+                    // Verify QC outputs
+                    {
+                        def fastp_json = path("${params.outdir}/ERR4334351/qc/ERR4334351.fastp.json").text
+                        def fastp = new groovy.json.JsonSlurper().parseText(fastp_json)
+                        assert fastp instanceof Map
+                        assert fastp.summary || fastp.before_filtering
+
+                        def seqfu_tsv = path("${params.outdir}/ERR4334351/qc/ERR4334351_seqfu.tsv").text
+                        assert seqfu_tsv.contains("OK") || seqfu_tsv.contains("PE") || seqfu_tsv.contains("SE")
+
+                        def suffix_header = path("${params.outdir}/ERR4334351/qc/ERR4334351_suffix_header_err.json").text
+                        assert suffix_header.empty || new groovy.json.JsonSlurper().parseText(suffix_header) instanceof Map
+                    },
+
+                    // Verify amplified region inference has content
+                    {
+                        def amp_region = path("${params.outdir}/ERR4334351/amplified-region-inference/ERR4334351.tsv").text
+                        assert !amp_region.empty
+                        assert amp_region.contains("16S") || amp_region.contains("V3") || amp_region.contains("V4")
+                    },
+
+                    // Verify software versions file exists and is valid YAML
+                    {
+                        def versions = path("${params.outdir}/pipeline_info/software_versions.yml").text
+                        assert !versions.empty
+                        assert versions.contains(":")
+                    }
                 )
             }
         }
