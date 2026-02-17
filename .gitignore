@@ -1,6 +1,7 @@
 __pycache__/
 docs/
 old_scripts/
+singularity_cache/
 
 .nf-test/
 .nextflow*
