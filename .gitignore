@@ -3,6 +3,7 @@ docs/
 old_scripts/
 
 .nf-test/
+.nf-test*
 .nextflow*
 *.log
 
