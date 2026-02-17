@@ -330,19 +330,19 @@ workflow AMPLICON_PIPELINE {
     /****************************/
     read_assignment_counts = MAPSEQ_OTU_KRONA.out.mseq
         .map { meta, mseq ->
-            [meta.subMap('id'), [(meta.db_label): mseq.readLines().size(), (meta.db_label + '_fp'): mseq]]
+            [meta.subMap('id'), [(meta.db_label): mseq]]
         }
         .mix(
-            MASK_FASTA_SWF.out.num_seqs
-                .map { meta, num_seqs ->
-                    [meta.subMap('id'), [('Rfam_SSU_LSU'): num_seqs.text.trim().toInteger()]]
+            MASK_FASTA_SWF.out.masked_out
+                .map { meta, masked_reads ->
+                    [meta.subMap('id'), [('Rfam_SSU_LSU'): masked_reads]]
                 }
         )
         .groupTuple()
-        .map { meta, counts_list ->
-            def counts = [:]
-            counts_list.each { it -> counts.putAll(it) }
-            [meta, counts]
+        .map { meta, results_list ->
+            def results = [:]
+            results_list.each { it -> results.putAll(it) }
+            [meta, results]
         }
     ITS_SANITY_CHECKER(read_assignment_counts)
 
