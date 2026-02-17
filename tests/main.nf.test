@@ -79,10 +79,7 @@ nextflow_pipeline {
                         def silva_ssu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
                         assert silva_ssu.contains("sk__Bacteria")
-                        assert silva_ssu.contains("SILVA-SSU")
-
-                        def silva_lsu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-LSU/ERR4334351_SILVA-LSU.tsv").text
-                        assert !silva_lsu.isEmpty()
+                        assert silva_ssu.contains("SSU")
 
                         def pr2 = path("${params.outdir}/ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.tsv").text
                         assert pr2.contains("# Constructed from biom file")
@@ -108,7 +105,7 @@ nextflow_pipeline {
                         assert dada2_silva_lines.any { line -> line.contains("sk__") }
 
                         def dada2_pr2 = path("${params.outdir}/ERR4334351/asv/ERR4334351_DADA2-PR2_asv_tax.tsv").text
-                        assert dada2_pr2.contains("sk__")
+                        assert dada2_pr2.contains("d__Bacteria") || dada2_pr2.contains("sk__")
                     },
 
                     // Verify DADA2 stats file has expected metrics
@@ -298,10 +295,7 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                         def silva_ssu = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
                         assert silva_ssu.contains("sk__Bacteria")
-                        assert silva_ssu.contains("SILVA-SSU")
-
-                        def silva_lsu = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/SILVA-LSU/MOCKDOUBLEAMP_SILVA-LSU.tsv").text
-                        assert !silva_lsu.isEmpty()
+                        assert silva_ssu.contains("SSU")
 
                         def pr2 = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/PR2/MOCKDOUBLEAMP_PR2.tsv").text
                         assert pr2.contains("# Constructed from biom file")

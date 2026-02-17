@@ -23,13 +23,15 @@ input:
           e.g. `[ id:'sample1', single_end:false ]`
     - fwd_flag:
         type: string
-        description: String that controls whether the forward strand of a merged fastq
+        description:
+          String that controls whether the forward strand of a merged fastq
           file | should have its MCP proportions assessed. If it should, | string value
           should be "auto"
         pattern: "{auto,none}"
     - rev_flag:
         type: string
-        description: String that controls whether the reverse strand of a merged fastq
+        description:
+          String that controls whether the reverse strand of a merged fastq
           file | should have its MCP proportions assessed. If it should, | string value
           should be "auto"
         pattern: "{auto,none}"

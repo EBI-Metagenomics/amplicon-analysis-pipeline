@@ -1,6 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/ebi-metagenomics/nf-modules/master/subworkflows/yaml-schema.json
 name: "detect_rna"
-description: Extraction of specific cmsearch-identified RNA sequences from a fasta
+description:
+  Extraction of specific cmsearch-identified RNA sequences from a fasta
   file using EASEL
 keywords:
   - RNA

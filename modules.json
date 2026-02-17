@@ -1,215 +1,160 @@
 {
-    "name": "nf-core/ampliconpipeline",
-    "homePage": "https://github.com/nf-core/ampliconpipeline",
-    "repos": {
-        "git@github.com:EBI-Metagenomics/nf-modules.git": {
-            "modules": {
-                "ebi-metagenomics": {
-                    "cmsearchtbloutdeoverlap": {
-                        "branch": "main",
-                        "git_sha": "696324c637a7e0cf06fe331faffee42e36826898",
-                        "installed_by": [
-                            "detect_rna",
-                            "modules"
-                        ],
-                        "patch": "modules/ebi-metagenomics/cmsearchtbloutdeoverlap/cmsearchtbloutdeoverlap.diff"
-                    },
-                    "convertcmscantocmsearch": {
-                        "branch": "main",
-                        "git_sha": "937985d6147b25b74700f2eb6fc41ab4150ad7d4",
-                        "installed_by": [
-                            "detect_rna"
-                        ]
-                    },
-                    "cutadapt": {
-                        "branch": "main",
-                        "git_sha": "09af8ca976af68d2b82da95eb62416a10ed75613",
-                        "installed_by": [
-                            "modules"
-                        ],
-                        "patch": "modules/ebi-metagenomics/cutadapt/cutadapt.diff"
-                    },
-                    "downloadfromfire": {
-                        "branch": "main",
-                        "git_sha": "afc056e9aa0376982a10d458402e200c05d87609",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "easel/eslsfetch": {
-                        "branch": "main",
-                        "git_sha": "f1bf089cb679ca1e363aa81c99a512114402472c",
-                        "installed_by": [
-                            "detect_rna"
-                        ]
-                    },
-                    "extractcoords": {
-                        "branch": "main",
-                        "git_sha": "b8ce29264034badcba2e6bbdd69013220a3fa973",
-                        "installed_by": [
-                            "detect_rna"
-                        ]
-                    },
-                    "fastqsuffixheadercheck": {
-                        "branch": "main",
-                        "git_sha": "2ce9d8fef2b2d7bd7995a2ec4de0e41dc06d757e",
-                        "installed_by": [
-                            "reads_qc"
-                        ]
-                    },
-                    "infernal/cmscan": {
-                        "branch": "main",
-                        "git_sha": "e29278872287d0599819456a2194f763da64aeb8",
-                        "installed_by": [
-                            "detect_rna"
-                        ]
-                    },
-                    "infernal/cmsearch": {
-                        "branch": "main",
-                        "git_sha": "caafb0cac8335cc1834a01091d70bb6ad60a5bf8",
-                        "installed_by": [
-                            "detect_rna",
-                            "modules"
-                        ]
-                    },
-                    "krona/ktimporttext": {
-                        "branch": "main",
-                        "git_sha": "172e93318ac2e2db5f9885b07ffb80443e67848a",
-                        "installed_by": [
-                            "mapseq_otu_krona"
-                        ],
-                        "patch": "modules/ebi-metagenomics/krona/ktimporttext/krona-ktimporttext.diff"
-                    },
-                    "librarystrategycheck": {
-                        "branch": "main",
-                        "git_sha": "9cc5d3c2396859f0f1376bbfe3ca5d721a0b5b3c",
-                        "installed_by": [
-                            "reads_qc"
-                        ]
-                    },
-                    "mapseq": {
-                        "branch": "main",
-                        "git_sha": "1375e8b3072c40346eb4f7d9c1ae15459c07b620",
-                        "installed_by": [
-                            "mapseq_otu_krona"
-                        ],
-                        "patch": "modules/ebi-metagenomics/mapseq/mapseq.diff"
-                    },
-                    "mapseq2biom": {
-                        "branch": "main",
-                        "git_sha": "ac5436f095ff98b7c7a9da83f4550ff99757c0a5",
-                        "installed_by": [
-                            "mapseq_otu_krona"
-                        ],
-                        "patch": "modules/ebi-metagenomics/mapseq2biom/mapseq2biom.diff"
-                    },
-                    "pimento/generatebcv": {
-                        "branch": "main",
-                        "git_sha": "31202bc23f1c8c597d9879e0005e092ff3f32205",
-                        "installed_by": [
-                            "reads_qc"
-                        ]
-                    },
-                    "seqfu/check": {
-                        "branch": "main",
-                        "git_sha": "d1f512bffa29ba7a89468ce29e0153e11b57cc94",
-                        "installed_by": [
-                            "reads_qc"
-                        ]
-                    }
-                }
-            },
-            "subworkflows": {
-                "ebi-metagenomics": {
-                    "detect_rna": {
-                        "branch": "main",
-                        "git_sha": "fa6ca9ca102988669fe429250f43910132fb2fe0",
-                        "installed_by": [
-                            "subworkflows"
-                        ]
-                    },
-                    "mapseq_otu_krona": {
-                        "branch": "main",
-                        "git_sha": "cc01ecb29008656fce3b4899a588c3c8b79547d4",
-                        "installed_by": [
-                            "subworkflows"
-                        ],
-                        "patch": "subworkflows/ebi-metagenomics/mapseq_otu_krona/mapseq_otu_krona.diff"
-                    },
-                    "reads_qc": {
-                        "branch": "main",
-                        "git_sha": "38229c929de149f1be74ae49c565de6587b6f9c0",
-                        "installed_by": [
-                            "subworkflows"
-                        ]
-                    }
-                }
-            }
-        },
-        "https://github.com/nf-core/modules.git": {
-            "modules": {
-                "nf-core": {
-                    "bedtools/maskfasta": {
-                        "branch": "master",
-                        "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
-                        "installed_by": [
-                            "modules"
-                        ],
-                        "patch": "modules/nf-core/bedtools/maskfasta/bedtools-maskfasta.diff"
-                    },
-                    "cat/cat": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "detect_rna"
-                        ]
-                    },
-                    "custom/dumpsoftwareversions": {
-                        "branch": "master",
-                        "git_sha": "76cc4938c1f6ea5c7d83fed1eeffc146787f9543",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "fastp": {
-                        "branch": "master",
-                        "git_sha": "d9ec4ef289ad39b8a662a7a12be50409b11df84b",
-                        "installed_by": [
-                            "modules",
-                            "reads_qc"
-                        ]
-                    },
-                    "multiqc": {
-                        "branch": "master",
-                        "git_sha": "19ca321db5d8bd48923262c2eca6422359633491",
-                        "installed_by": [
-                            "modules"
-                        ]
-                    },
-                    "seqkit/split2": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "detect_rna"
-                        ]
-                    },
-                    "seqtk/seq": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "reads_qc"
-                        ]
-                    },
-                    "seqtk/subseq": {
-                        "branch": "master",
-                        "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
-                        "installed_by": [
-                            "modules"
-                        ],
-                        "patch": "modules/nf-core/seqtk/subseq/seqtk-subseq.diff"
-                    }
-                }
-            }
+  "name": "nf-core/ampliconpipeline",
+  "homePage": "https://github.com/nf-core/ampliconpipeline",
+  "repos": {
+    "git@github.com:EBI-Metagenomics/nf-modules.git": {
+      "modules": {
+        "ebi-metagenomics": {
+          "cmsearchtbloutdeoverlap": {
+            "branch": "main",
+            "git_sha": "696324c637a7e0cf06fe331faffee42e36826898",
+            "installed_by": ["detect_rna", "modules"],
+            "patch": "modules/ebi-metagenomics/cmsearchtbloutdeoverlap/cmsearchtbloutdeoverlap.diff"
+          },
+          "convertcmscantocmsearch": {
+            "branch": "main",
+            "git_sha": "937985d6147b25b74700f2eb6fc41ab4150ad7d4",
+            "installed_by": ["detect_rna"]
+          },
+          "cutadapt": {
+            "branch": "main",
+            "git_sha": "09af8ca976af68d2b82da95eb62416a10ed75613",
+            "installed_by": ["modules"],
+            "patch": "modules/ebi-metagenomics/cutadapt/cutadapt.diff"
+          },
+          "downloadfromfire": {
+            "branch": "main",
+            "git_sha": "afc056e9aa0376982a10d458402e200c05d87609",
+            "installed_by": ["modules"]
+          },
+          "easel/eslsfetch": {
+            "branch": "main",
+            "git_sha": "f1bf089cb679ca1e363aa81c99a512114402472c",
+            "installed_by": ["detect_rna"]
+          },
+          "extractcoords": {
+            "branch": "main",
+            "git_sha": "b8ce29264034badcba2e6bbdd69013220a3fa973",
+            "installed_by": ["detect_rna"]
+          },
+          "fastqsuffixheadercheck": {
+            "branch": "main",
+            "git_sha": "2ce9d8fef2b2d7bd7995a2ec4de0e41dc06d757e",
+            "installed_by": ["reads_qc"]
+          },
+          "infernal/cmscan": {
+            "branch": "main",
+            "git_sha": "e29278872287d0599819456a2194f763da64aeb8",
+            "installed_by": ["detect_rna"]
+          },
+          "infernal/cmsearch": {
+            "branch": "main",
+            "git_sha": "caafb0cac8335cc1834a01091d70bb6ad60a5bf8",
+            "installed_by": ["detect_rna", "modules"]
+          },
+          "krona/ktimporttext": {
+            "branch": "main",
+            "git_sha": "172e93318ac2e2db5f9885b07ffb80443e67848a",
+            "installed_by": ["mapseq_otu_krona"],
+            "patch": "modules/ebi-metagenomics/krona/ktimporttext/krona-ktimporttext.diff"
+          },
+          "librarystrategycheck": {
+            "branch": "main",
+            "git_sha": "9cc5d3c2396859f0f1376bbfe3ca5d721a0b5b3c",
+            "installed_by": ["reads_qc"]
+          },
+          "mapseq": {
+            "branch": "main",
+            "git_sha": "1375e8b3072c40346eb4f7d9c1ae15459c07b620",
+            "installed_by": ["mapseq_otu_krona"],
+            "patch": "modules/ebi-metagenomics/mapseq/mapseq.diff"
+          },
+          "mapseq2biom": {
+            "branch": "main",
+            "git_sha": "ac5436f095ff98b7c7a9da83f4550ff99757c0a5",
+            "installed_by": ["mapseq_otu_krona"],
+            "patch": "modules/ebi-metagenomics/mapseq2biom/mapseq2biom.diff"
+          },
+          "pimento/generatebcv": {
+            "branch": "main",
+            "git_sha": "31202bc23f1c8c597d9879e0005e092ff3f32205",
+            "installed_by": ["reads_qc"]
+          },
+          "seqfu/check": {
+            "branch": "main",
+            "git_sha": "d1f512bffa29ba7a89468ce29e0153e11b57cc94",
+            "installed_by": ["reads_qc"]
+          }
         }
+      },
+      "subworkflows": {
+        "ebi-metagenomics": {
+          "detect_rna": {
+            "branch": "main",
+            "git_sha": "fa6ca9ca102988669fe429250f43910132fb2fe0",
+            "installed_by": ["subworkflows"]
+          },
+          "mapseq_otu_krona": {
+            "branch": "main",
+            "git_sha": "cc01ecb29008656fce3b4899a588c3c8b79547d4",
+            "installed_by": ["subworkflows"],
+            "patch": "subworkflows/ebi-metagenomics/mapseq_otu_krona/mapseq_otu_krona.diff"
+          },
+          "reads_qc": {
+            "branch": "main",
+            "git_sha": "38229c929de149f1be74ae49c565de6587b6f9c0",
+            "installed_by": ["subworkflows"]
+          }
+        }
+      }
+    },
+    "https://github.com/nf-core/modules.git": {
+      "modules": {
+        "nf-core": {
+          "bedtools/maskfasta": {
+            "branch": "master",
+            "git_sha": "8fc1d24c710ebe1d5de0f2447ec9439fd3d9d66a",
+            "installed_by": ["modules"],
+            "patch": "modules/nf-core/bedtools/maskfasta/bedtools-maskfasta.diff"
+          },
+          "cat/cat": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["detect_rna"]
+          },
+          "custom/dumpsoftwareversions": {
+            "branch": "master",
+            "git_sha": "76cc4938c1f6ea5c7d83fed1eeffc146787f9543",
+            "installed_by": ["modules"]
+          },
+          "fastp": {
+            "branch": "master",
+            "git_sha": "d9ec4ef289ad39b8a662a7a12be50409b11df84b",
+            "installed_by": ["modules", "reads_qc"]
+          },
+          "multiqc": {
+            "branch": "master",
+            "git_sha": "19ca321db5d8bd48923262c2eca6422359633491",
+            "installed_by": ["modules"]
+          },
+          "seqkit/split2": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["detect_rna"]
+          },
+          "seqtk/seq": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["reads_qc"]
+          },
+          "seqtk/subseq": {
+            "branch": "master",
+            "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+            "installed_by": ["modules"],
+            "patch": "modules/nf-core/seqtk/subseq/seqtk-subseq.diff"
+          }
+        }
+      }
     }
+  }
 }

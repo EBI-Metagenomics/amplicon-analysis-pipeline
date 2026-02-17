@@ -6,7 +6,8 @@ keywords:
   - transformation
 tools:
   - seqtk:
-      description: Seqtk is a fast and lightweight tool for processing sequences in
+      description:
+        Seqtk is a fast and lightweight tool for processing sequences in
         the FASTA or FASTQ format. The seqtk seq command enables common transformation
         operations on FASTA or FASTQ files.
       homepage: https://github.com/lh3/seqtk
@@ -23,7 +24,8 @@ input:
     - fastx:
         type: file
         description: A FASTQ or FASTA file
-        pattern: "*.{fastq.gz, fastq, fq, fq.gz, fasta, fastq.gz, fa, fa.gz, fas, fas.gz,
+        pattern:
+          "*.{fastq.gz, fastq, fq, fq.gz, fasta, fastq.gz, fa, fa.gz, fas, fas.gz,
           fna, fna.gz}"
         ontologies: []
 output:

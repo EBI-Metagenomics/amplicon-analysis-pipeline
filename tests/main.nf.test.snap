@@ -66,7 +66,7 @@
             "nf-test": "0.9.2",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-17T15:23:43.865023"
+        "timestamp": "2026-02-17T16:02:59.731201"
     },
     "samplesheet_file_sizes": {
         "content": [
@@ -123,7 +123,7 @@
             "nf-test": "0.9.2",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-17T15:19:20.863133"
+        "timestamp": "2026-02-17T15:58:36.825412"
     },
     "double_amp_line_counts": {
         "content": [
@@ -161,7 +161,7 @@
             "nf-test": "0.9.2",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-17T15:23:43.917494"
+        "timestamp": "2026-02-17T16:02:59.779408"
     },
     "samplesheet_line_counts": {
         "content": [
@@ -196,6 +196,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-17T15:19:20.942163"
+        "timestamp": "2026-02-17T15:58:36.87489"
     }
 }

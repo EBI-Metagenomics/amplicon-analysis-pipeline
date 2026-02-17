@@ -37,7 +37,8 @@ input:
         This can be used to use fastp for the output report only.
   - save_trimmed_fail:
       type: boolean
-      description: Specify true to save files that failed to pass trimming thresholds
+      description:
+        Specify true to save files that failed to pass trimming thresholds
         ending in `*.fail.fastq.gz`
   - save_merged:
       type: boolean

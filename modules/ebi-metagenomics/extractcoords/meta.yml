@@ -8,7 +8,8 @@ keywords:
   - lsu
 tools:
   - "extractcoords":
-      description: "Process output from easel-sfetch to extract SSU and LSU sequences,
+      description:
+        "Process output from easel-sfetch to extract SSU and LSU sequences,
         uses mgnify-pipelines-toolkit as conda environment"
       homepage: "https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit"
       documentation: "https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit"
@@ -35,7 +36,8 @@ input:
           e.g. `[ id:'sample1', single_end:false ]`
     - matched_seqs_with_coords:
         type: file
-        description: Space-separated cmsearchdeoverlap output formatted for use by
+        description:
+          Space-separated cmsearchdeoverlap output formatted for use by
           esl-sfetch
         pattern: "*.txt"
         ontologies: []
@@ -136,7 +138,8 @@ output:
             e.g. `[ id:'sample1', single_end:false ]`
       - "*concat_SSU_LSU_coords.txt":
           type: file
-          description: Space-separated concatenated file of coordinates of matches
+          description:
+            Space-separated concatenated file of coordinates of matches
             of both SSU and LSU
           pattern: "*.txt"
           ontologies: []
