@@ -156,12 +156,11 @@ workflow AMPLICON_PIPELINE {
     ch_versions = ch_versions.mix(READS_QC.out.versions)
 
     // Removes reads that passed sanity checks but are empty after QC with fastp //
-    READS_QC_MERGE.out.reads_fasta
+    extended_reads_qc = READS_QC_MERGE.out.reads_fasta
         .branch { _meta, reads ->
             qc_pass: reads.countFasta() > 0
             qc_empty: reads.countFasta() == 0
         }
-        .set { extended_reads_qc }
 
     // rRNA extraction subworkflow to find rRNA reads for SSU+LSU //
     DETECT_RNA(
@@ -315,7 +314,9 @@ workflow AMPLICON_PIPELINE {
              }
             .collect()
             .map { collected_json_maps -> 
-                def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() }
+                def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() 
+                return json_content
+            }
             .collectFile(
                 name: "primer_validation_summary.json", 
                 storeDir: "${params.outdir}", 
@@ -341,37 +342,35 @@ workflow AMPLICON_PIPELINE {
         .groupTuple()
         .map { meta, counts_list ->
             def counts = [:]
-            counts_list.each { counts.putAll(it) }
+            counts_list.each { it -> counts.putAll(it) }
             [meta, counts]
         }
     ITS_SANITY_CHECKER(read_assignment_counts)
 
     // Only keep runs that pass ITS sanity checking
     // Which only happens for runs that pass all three tests
-    ITS_SANITY_CHECKER.out.its_sanity_check_out
+    real_its_runs = ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitJson()
-        .filter { meta, test_results ->
+        .filter { _meta, test_results ->
             (
                 test_results["tax_assignment_count_test"] &&
                 test_results["mapping_proportion_test"] &&
                 test_results["rank_proportion_test"]
             )
         }
-        .map { meta, test_results -> meta  }
-        .set { real_its_runs }
+        .map { meta, _test_results -> meta  }
 
     // Identify potential ITS runs that don't pass ITS sanity checking
-    ITS_SANITY_CHECKER.out.its_sanity_check_out
+    its_sanity_check_fails = ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitJson()
-        .filter { meta, test_results ->
+        .filter { _meta, test_results ->
             (
                 !test_results["tax_assignment_count_test"] ||
                 !test_results["mapping_proportion_test"] ||
                 !test_results["rank_proportion_test"]
             )
         }
-        .map { meta, test_results -> ["${meta.id}", "failed"] }
-        .set { its_sanity_check_fails }
+        .map { meta, _test_results -> ["${meta.id}", "failed"] }
 
     /*****************************/
     /* Publish OTU results */
@@ -384,23 +383,33 @@ workflow AMPLICON_PIPELINE {
         .join(MAPSEQ_OTU_KRONA.out.html)
 
     // Branch into ITS and non-ITS databases
-    otu_all_results
+    otu_branched = otu_all_results
         .branch { meta, _mseq, _krona_input, _biom_out, _html ->
             its: meta.db_label in ["ITSone", "UNITE"]
             non_its: true
         }
-        .set { otu_branched }
 
     // Filter ITS results to only include samples that pass ITS sanity check
-    otu_branched.its
+    its_sanity_pass = ITS_SANITY_CHECKER.out.its_sanity_check_out
+        .splitJson()
+        .map { meta, test_results ->
+            def pass = (
+                test_results["tax_assignment_count_test"] &&
+                test_results["mapping_proportion_test"] &&
+                test_results["rank_proportion_test"]
+            )
+            return [meta.subMap('id'), pass]
+        }
+
+    filtered_its_results = otu_branched.its
         .map { meta, mseq, krona_input, biom_out, html ->
             [meta.subMap('id'), meta, mseq, krona_input, biom_out, html]
         }
-        .combine(real_its_runs.map { meta -> [meta, true] }, by: 0)
+        .combine(its_sanity_pass, by: 0)
+        .filter { _id_meta, _meta, _mseq, _krona_input, _biom_out, _html, flag -> flag }
         .map { _id_meta, meta, mseq, krona_input, biom_out, html, _flag ->
             [meta, mseq, krona_input, biom_out, html]
         }
-        .set { filtered_its_results }
 
     // Publish all non-ITS results + ITS results that pass sanity check
     publish_otu_input = otu_branched.non_its.mix(filtered_its_results)
@@ -468,16 +477,15 @@ workflow AMPLICON_PIPELINE {
     )
 
     // generate aggregate summary of all its sanity check outputs
-    ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
-        .map { meta, its_sanity_check -> its_sanity_check}
+    study_its_sanity_check_path = ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
+        .map { _meta, its_sanity_check -> its_sanity_check}
         .collectFile(name: "study_its_sanity_check_mqc.tsv", keepHeader: true, cache: false)
-        .set { study_its_sanity_check_path }
 
     // MultiQC for study !! assuming we do not have multiple studies in one samplesheet !! //
     multiqc_study = multiqc_input
         .flatten()
         .collect()
-        .map { item -> item.findAll { !(it instanceof Map) } }
+        .map { item -> item.findAll { it -> !(it instanceof Map) } }
         .map { dataList ->
             // have to remove the individual ITS sanity check outputs before including the study-wide file
             def its_files_to_remove = dataList.findAll { file -> file.name.contains("its_sanity_check_mqc.tsv") }
@@ -511,22 +519,20 @@ workflow AMPLICON_PIPELINE {
     // in this subset of successful runs.
 
     // label runs that have ITS taxonomies (succeed at ITS sanity checking)
-    real_its_runs
+    passed_its_checks = real_its_runs
         .map{ meta ->
             [meta, "has_its_taxonomies"]
         }
-        .set{ passed_its_checks }
 
     // label runs that have SSU/LSU taxonomies (non-ITS OTU results)
-    otu_branched.non_its
+    has_ssu_lsu_taxonomies = otu_branched.non_its
         .map { meta, _mseq, _krona_input, _biom_out, _html ->
             [meta.subMap('id'), "has_ssu_lsu_taxonomies"]
         }
         .unique()
-        .set { has_ssu_lsu_taxonomies }
 
     // get status of runs that reach DADA2 but might fail for quality reasons
-    def dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
+    dada2_stats_fail = DADA2_SWF.out.dada2_stats_fail.map { meta, stats_fail ->
         def key = meta.subMap('id')
         return [key, ["stats_fail": stats_fail]]
     }
@@ -547,10 +553,9 @@ workflow AMPLICON_PIPELINE {
         .set{ has_dada2_results }
 
     // groups all runs that have some taxonomy results
-    has_dada2_results
+    all_taxonomy_results = has_dada2_results
         .mix(passed_its_checks, has_ssu_lsu_taxonomies)
         .groupTuple()
-        .set{ all_taxonomy_results }
 
     // Extract passed runs, describe whether those passed runs also ASV results //
     // Rules are:
@@ -558,7 +563,7 @@ workflow AMPLICON_PIPELINE {
     //      if you don't have DADA2 results but have ITS/SSU/LSU results
     //          if you have the dada2_stats_fail status, you have `dada2_stats_fail`
     //          if you don't have the dada2_stats_fail status, it means you have `no_asvs`
-    all_taxonomy_results
+    final_passed_runs = all_taxonomy_results
         .map { meta, results ->
             if ("has_dada2_results" in results && "has_ssu_lsu_taxonomies" in results) {
                 return "${meta.id},all_results"
@@ -573,62 +578,55 @@ workflow AMPLICON_PIPELINE {
             }
             error("Unexpected. meta: ${meta}, results: ${results}")
         }
-        .set { final_passed_runs }
 
     // Save all passed runs to file //
     final_passed_runs
         .collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
-        .set { passed_runs_path }
 
-    all_taxonomy_results
-        .map{ meta, results -> ["${meta.id}", "passed"] }
-        .set{ runs_with_taxonomies }
+    runs_with_taxonomies = all_taxonomy_results
+        .map{ meta, _results -> ["${meta.id}", "passed"] }
 
     // Extract runs that failed SeqFu check //
-    READS_QC.out.seqfu_check
+    seqfu_fails = READS_QC.out.seqfu_check
         .splitCsv(sep: "\t", elem: 1)
         .filter { _meta, seqfu_res ->
             seqfu_res[0] != "OK"
         }
         .map { meta, __ -> "${meta.id},seqfu_fail" }
-        .set { seqfu_fails }
 
     // Extract runs that failed Suffix Header check //
-    READS_QC.out.suffix_header_check
+    sfxhd_fails = READS_QC.out.suffix_header_check
         .filter { _meta, sfxhd_res ->
             sfxhd_res.countLines() != 0
         }
         .map { meta, __ -> "${meta.id},sfxhd_fail" }
-        .set { sfxhd_fails }
 
     // Extract runs that failed Library Strategy check //
-    READS_QC_MERGE.out.amplicon_check
+    libstrat_fails = READS_QC_MERGE.out.amplicon_check
         .filter { _meta, strategy ->
             strategy != "AMPLICON"
         }
         .map { meta, __ -> "${meta.id},libstrat_fail" }
-        .set { libstrat_fails }
 
     // Extract runs that had zero reads after fastp //
-    extended_reads_qc.qc_empty
+    no_reads_fails = extended_reads_qc.qc_empty
         .map { meta, __ -> "${meta.id},no_reads" }
-        .set { no_reads_fails }
 
     // filter out runs that fail ITS sanity checking but have other taxonomy results
-    its_sanity_check_fails
+    failed_its_runs = its_sanity_check_fails
         .mix(runs_with_taxonomies)
         .groupTuple()
-        .filter{ run, result ->
+        .filter{ _run, result ->
             result == ["failed"]
         }
-        .map { run, result ->
+        .map { run, _result ->
             "${run},its_sanity_check_fail"
         }
-        .set{ failed_its_runs }
 
     // Save all failed runs to file //
-    all_failed_runs = seqfu_fails.concat(sfxhd_fails, libstrat_fails, no_reads_fails, failed_its_runs)
-    all_failed_runs.collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
+    seqfu_fails
+        .concat(sfxhd_fails, libstrat_fails, no_reads_fails, failed_its_runs)
+        .collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
     // Summarise primer validation information into study-wide JSON file //
     CONCAT_PRIMER_CUTADAPT.out.primer_validation_out
@@ -638,7 +636,7 @@ workflow AMPLICON_PIPELINE {
 
             def json_map = ["id": "${meta.id}", "primers": []]
 
-            primer_val.each { run_id, ev, met, gene, region, name, strand, sequence ->
+            primer_val.each { _run_id, _ev, _met, _gene, region, name, strand, sequence ->
                 def new_primer = [
                     "name": name,
                     "region": region,
@@ -652,6 +650,9 @@ workflow AMPLICON_PIPELINE {
             json_map
         }
         .collect()
-        .map { collected_json_maps -> def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() }
+        .map { collected_json_maps -> 
+            def json_content = new groovy.json.JsonBuilder(collected_json_maps).toPrettyString() 
+            return json_content
+        }
         .collectFile(name: "primer_validation_summary.json", storeDir: "${params.outdir}", newLine: true, cache: false)
 }
