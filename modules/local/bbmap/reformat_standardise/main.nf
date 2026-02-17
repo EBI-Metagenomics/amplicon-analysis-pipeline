@@ -30,7 +30,7 @@ process BBMAP_REFORMAT_STANDARDISE {
     paired_cmd = meta.single_end ? "" : "addslash=t spaceslash=t verifypaired=t"
 
     """
-    maxmem=\$(echo \"$task.memory\"| sed 's/ GB/g/g')
+    maxmem="${task.memory.toGiga()}G"
     reformat.sh \\
         -Xmx\$maxmem \\
         $in_reads \\
