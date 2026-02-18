@@ -23,7 +23,7 @@ nextflow_pipeline {
 
                     // Snapshot all output file sizes for regression detection
                     {
-                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}'])
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', '*.fastp.json'])
                         def fileSizes = allFiles.collect { file ->
                             "${file.name} - ${file.size()} bytes"
                         }.sort()
@@ -227,7 +227,7 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
 
                     // Snapshot all output file sizes for regression detection
                     {
-                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_double_amp.csv'])
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_double_amp.csv', '*.fastp.json'])
                         def fileSizes = allFiles.collect { file ->
                             "${file.name} - ${file.size()} bytes"
                         }.sort()

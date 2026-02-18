@@ -54,6 +54,7 @@
                 "MOCKDOUBLEAMP_primer_validation.tsv - 420 bytes",
                 "MOCKDOUBLEAMP_seqfu.tsv - 50 bytes",
                 "MOCKDOUBLEAMP_suffix_header_err.json - 0 bytes",
+                "bco.json - 146408 bytes",
                 "fwd_primers.fasta - 48 bytes",
                 "primer_validation_summary.json - 981 bytes",
                 "qc_failed_runs.csv - 68 bytes",
@@ -62,11 +63,11 @@
                 "study_multiqc_report.html - 4641773 bytes"
             ]
         ],
+        "timestamp": "2026-02-18T08:19:51.249089",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.0"
-        },
-        "timestamp": "2026-02-17T16:02:59.731201"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "samplesheet_file_sizes": {
         "content": [
@@ -111,6 +112,7 @@
                 "ERRSEQFUFAIL_seqfu.tsv - 158 bytes",
                 "ERRSFXHDFAIL_seqfu.tsv - 41 bytes",
                 "ERRSFXHDFAIL_suffix_header_err.json - 358 bytes",
+                "bco.json - 118692 bytes",
                 "fwd_primers.fasta - 24 bytes",
                 "primer_validation_summary.json - 526 bytes",
                 "qc_failed_runs.csv - 68 bytes",
@@ -119,11 +121,11 @@
                 "study_multiqc_report.html - 4640780 bytes"
             ]
         ],
+        "timestamp": "2026-02-18T08:15:27.932436",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.0"
-        },
-        "timestamp": "2026-02-17T15:58:36.825412"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "double_amp_line_counts": {
         "content": [
@@ -157,11 +159,11 @@
                 "rev_primers.fasta - 4 lines"
             ]
         ],
+        "timestamp": "2026-02-18T08:19:51.303678",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.0"
-        },
-        "timestamp": "2026-02-17T16:02:59.779408"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "samplesheet_line_counts": {
         "content": [
@@ -192,10 +194,10 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
+        "timestamp": "2026-02-18T08:15:28.028028",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.0"
-        },
-        "timestamp": "2026-02-17T15:58:36.87489"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }
