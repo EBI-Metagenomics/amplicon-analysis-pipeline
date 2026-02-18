@@ -52,17 +52,22 @@ def count_sequences_in_file(filepath: str) -> int:
     raise ValueError(f"Could not parse {filepath} as FASTA or FASTQ format")
 
 
-def count_lines_in_mseq(filepath: str) -> int:
+def read_mseq_file(filepath: str) -> pd.DataFrame:
     """
-    Count the number of data lines in a MAPseq output file (excluding header).
+    Read a MAPseq output file into a DataFrame with a 'taxon' column.
+    Returns an empty DataFrame if the file is empty or cannot be parsed.
     """
-    count = 0
-    with open(filepath, 'r') as f:
-        for i, line in enumerate(f):
-            # Skip header line (starts with #)
-            if i > 0 or not line.startswith('#'):
-                count += 1
-    return count
+    try:
+        return pd.read_csv(
+            filepath,
+            sep=r"\s+",
+            comment="#",
+            header=None,
+            usecols=[12],
+            names=["taxon"],
+        )
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame(columns=["taxon"])
 
 
 def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> bool:
@@ -205,21 +210,15 @@ def its_sanity_checker(
     if missing_keys:
         raise ValueError(f"Missing required keys in read assignments JSON: {missing_keys}")
 
-    # Count sequences from files
-    logging.info("Counting sequences from input files...")
-    try:
-        itsonedb_linecount = count_lines_in_mseq(filepaths["ITSone"])
-        logging.info(f"ITSoneDB assignment count: {itsonedb_linecount}")
-    except Exception as e:
-        logging.error(f"Failed to count ITSoneDB assignments: {e}")
-        itsonedb_linecount = 0
+    # Read MAPseq output files
+    logging.info("Reading MAPseq assignment files...")
+    itsonedb_df = read_mseq_file(filepaths["ITSone"])
+    itsonedb_linecount = len(itsonedb_df)
+    logging.info(f"ITSoneDB assignment count: {itsonedb_linecount}")
 
-    try:
-        unite_linecount = count_lines_in_mseq(filepaths["UNITE"])
-        logging.info(f"UNITE assignment count: {unite_linecount}")
-    except Exception as e:
-        logging.error(f"Failed to count UNITE assignments: {e}")
-        unite_linecount = 0
+    unite_df = read_mseq_file(filepaths["UNITE"])
+    unite_linecount = len(unite_df)
+    logging.info(f"UNITE assignment count: {unite_linecount}")
 
     try:
         rrna_readcount = count_sequences_in_file(filepaths["Rfam_SSU_LSU"])
@@ -246,26 +245,9 @@ def its_sanity_checker(
 
     # Rank Proportion Test
     logging.info("Running Rank Proportion Test")
-    if itsonedb_linecount > 0 or unite_linecount > 0:
-        try:
-            itsonedb_df = pd.read_csv(
-                filepaths["ITSone"], header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
-            ) if itsonedb_linecount > 0 else pd.DataFrame()
-            unite_df = pd.read_csv(
-                filepaths["UNITE"], header=0, delim_whitespace=True, usecols=[12], names=["taxon"]
-            ) if unite_linecount > 0 else pd.DataFrame()
-            rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
-                rank_proportion_test(itsonedb_df, unite_df, itsonedb_linecount, unite_linecount)
-            )
-        except Exception as e:
-            logging.error(f"Failed to run Rank Proportion Test: {e}")
-            rank_proportion_pass = False
-            itsone_ranks_below_kingdom = 0.0
-            unite_ranks_below_kingdom = 0.0
-    else:
-        rank_proportion_pass = False
-        itsone_ranks_below_kingdom = 0.0
-        unite_ranks_below_kingdom = 0.0
+    rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
+        rank_proportion_test(itsonedb_df, unite_df, itsonedb_linecount, unite_linecount)
+    )
     results_dict["rank_proportion_test"] = rank_proportion_pass
 
     # Log test results
