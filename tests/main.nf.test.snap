@@ -63,7 +63,7 @@
                 "study_multiqc_report.html - 4641773 bytes"
             ]
         ],
-        "timestamp": "2026-02-18T08:19:51.249089",
+        "timestamp": "2026-02-18T08:45:40.119959",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -121,7 +121,7 @@
                 "study_multiqc_report.html - 4640780 bytes"
             ]
         ],
-        "timestamp": "2026-02-18T08:15:27.932436",
+        "timestamp": "2026-02-18T08:41:09.101597",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -159,7 +159,7 @@
                 "rev_primers.fasta - 4 lines"
             ]
         ],
-        "timestamp": "2026-02-18T08:19:51.303678",
+        "timestamp": "2026-02-18T08:45:40.16938",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -194,7 +194,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-02-18T08:15:28.028028",
+        "timestamp": "2026-02-18T08:41:09.177959",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
