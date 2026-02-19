@@ -43,7 +43,7 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
 
                     // Snapshot all output file sizes for regression detection
                     {
-                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_mixed_amp.csv', '*.fastp.json', 'bco.json'])
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_mixed_amp.csv', '**/*.fastp.json', 'bco.json', '*_multiqc_report.html', '**/*_multiqc_report.html'])
                         def fileSizes = allFiles.collect { file ->
                             "${file.name} - ${file.size()} bytes"
                         }.sort()
@@ -120,22 +120,30 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                     {
                         def silva_ssu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
-                        assert silva_ssu.contains("sk__Bacteria")
+                        assert silva_ssu.contains("sk__Bacteria;k__;p__Acidobacteriota;c__Terriglobia;o__Terriglobales;f__Acidobacteriaceae;g__;s__bacterium_Ellin327")
+                        assert silva_ssu.contains("29.0")
                         assert silva_ssu.contains("SSU")
 
                         def pr2 = path("${params.outdir}/ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.tsv").text
                         assert pr2.contains("# Constructed from biom file")
+                        assert pr2.contains("d__Bacteria;sg__PVC;dv__Verrucomicrobia;sdv__Verrucomicrobia_X;c__Verrucomicrobiae;o__Chthoniobacterales;f__Chthoniobacteraceae;g__Candidatus_Udaeobacter;s__Candidatus_Udaeobacter_sp.")
+                        assert pr2.contains("112.0")
+                        assert pr2.contains("PR2")
                     },
 
                     // Verify MOCKDOUBLEAMP OTU taxonomy outputs have content and proper structure
                     {
                         def silva_ssu = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
-                        assert silva_ssu.contains("sk__Bacteria")
+                        assert silva_ssu.contains("sk__Bacteria;k__;p__Acidobacteriota;c__Terriglobia;o__Terriglobales;f__Acidobacteriaceae")
+                        assert silva_ssu.contains("1.0")
                         assert silva_ssu.contains("SSU")
 
                         def pr2 = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/PR2/MOCKDOUBLEAMP_PR2.tsv").text
                         assert pr2.contains("# Constructed from biom file")
+                        assert pr2.contains("d__Bacteria;sg__PVC;dv__Verrucomicrobia;sdv__Verrucomicrobia_X;c__Verrucomicrobiae;o__Chthoniobacterales;f__Chthoniobacteraceae;g__Candidatus_Udaeobacter")
+                        assert pr2.contains("8.0")
+                        assert pr2.contains("PR2")
                     },
 
                     // Verify ERR4334351 ASV sequence file contains FASTA format
@@ -205,22 +213,33 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                     {
                         def asv_counts = path("${params.outdir}/ERR4334351/asv/16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv").text
                         assert !asv_counts.isEmpty()
-                        assert asv_counts.contains("asv") && asv_counts.contains("count")
+                        def asv_count_lines = asv_counts.readLines()
+                        assert asv_count_lines[0].contains("asv") && asv_count_lines[0].contains("count")
+                        assert asv_count_lines[1].contains("seq_1") && asv_count_lines[1].contains("88")
+                        assert asv_count_lines[10].contains("seq_107") && asv_count_lines[10].contains("8")
                     },
 
                     // Verify MOCKDOUBLEAMP ASV read counts for both amplified regions
                     {
                         def asv_counts_16s = path("${params.outdir}/MOCKDOUBLEAMP/asv/16S-V3-V4/MOCKDOUBLEAMP_16S-V3-V4_asv_read_counts.tsv").text
                         assert !asv_counts_16s.isEmpty()
-                        assert asv_counts_16s.contains("asv") && asv_counts_16s.contains("count")
+                        def asv_count_16s_lines = asv_counts_16s.readLines()
+                        assert asv_count_16s_lines[0].contains("asv") && asv_count_16s_lines[0].contains("count")
+                        assert asv_count_16s_lines[1].contains("seq_1") && asv_count_16s_lines[1].contains("309")
+                        assert asv_count_16s_lines[10].contains("seq_114") && asv_count_16s_lines[10].contains("22")
 
                         def asv_counts_18s = path("${params.outdir}/MOCKDOUBLEAMP/asv/18S-V9/MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv").text
                         assert !asv_counts_18s.isEmpty()
-                        assert asv_counts_18s.contains("asv") && asv_counts_18s.contains("count")
+                        def asv_count_18s_lines = asv_counts_18s.readLines()
+                        assert asv_count_18s_lines[0].contains("asv") && asv_count_18s_lines[0].contains("count")
+                        assert asv_count_18s_lines[1].contains("seq_267") && asv_count_18s_lines[1].contains("2")
 
                         def asv_counts_concat = path("${params.outdir}/MOCKDOUBLEAMP/asv/concat/MOCKDOUBLEAMP_concat_asv_read_counts.tsv").text
                         assert !asv_counts_concat.isEmpty()
-                        assert asv_counts_concat.contains("asv") && asv_counts_concat.contains("count")
+                        def asv_count_concat_lines = asv_counts_concat.readLines()
+                        assert asv_count_concat_lines[0].contains("asv") && asv_count_concat_lines[0].contains("count")
+                        assert asv_count_concat_lines[1].contains("seq_1") && asv_count_concat_lines[1].contains("309")
+                        assert asv_count_concat_lines[10].contains("seq_114") && asv_count_concat_lines[10].contains("22")
                     },
 
                     // Verify ERR4334351 primer identification outputs
@@ -234,6 +253,8 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                         def cutadapt_json = path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.cutadapt.json").text
                         def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
                         assert cutadapt instanceof Map
+                        assert 5674 in cutadapt["adapters_read1"]["total_matches"]
+                        assert 5756 in cutadapt["adapters_read2"]["total_matches"]
                     },
 
                     // Verify MOCKDOUBLEAMP primer identification outputs
@@ -248,6 +269,8 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                         def cutadapt_json = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.cutadapt.json").text
                         def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
                         assert cutadapt instanceof Map
+                        assert 5654 in cutadapt["adapters_read1"]["total_matches"]
+                        assert 5650 in cutadapt["adapters_read2"]["total_matches"]
                     },
 
                     // Verify ERR4334351 primer FASTA files contain sequences
@@ -266,19 +289,21 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                         def fwd_primers = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/fwd_primers.fasta").text
                         assert fwd_primers.contains(">341F")
                         assert fwd_primers.contains(">1391F")
-                        assert fwd_primers.matches("(?sm).*^[ACGTRYMKSWHBVDN]+\$.*") : "Should contain DNA sequences"
+                        assert fwd_primers.contains("GTACACACCGCCCGTC") : "Should contain specific DNA sequence"
+                        assert fwd_primers.contains("CCTACGGGNGGCWGCAG") : "Should contain specific DNA sequence"
 
                         def rev_primers = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/rev_primers.fasta").text
                         assert rev_primers.contains(">805R")
                         assert rev_primers.contains(">1510R")
-                        assert rev_primers.matches("(?sm).*^[ACGTRYMKSWHBVDN]+\$.*") : "Should contain DNA sequences"
+                        assert rev_primers.contains("CCTTCYGCAGGTTCACCTAC") : "Should contain specific DNA sequence"
+                        assert rev_primers.contains("GACTACHVGGGTATCTAATCC") : "Should contain specific DNA sequence"
                     },
 
                     // Verify ERR4334351 sequence categorisation files (FASTA format, should have bacteria and eukarya)
                     {
                         def ssu = path("${params.outdir}/ERR4334351/sequence-categorisation/ERR4334351_SSU.fasta").text
                         assert ssu.contains(">")
-                        def ssu_lines = ssu.trim().split('\n')
+                        def ssu_lines = ssu.readLines()
                         assert ssu_lines.any { line -> line.startsWith(">") }
 
                         def bacteria = path("${params.outdir}/ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_bacteria.RF00177.fasta").text
@@ -292,7 +317,7 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                     {
                         def ssu = path("${params.outdir}/MOCKDOUBLEAMP/sequence-categorisation/MOCKDOUBLEAMP_SSU.fasta").text
                         assert ssu.contains(">")
-                        def ssu_lines = ssu.trim().split('\n')
+                        def ssu_lines = ssu.readLines()
                         assert ssu_lines.any { line -> line.startsWith(">") }
 
                         def bacteria = path("${params.outdir}/MOCKDOUBLEAMP/sequence-categorisation/MOCKDOUBLEAMP_SSU_rRNA_bacteria.RF00177.fasta").text
