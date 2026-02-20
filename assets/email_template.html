@@ -37,14 +37,17 @@
         "
       >
         <h4 style="margin-top: 0; color: inherit">
-          ebi-metagenomics/amplicon-analysis-pipeline execution completed unsuccessfully!
+          ebi-metagenomics/amplicon-analysis-pipeline execution completed
+          unsuccessfully!
         </h4>
         <p>
           The exit status of the task that caused the workflow execution to fail
           was: <code>$exitStatus</code>.
         </p>
         <p>The full error message was:</p>
-        <pre style="white-space: pre-wrap; overflow: visible; margin-bottom: 0">${errorReport}</pre>
+        <pre style="white-space: pre-wrap; overflow: visible; margin-bottom: 0">
+${errorReport}</pre
+        >
       </div>
       """ } else { out << """
       <div
@@ -58,11 +61,13 @@
           border-radius: 4px;
         "
       >
-      ebi-metagenomics/amplicon-analysis-pipeline execution completed successfully!
+        ebi-metagenomics/amplicon-analysis-pipeline execution completed
+        successfully!
       </div>
       """ } %>
       <p>
-        The workflow was completed at <strong>$dateComplete</strong> (duration:<strong>$duration</strong>)
+        The workflow was completed at
+        <strong>$dateComplete</strong> (duration:<strong>$duration</strong>)
       </p>
       <p>The command used to launch the workflow was as follows:</p>
       <pre
@@ -74,7 +79,9 @@
           border-radius: 4px;
           margin-bottom: 30px;
         "
-      >$commandLine</pre>
+      >
+$commandLine</pre
+      >
       <h3>Pipeline Configuration:</h3>
       <table
         style="
@@ -118,7 +125,9 @@
 
       <p>ebi-metagenomics/amplicon-analysis-pipeline</p>
       <p>
-        <a href="https://github.com/ebi-metagenomics/amplicon-analysis-pipeline">https://github.com/ebi-metagenomics/amplicon-analysis-pipeline</a>
+        <a href="https://github.com/ebi-metagenomics/amplicon-analysis-pipeline"
+          >https://github.com/ebi-metagenomics/amplicon-analysis-pipeline</a
+        >
       </p>
     </div>
   </body>

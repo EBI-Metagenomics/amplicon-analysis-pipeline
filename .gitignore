@@ -3,8 +3,11 @@ docs/
 old_scripts/
 
 .nf-test/
+.nf-test*
 .nextflow*
 *.log
 
 work/
 test-workdir/
+.claude/
+CLAUDE.md

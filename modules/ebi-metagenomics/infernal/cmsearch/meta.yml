@@ -7,7 +7,8 @@ keywords:
   - fasta
 tools:
   - "infernal":
-      description: "Infernal is for searching DNA sequence databases for RNA structure
+      description:
+        "Infernal is for searching DNA sequence databases for RNA structure
         and sequence similarities."
       homepage: "http://eddylab.org/infernal/"
       documentation: "http://eddylab.org/infernal/Userguide.pdf"
@@ -38,7 +39,8 @@ output:
             e.g. `[ id:'test', single_end:false ]`
       - "*.cmsearch_matches.tbl.gz":
           type: file
-          description: Tabular (space-delimited) file summarizing the hits found, with
+          description:
+            Tabular (space-delimited) file summarizing the hits found, with
             one data line per hit.
           pattern: "*.tbl"
   - versions:

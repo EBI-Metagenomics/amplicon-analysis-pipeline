@@ -12,4 +12,3 @@ dependencies:
   - "conda-forge::r-data.table"
   - "bioconda::bioconductor-dada2"
   - "bioconda::bioconductor-shortread"
-

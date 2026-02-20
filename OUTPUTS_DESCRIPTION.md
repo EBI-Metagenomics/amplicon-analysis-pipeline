@@ -45,7 +45,7 @@ The `qc` directory contains output files related to the quality control steps of
 - **ERR1718805.fastp.fastq.gz**: This compressed `fastq` file contains the cleaned reads from the `fastp` run. This file can be seen as the equivalent of the previous merged file for single-end runs.
 - **ERR4334351_dada2_errors.txt**: This `txt` file contains the DADA2 error log, generated if the process fails. This can be used to help diagnose issues with your data (e.g. lack of valid ASV sequences) and causes of failure in the script. _Note: if the process succeeded, this file won't exist._
 - **ERR4334351_multiqc_report.html**: This `html` file contains the `MultiQC` report for that run. It will combine outputs from three different tools into the report; `fastp`, `cutadapt`, and `DADA2`.
-- **ERR4334351_seqfu.tsv**: This `tsv` file contains the output from the sanity checking performed by `SeqFu`. `SeqFu` makes a few checks of whether the given fastq files are correctly structured, and if this QC step fails, the contents of this file will indicate the reasons why. The contents of the tsv file are described in [seqfu's documentation](https://telatin.github.io/seqfu2/tools/check.html#output). 
+- **ERR4334351_seqfu.tsv**: This `tsv` file contains the output from the sanity checking performed by `SeqFu`. `SeqFu` makes a few checks of whether the given fastq files are correctly structured, and if this QC step fails, the contents of this file will indicate the reasons why. The contents of the tsv file are described in [seqfu's documentation](https://telatin.github.io/seqfu2/tools/check.html#output).
 - **ERR4334351_suffix_header_err.json**: This `json` file contains the output from the sanity checking performed on the suffixes and headers of fastq files. It is expected that the fastq files ending with the suffix `_1` should contain the `/1` tag in the headers inside the file, and vice versa for the suffix `_2` and tag `/2`. _Note: if the run is single-end, the header check should be to have no suffix, but still contain the `/1` tag as is standard._
 
 ### sequence-categorisation
@@ -66,23 +66,26 @@ The `sequence-categorisation` directory contains output files related to the ext
 ```
 
 The output files of this directory are dynamic depending on the output, as the names and number of files will be different depending on what the reads matched to. To be specific, it depends on the matched rRNA amplicon type, which is usually one of:
+
 - SSU
 - LSU
 - ITS
 
 And it also depends on which Rfam clan the reads matched to, which can be one (or more) of:
+
 - Bacteria, with Rfam ID RF00177
 - Archaea, with Rfam ID RF01959
 - Eukarya, with Rfam ID RF01960
 
 #### Output files
+
 - **ERR4334351.tblout.deoverlapped**: This `tblout` file contains the deoverlapped output from running `infernal/cmsearch`, which describes the matching reads, including matching coordinates, confidence scores, and matching Rfam clan ID.
 - **ERR4334351_SSU.fasta**: This `fasta` file contains all of the matching sequences to a particular rRNA amplicon type, being in this case the SSU. As described previously, this file name would be different if a different amplicon was matched.
 - **ERR4334351_SSU_rRNA_bacteria.RF00177.fa** This `fasta` file contains the matching sequences of both a particular amplicon **and** a particular Rfam clan, in being in this case the bacterial SSU. This run has a similar file for archaeal SSU, **ERR4334351_SSU_rRNA_archaea.RF01959.fa**, which is a common combination. While this is the third and final output type in the `sequence-categorisation` directory, as shown here you can have more than one file of this kind.
 
 ### amplified-region-inference
 
-The `amplified-region-inference` directory contains output files related to the inference of the amplified region. The structure of the `amplified-region-inference` directory contains two different categories of files: 
+The `amplified-region-inference` directory contains output files related to the inference of the amplified region. The structure of the `amplified-region-inference` directory contains two different categories of files:
 
 ```bash
 ├── qc
@@ -96,10 +99,12 @@ The `amplified-region-inference` directory contains output files related to the 
 ```
 
 The output files of this directory are also dynamic for similar reasons as `sequence-categorisation` - it depends on which, and how many, amplified regions were found. The pipeline allows for at most two amplified regions, which are made up of two parts:
+
 - The gene: either 16S or 18S.
 - The hypervariable region: any region from V1 to V9, and any logical pair of regions e.g. V3-V4.
 
 #### Output files
+
 - **ERR4334351.16S.V3-V4.txt**: This `txt` file contains the headers of reads that were found to match a particular amplified region, being in this case the V3-V4 region of the 16S gene. As described previously, the pipeline allows for at most two amplified regions, and therefore up to two files of this type, with the naming being dynamic.
 - **ERR4334351.tsv**: This `tsv` file contains a summary of the output of the amplified region inference module. From zero to two regions, this file summarises the findings.
 
@@ -121,6 +126,7 @@ The `primer-identification` directory contains output files related to the autom
 ```
 
 #### Output files
+
 - **fwd_primers.fasta**: This `fasta` file contains the sequences of any forward (5'-3')identified primers that were then trimmed off using `cutadapt`.
 - **rev_primers.fasta**: This `fasta` file contains the sequences of any forward (3'-5')identified primers that were then trimmed off using `cutadapt`.
 - **ERR4334351.cutadapt.json**: This `json` file contains the summary output of the `cutadapt` run, including which primers were trimmed off, how many bases were trimmed off in the process, etc. This `json` file is also used later by `MultiQC` to generate its report files.
@@ -146,6 +152,7 @@ The `asv` directory contains output files related to the calling of ASVs and the
 ```
 
 The subdirectories are dynamic based on the inferred amplified region. As the pipeline allows for up to two different amplified regions, there are two potential scenarios and subdirectory output structures:
+
 - One amplified region, which will give just one subdirectory as in the example above
 - Two amplified regions, which will contain three subdirectories - one for each region, and a `concat` subdirectory that will contain the concatenation of both amplified regions
 
@@ -155,7 +162,7 @@ The subdirectories are dynamic based on the inferred amplified region. As the pi
 - **ERR4334351_DADA2-SILVA_asv_tax.tsv**: This `tsv` file contains the assigned taxonomy of every ASV, performed by `MAPseq`, using the SILVA reference database.
 - **ERR4334351_DADA2-PR2_asv_tax.tsv**: This `tsv` file contains the assigned taxonomy of every ASV, performed by `MAPseq`, using the PR2 reference database.
 - **ERR4334351_dada2_stats.tsv**: This `tsv` file contains some ASV-specific QC stats, such as the proportion of reads that were removed after filtering out chimeric ASVs. This `tsv` file is also used later by `MultiQC` to generate its report files.
-- **16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv**: This `tsv` file contains the read counts for each ASV, and is specific to the inferred amplified region. As described previously, the naming of this output is dynamic based on the amount and identity of the inferred amplified region(s). 
+- **16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv**: This `tsv` file contains the read counts for each ASV, and is specific to the inferred amplified region. As described previously, the naming of this output is dynamic based on the amount and identity of the inferred amplified region(s).
 
 ### taxonomy-summary
 
@@ -172,6 +179,7 @@ However, there is added complexity in the output structure for two reasons:
 - There are two kinds of taxonomic results for both SILVA-SSU and PR2: one for the hit matches and one for ASVs, with the latter being named as DADA2-SILVA and DADA2-PR2.
 
 #### Output files - hit matches
+
 ```bash
 ├── qc
 ├── sequence-categorisation
@@ -202,12 +210,14 @@ However, there is added complexity in the output structure for two reasons:
 ```
 
 All of the different possible subdirectories have the same four files. Taking PR2 as an example:
+
 - **ERR4334351_PR2.mseq**: This `mseq` file contains the raw MAPseq output for every `infernal/cmsearch` match, i.e. each match's taxonomic assignment.
 - **ERR4334351_PR2.txt**: This `txt` file contains the Krona text input that is used to generate the Krona HTML file. It contains the distribution of the different taxonomic assignments.
 - **ERR4334351.html**: This `html` file contains the Krona HTML file that interactively displays the distribution of the different taxonomic assignments.
 - **ERR4334351_UNITE.tsv**: This `tsv` file contains the read count of every taxonomic assignment similar to the Krona txt file, but in a different easier-to-parse format.
 
 #### Output files - ASVs
+
 ```bash
 ├── qc
 ├── sequence-categorisation
@@ -226,6 +236,7 @@ All of the different possible subdirectories have the same four files. Taking PR
 ```
 
 The two different subdirectories have the same three categories of files, two of which are dynamic in naming. Using DADA2-PR2 as an example:
+
 - **ERR4334351_DADA2-PR2.mseq**: This contains the raw MAPseq output for every ASV, i.e. each ASV's taxonomic assignment. This file is not dynamic.
 - **ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt**: This file contains the Krona text input that is used to generate the Krona HTML file for ASV results. This file is dynamic, as it will generate it on a per amplified region-basis. This means that in cases where there are two amplified regions, you will have three of these files - one for each reference database, and one for the concatenation of the two.
 - **ERR4334351_16S-V3-V4.html**: This file contains the Krona HTMl file that interactively displays the distribution of the different taxonomic assignments for ASV results. This file is dynamic in the exact same way as the Krona text input file, i.e. based on the inferred amplified region(s).
@@ -237,6 +248,7 @@ The pipeline generated four different per-study output files that aggregate and 
 ### MultiQC
 
 The pipeline generates two [MultiQC](https://seqera.io/multiqc/) reports: one per-study (`study_multiqc_report.html`), and one per-run (`qc/${id}_multiqc_report.html`). These reports aggregate a few QC statistics from some of the tools run by the pipeline, including:
+
 - fastp
 - cutadapt
 - DADA2 (as a custom report)
@@ -254,12 +266,12 @@ SRRLIBSTRATFAIL,libstrat_fail
 
 The different exclusion messages are:
 
-| Exclusion message 	|                                                                                         Description                                                                                        	|
-|:-----------------:	|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:	|
-| `seqfu_fail`        	| Run had an error after running `seqfu check`. Check the log file in `qc/${id}_seqfu.tsv` for the exact reason                                                                             	|
-| `sfxhd_fail`        	| Run had an error related to the suffix of the file `_1/_2` not matching the headers inside the fastq file. Check the log file in `qc/${id}_suffix_header_err.json` for the reads at fault 	|
-| `libstrat_fail`     	| Run was predicted to likely not be of AMPLICON sequencing based on base-conservation patterns at the beginning of reads                                                                   	|
-| `no_reads`          	| Run had no reads left after running `fastp`                                                                                                                                               	|
+| Exclusion message |                                                                                        Description                                                                                        |
+| :---------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|   `seqfu_fail`    |                                       Run had an error after running `seqfu check`. Check the log file in `qc/${id}_seqfu.tsv` for the exact reason                                       |
+|   `sfxhd_fail`    | Run had an error related to the suffix of the file `_1/_2` not matching the headers inside the fastq file. Check the log file in `qc/${id}_suffix_header_err.json` for the reads at fault |
+|  `libstrat_fail`  |                                  Run was predicted to likely not be of AMPLICON sequencing based on base-conservation patterns at the beginning of reads                                  |
+|    `no_reads`     |                                                                        Run had no reads left after running `fastp`                                                                        |
 
 ### QC passed runs
 
@@ -282,44 +294,44 @@ The pipeline performs inferrence of primer presence and sequence using [PIMENTO]
 
 ```json
 [
-    {
-        "id": "SRR17062740",
-        "primers": [
-            {
-                "name": "F_auto",
-                "region": "V4",
-                "strand": "fwd",
-                "sequence": "ATTCCAGCTCCAATAG",
-                "identification_strategy": "auto"
-            },
-            {
-                "name": "R_auto",
-                "region": "V4",
-                "strand": "rev",
-                "sequence": "GACTACGATGGTATNTAATC",
-                "identification_strategy": "auto"
-            }
-        ]
-    },
-    {
-        "id": "ERR4334351",
-        "primers": [
-            {
-                "name": "341F",
-                "region": "V3",
-                "strand": "fwd",
-                "sequence": "CCTACGGGNGGCWGCAG",
-                "identification_strategy": "std"
-            },
-            {
-                "name": "805R",
-                "region": "V4",
-                "strand": "rev",
-                "sequence": "GACTACHVGGGTATCTAATCC",
-                "identification_strategy": "std"
-            }
-        ]
-    }
+  {
+    "id": "SRR17062740",
+    "primers": [
+      {
+        "name": "F_auto",
+        "region": "V4",
+        "strand": "fwd",
+        "sequence": "ATTCCAGCTCCAATAG",
+        "identification_strategy": "auto"
+      },
+      {
+        "name": "R_auto",
+        "region": "V4",
+        "strand": "rev",
+        "sequence": "GACTACGATGGTATNTAATC",
+        "identification_strategy": "auto"
+      }
+    ]
+  },
+  {
+    "id": "ERR4334351",
+    "primers": [
+      {
+        "name": "341F",
+        "region": "V3",
+        "strand": "fwd",
+        "sequence": "CCTACGGGNGGCWGCAG",
+        "identification_strategy": "std"
+      },
+      {
+        "name": "805R",
+        "region": "V4",
+        "strand": "rev",
+        "sequence": "GACTACHVGGGTATCTAATCC",
+        "identification_strategy": "std"
+      }
+    ]
+  }
 ]
 ```
 
