@@ -339,6 +339,7 @@ workflow AMPLICON_PIPELINE {
             results_list.each { it -> results.putAll(it) }
             [meta, results]
         }
+        .filter { _meta, results -> results.containsKey('Rfam_SSU_LSU') }
     ITS_SANITY_CHECKER(read_assignments)
 
     // Only keep runs that pass ITS sanity checking
