@@ -1,7 +1,7 @@
 
 include { FORMAT_BEDFILE     } from '../../modules/local/format_bedfile/main'
 include { BEDTOOLS_MASKFASTA } from '../../modules/nf-core/bedtools/maskfasta/main'
-include { FILTER_MASKED_N } from '../../modules/local/filter_masked_n/main'
+include { FILTER_MASKED_N    } from '../../modules/local/filter_masked_n/main'
 
 workflow MASK_FASTA_SWF {
     
@@ -10,7 +10,7 @@ workflow MASK_FASTA_SWF {
         concat_ssu_lsu_coords
     main:
 
-        ch_versions = Channel.empty()
+        ch_versions = channel.empty()
 
         FORMAT_BEDFILE(
             concat_ssu_lsu_coords,

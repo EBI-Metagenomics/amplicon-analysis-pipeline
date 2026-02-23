@@ -12,7 +12,7 @@ process KRONA_KTIMPORTTEXT {
         'biocontainers/krona:2.8.1--pl5321hdfd78af_1' }"
 
     input:
-    tuple val(meta), path(report)
+    tuple val(meta), path(report), val(db_label)
 
     output:
     tuple val(meta), path ('*.html'), emit: html

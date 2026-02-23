@@ -84,17 +84,19 @@
           "fa_icon": "far fa-check-circle",
           "description": "Validation of parameters fails when an unrecognised parameter is found.",
           "hidden": true,
-          "help_text": "By default, when an unrecognised parameter is found, it returns a warinig."
+          "help_text": "By default, when an unrecognised parameter is found, it returns a warning."
         },
         "validationLenientMode": {
           "type": "boolean",
           "fa_icon": "far fa-check-circle",
-          "description": "Validation of parameters in lenient more.",
+          "description": "Validation of parameters in lenient mode.",
           "hidden": true,
           "help_text": "Allows string values that are parseable as numbers or booleans. For further information see [JSONSchema docs](https://github.com/everit-org/json-schema#lenient-mode)."
         },
         "validationSchemaIgnoreParams": {
-          "type": "string"
+          "type": "string",
+          "hidden": true,
+          "description": "Comma-separated list of parameter names to ignore during schema validation."
         },
         "save_trimmed_fail": {
           "type": "boolean",
@@ -118,162 +120,15 @@
         },
         "pimento_version": {
           "type": "string",
-          "description": "Version of the mi-pimento tool to use.",
-          "hidden": true
-        },
-        "non_insdc": {
-          "type": "boolean",
-          "description": "Set to true to skip INSDC accession validation for sample IDs.",
-          "default": false,
-          "hidden": true
-        },
-        "modules_testdata_base_path": {
-          "type": "string",
-          "description": "Base path for nf-core test datasets.",
-          "hidden": true
+          "description": "Version of the PIMENTO primer identification tool to use."
         }
       }
     },
     "ref_dbs": {
-      "title": "Ref DBs",
+      "title": "Reference databases",
       "type": "object",
-      "description": "Paths to the different reference databases needed for the pipeline",
-      "default": "",
+      "description": "Paths to the reference databases needed for the pipeline.",
       "properties": {
-        "ssu_db_fasta": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-SSU processed fasta file"
-        },
-        "ssu_db_tax": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-SSU processed tax file"
-        },
-        "ssu_db_otu": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-SSU processed otu file"
-        },
-        "ssu_db_mscluster": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-SSU processed mscluster file"
-        },
-        "ssu_label": {
-          "type": "string",
-          "default": "SILVA-SSU",
-          "description": "SILVA SU Label"
-        },
-        "lsu_db_fasta": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-LSU processed fasta file"
-        },
-        "lsu_db_tax": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-LSU processed tax file"
-        },
-        "lsu_db_otu": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-LSU processed otu file"
-        },
-        "lsu_db_mscluster": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to SILVA-LSU processed mscluster file"
-        },
-        "lsu_label": {
-          "type": "string",
-          "default": "SILVA-LSU",
-          "description": "SILVA LSU Label"
-        },
-        "dada2_silva_label": {
-          "type": "string",
-          "default": "DADA2-SILVA",
-          "description": "DADA2 SILVA label"
-        },
-        "dada2_pr2_label": {
-          "type": "string",
-          "default": "DADA2-PR2",
-          "description": "DADA2 PR2 label"
-        },
-        "unite_db_fasta": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to UNITE processed fasta file"
-        },
-        "unite_db_tax": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to UNITE processed tax file"
-        },
-        "unite_db_otu": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to UNITE processed otu file"
-        },
-        "unite_db_mscluster": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to UNITE processed mscluster file"
-        },
-        "unite_label": {
-          "type": "string",
-          "default": "UNITE",
-          "description": "UNITE label"
-        },
-        "itsone_db_fasta": {
-          "type": "string",
-          "description": "Path to ITSoneDB processed fasta file"
-        },
-        "itsone_db_tax": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to ITSoneDB processed tax file"
-        },
-        "itsone_db_otu": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to ITSoneDB processed otu file"
-        },
-        "itsone_db_mscluster": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to ITSoneDB processed mscluster file"
-        },
-        "itsone_label": {
-          "type": "string",
-          "default": "ITSoneDB",
-          "description": "ITSoneDB label"
-        },
-        "pr2_db_fasta": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to PR2 processed fasta file"
-        },
-        "pr2_db_tax": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to PR2 processed tax file"
-        },
-        "pr2_db_otu": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to PR2 processed otu file"
-        },
-        "pr2_db_mscluster": {
-          "type": "string",
-          "format": "file-path",
-          "description": "Path to PR2 processed mscluster file"
-        },
-        "pr2_label": {
-          "type": "string",
-          "default": "PR2",
-          "description": "PR2 label"
-        },
         "rrnas_rfam_covariance_model": {
           "type": "string",
           "format": "directory-path",
@@ -286,9 +141,7 @@
         },
         "std_primer_library": {
           "type": "string",
-          "format": "directory-path",
-          "description": "Path to standard primer library",
-          "default": "./data/standard_primers"
+          "description": "Path to standard primer library directory for PIMENTO. Leave empty to use the default PIMENTO standard primer library."
         }
       }
     },

@@ -7,8 +7,7 @@ process EXTRACT_ASVS_LEFT {
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"
     
     input:
-    tuple val(meta), path(asvs_left), path(fasta), path(asvtaxtable)
-    val db_label
+    tuple val(meta), path(asvs_left), path(fasta), path(asvtaxtable), val(db_label)
 
     output:
     tuple val(meta), path("*asv_seqs.fasta"), emit: asv_seqs_out

@@ -9,8 +9,7 @@ process MAPSEQ2BIOM {
         'biocontainers/mgnify-pipelines-toolkit:1.4.12--pyhdfd78af_0' }"
 
     input:
-    tuple val(meta), path(msq)
-    tuple path(db_otu), val(db_label)
+    tuple val(meta), path(msq), path(db_otu), val(db_label)
 
     output:
     tuple val(meta), path("${meta.id}_${task.ext.db_label}.txt"), emit: krona_input

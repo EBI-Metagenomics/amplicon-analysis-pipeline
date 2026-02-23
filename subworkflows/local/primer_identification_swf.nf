@@ -17,7 +17,7 @@ workflow PRIMER_IDENTIFICATION {
         std_primer_library
     main:
 
-        ch_versions = Channel.empty()
+        ch_versions = channel.empty()
 
         // Standard Library primers
         STD_PRIMER_FLAG(

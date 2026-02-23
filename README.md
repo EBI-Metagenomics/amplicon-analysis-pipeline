@@ -17,7 +17,7 @@ The amplicon analysis pipeline v6.0 re-implements all of the existing features f
 The amplicon analysis pipeline v6.0 also contains multiple significant changes:
 
 - Refactoring from CWL to [Nextflow](https://www.nextflow.io/) for pipeline definition
-- Simplification the reads quality control using [fastp](https://github.com/OpenGene/fastp)
+- Simplification of reads quality control using [fastp](https://github.com/OpenGene/fastp)
 - Automatic amplified region inference for 16S and 18S rRNA
 - Automatic primer identification, trimming, and validation
 - Addition of Amplicon Sequence Variant (ASV) calling using [DADA2](https://benjjneb.github.io/dada2/index.html)
@@ -38,24 +38,26 @@ At this stage, the only sequence amplicons that this pipeline is built for are:
 
 ### Tools
 
-| Tool                                                                                            | Version | Purpose                                                |
-| ----------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------ |
-| [fastp](https://github.com/OpenGene/fastp)                                                      | 1.0.1   | Read quality control                                   |
-| [SeqFu](https://github.com/telatin/seqfu2)                                                      | 1.20.3  | FASTQ sanity checking                                  |
-| [seqtk](https://github.com/lh3/seqtk)                                                           | 1.4     | FASTQ file manipulation                                |
-| [SeqKit](https://bioinf.shenwei.me/seqkit/)                                                     | 2.9.0   | FASTQ file manipulation                                |
-| [easel](https://github.com/EddyRivasLab/easel)                                                  | 0.49    | FASTA file manipulation                                |
-| [bedtools](https://bedtools.readthedocs.io/en/latest/)                                          | 2.30.0  | FASTA sequence masking                                 |
-| [Infernal/cmsearch](https://github.com/EddyRivasLab/infernal/tree/master)                       | 1.1.5   | rRNA sequence searching                                |
-| [cmsearch_tblout_deoverlap](https://github.com/nawrockie/cmsearch_tblout_deoverlap/tree/master) | 0.09    | Deoverlapping of cmsearch results                      |
-| [MAPseq](https://github.com/meringlab/MAPseq)                                                   | 2.1.1b  | Reference-based taxonomic classification of rRNA       |
-| [Krona](https://github.com/marbl/Krona)                                                         | 2.8.1   | Krona chart visualisation                              |
-| [cutadapt](https://cutadapt.readthedocs.io/en/stable/)                                          | 4.6     | Primer trimming                                        |
-| [R](https://www.r-project.org/)                                                                 | 4.3.3   | R programming language (runs DADA2)                    |
-| [DADA2](https://benjjneb.github.io/dada2/index.html)                                            | 1.30.0  | ASV calling                                            |
-| [MultiQC](https://github.com/MultiQC/MultiQC)                                                   | 1.24.1  | Result aggregation into HTML reports                   |
-| [mgnify-pipelines-toolkit](https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit)        | 0.1.8   | Toolkit containing various in-house processing scripts |
-| [PIMENTO](https://github.com/EBI-Metagenomics/PIMENTO)                                          | 1.0.2   | Primer inference toolkit used in the pipeline          |
+| Tool                                                                                            | Version  | Purpose                                                |
+| ----------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------ |
+| [fastp](https://github.com/OpenGene/fastp)                                                      | 1.0.1    | Read quality control                                   |
+| [bbmap](https://sourceforge.net/projects/bbmap)                                                 | 35.85    | Standardise paired-end fastq files                     |
+| [SeqFu](https://github.com/telatin/seqfu2)                                                      | 1.20.3   | FASTQ sanity checking                                  |
+| [seqtk](https://github.com/lh3/seqtk)                                                           | 1.4      | FASTQ file manipulation                                |
+| [SeqKit](https://bioinf.shenwei.me/seqkit/)                                                     | 2.9.0    | FASTQ file manipulation                                |
+| [easel](https://github.com/EddyRivasLab/easel)                                                  | 0.49     | FASTA file manipulation                                |
+| [bedtools](https://bedtools.readthedocs.io/en/latest/)                                          | 2.30.0   | FASTA sequence masking                                 |
+| [Infernal/cmsearch](https://github.com/EddyRivasLab/infernal/tree/master)                       | 1.1.5    | rRNA sequence searching                                |
+| [cmsearch_tblout_deoverlap](https://github.com/nawrockie/cmsearch_tblout_deoverlap/tree/master) | 0.09     | Deoverlapping of cmsearch results                      |
+| [MAPseq](https://github.com/meringlab/MAPseq)                                                   | 2.1.1b   | Reference-based taxonomic classification of rRNA       |
+| [Krona](https://github.com/marbl/Krona)                                                         | 2.8.1    | Krona chart visualisation                              |
+| [cutadapt](https://cutadapt.readthedocs.io/en/stable/)                                          | 4.6      | Primer trimming                                        |
+| [R](https://www.r-project.org/)                                                                 | 4.3.3    | R programming language (runs DADA2)                    |
+| [DADA2](https://benjjneb.github.io/dada2/index.html)                                            | 1.30.0   | ASV calling                                            |
+| [MultiQC](https://github.com/MultiQC/MultiQC)                                                   | 1.24.1   | Result aggregation into HTML reports                   |
+| [mgnify-pipelines-toolkit](https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit)        | 0.1.8    | Toolkit containing various in-house processing scripts |
+| [PIMENTO](https://github.com/EBI-Metagenomics/PIMENTO)                                          | 1.0.2    | Primer inference toolkit used in the pipeline          |
+
 
 ### Reference databases
 
@@ -87,6 +89,27 @@ sample,fastq_1,fastq_2,single_end
 SRR9674618,/path/to/reads/SRR9674618.fastq.gz,,true
 SRR17062740,/path/to/reads/SRR17062740_1.fastq.gz,/path/to/reads/SRR17062740_2.fastq.gz,false
 ```
+
+### Defining reference MAPseq databases
+
+MAPseq databases for assigning taxonomy to sequences (i.e. reads or ASVs) are defined in a Nextflow config file as parameters. These definitions must adhere to a structure which describes
+1. filepaths
+2. flags determining how the database will be used by the pipeline
+3. labels for naming results files
+
+The structure is as follows:
+* `params.mapseq_databases`
+  * `<database_name>`
+    * `fasta`: filepath of MAPseq FASTA file containing reference sequences
+    * `tax`: filepath of MAPseq taxonomy of reference sequences
+    * `otu`: filepath of MAPseq pre-clustered OTU reference
+    * `mscluster`: filepath of MAPseq pre-computed k-mer clustering reference
+    * `run_otu`: true/false for whether this database is used to run OTU analysis
+    * `run_asv`: true/false for whether this database is used to run ASV analysis
+    * `label`: label to be used for naming OTU analysis outputs
+    * `asv_label`: label to be used for naming ASV analysis outputs (Required only if `run_asv = true`)
+
+Examples can be found in `conf/test_dbs.config`.
 
 ### Execution
 
@@ -127,7 +150,8 @@ Example output directory structure for one run (`ERR4334351`):
 │   │   ├── ERR4334351_asv_seqs.fasta
 │   │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
 │   │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
-│   │   └── ERR4334351_dada2_stats.tsv
+│   │   ├── ERR4334351_dada2_stats.tsv
+│   │   └── ERR4334351_dada2_truncation_points.txt
 │   ├── primer-identification
 │   │   ├── ERR4334351.cutadapt.json
 │   │   ├── fwd_primers.fasta
@@ -188,7 +212,7 @@ This profile is specifically designed to accommodate the increased computational
 When running the pipeline use:
 
 ```
-$ nextflow run ... -p large_samples ...
+$ nextflow run ... -profile large_samples ...
 ```
 
 ## Citations

@@ -13,7 +13,7 @@ workflow CONCAT_PRIMER_CUTADAPT {
         reads
     main:
 
-        ch_versions = Channel.empty()
+        ch_versions = channel.empty()
 
         CONCAT_PRIMERS(
             concat_input
@@ -36,15 +36,15 @@ workflow CONCAT_PRIMER_CUTADAPT {
         ch_versions = ch_versions.mix(FINAL_CONCAT_PRIMERS.out.versions.first())
 
         primer_validation_input = FINAL_CONCAT_PRIMERS.out.final_concat_primers_out
-                              .filter{ meta, primers ->
+                              .filter{ _meta, primers ->
                                 primers.size() > 0
                               }
 
         runs_without_primers = FINAL_CONCAT_PRIMERS.out.final_concat_primers_out
-                              .filter{ meta, primers ->
+                              .filter{ _meta, primers ->
                                 primers.size() == 0
                               }
-                              .map{ meta, primers ->
+                              .map{ meta, _primers ->
                                 [ meta, []]
                               }
     // Verify that any identified primers (both std+auto) actually match to regions of the SSU gene (for Bacteria/Archaea/Eukaryotes)

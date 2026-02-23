@@ -9,8 +9,7 @@ process MAPSEQ {
         'biocontainers/mapseq:2.1.1b--h3ab3c3b_0' }"
 
     input:
-    tuple val(meta), path(subunit_reads)
-    tuple path(db_fasta), path(db_tax), path(db_mscluster)
+    tuple val(meta), path(subunit_reads), path(db_fasta), path(db_tax), path(db_mscluster), val(db_label)
 
     output:
     tuple val(meta), path("*.mseq"), emit: mseq
