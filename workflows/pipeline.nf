@@ -177,7 +177,10 @@ workflow AMPLICON_PIPELINE {
     // Next five subworkflow calls are MAPseq annotation + Krona generation for SSU+LSU+ITS //
 
     mapseq_otu_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.otu }
-    MAPSEQ_OTU_KRONA(DETECT_RNA.out.ssu_fasta, mapseq_otu_dbs_in)
+    MAPSEQ_OTU_KRONA(
+        DETECT_RNA.out.ssu_fasta,
+        mapseq_otu_dbs_in
+    )
     ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA.out.versions)
 
 
@@ -197,7 +200,7 @@ workflow AMPLICON_PIPELINE {
 
     // Join primer identification flags with reads belonging to each run+amp_region //
     auto_trimming_input = PRIMER_IDENTIFICATION.out.conductor_out
-                          .join(AMP_REGION_INFERENCE.out.extracted_var_out, by: [0])
+        .join(AMP_REGION_INFERENCE.out.extracted_var_out, by: [0])
 
     /* 
     Run subworkflow for automatic primer prediction
@@ -210,7 +213,7 @@ workflow AMPLICON_PIPELINE {
 
     // Concatenate the different combinations of stranded std/auto primers for each run+amp_region //
     concat_input = PRIMER_IDENTIFICATION.out.std_primer_out
-                   .join(AUTOMATIC_PRIMER_PREDICTION.out.auto_primer_trimming_out, by: [0])
+        .join(AUTOMATIC_PRIMER_PREDICTION.out.auto_primer_trimming_out, by: [0])
    
     // Concatenate all primers for for a run, send them to cutadapt with original QCd reads for primer trimming //
     CONCAT_PRIMER_CUTADAPT(
@@ -250,35 +253,38 @@ workflow AMPLICON_PIPELINE {
     These final modules make sure the set of ASVs being reported in the different outputs
     are consistent i.e. ASVs in read count files, ASV sequences in FASTA files, etc.
     */
+    // Group all databases' read counts per sample+region so that sort|uniq
+    // deduplicates ASV IDs across databases (matching original SILVA+PR2 join)
     extract_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
-        .map{ meta, counts -> [meta.subMap('id', 'var_region', 'var_regions_size', 'asv_label'), counts] }
+        .map{ meta, counts -> [meta.subMap('id', 'var_region'), counts] }
         .groupTuple()
+    extract_asv_read_counts_input.view { it -> "extract_asv_read_counts_input - ${it}"}
+
     EXTRACT_ASV_READ_COUNTS(extract_asv_read_counts_input)
     ch_versions = ch_versions.mix(EXTRACT_ASV_READ_COUNTS.out.versions)
-    
+
+    // Pair each sample's shared asvs_left with each database's asvtaxtable
     extract_asvs_input = EXTRACT_ASV_READ_COUNTS.out.asvs_left
         .filter { meta, _asvs_left -> meta.var_region != "concat" }
         .map{ meta, asvs_left ->
-            def renamed_meta = ['id': meta.id, 'asv_label': meta.asv_label]
-            def key = groupKey(renamed_meta, meta.var_regions_size)
-            return [ key, asvs_left ]
-        }
+              [meta.subMap('id'), asvs_left] }
         .groupTuple()
-        .map{ meta, asvs_left -> [meta.subMap('id'), meta, asvs_left] }
         .combine(
             DADA2_SWF.out.dada2_out
                 .map { meta, _maps, asv_seqs, _filt_reads ->
-                       [meta.subMap('id'), meta, asv_seqs] },
+                       [meta.subMap('id'), asv_seqs] },
             by: 0
         )
-        .map{ _meta_id, meta, asvs_left, _dada2_meta, asv_seqs -> 
-              [meta, asvs_left, asv_seqs] }
-        .join(MAPSEQ_ASV_KRONA.out.asvtaxtable
-            .map{ meta, asvtaxtable ->
-                  [meta.subMap('id', 'asv_label'), asvtaxtable] }
+        .combine(
+            MAPSEQ_ASV_KRONA.out.asvtaxtable
+                .map{ meta, asvtaxtable ->
+                      [meta.subMap('id'), meta.asv_label, asvtaxtable] },
+            by: 0
         )
-        .map{ meta, asvs_left, asv_seqs, asvtaxtable -> 
-              [meta, asvs_left, asv_seqs, asvtaxtable, meta.asv_label] }
+        .map{ meta_id, asvs_left, asv_seqs, asv_label, asvtaxtable ->
+              [meta_id + ['asv_label': asv_label], asvs_left, asv_seqs, asvtaxtable, asv_label] }
+    extract_asvs_input.view { it -> "extract_asvs_input - ${it}"}
+
     EXTRACT_ASVS_LEFT(extract_asvs_input)
     ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())
 
@@ -376,6 +382,7 @@ workflow AMPLICON_PIPELINE {
         .join(MAPSEQ_OTU_KRONA.out.krona_input)
         .join(MAPSEQ_OTU_KRONA.out.biom_out)
         .join(MAPSEQ_OTU_KRONA.out.html)
+        .filter { _meta, _mseq, krona_input, _biom_out, _html -> (krona_input.size() > 0) }
 
     // Branch into ITS and non-ITS databases
     otu_branched = otu_all_results

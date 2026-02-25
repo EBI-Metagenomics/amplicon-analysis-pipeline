@@ -15,13 +15,13 @@ workflow DADA2_SWF {
         ch_versions = channel.empty()
 
         seqkit_input = dada2_input
-                      .map{ meta, reads ->
-                        [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
-                       }
-                      .join(cmsearch_deoverlap_out, by: [0])
-                      .map{meta, var_region, var_regions_size, reads, cmsearch_deoverlap_out_ ->
-                        [meta + ["var_region": var_region, "var_regions_size": var_regions_size], reads, cmsearch_deoverlap_out_]
-                      }
+            .map{ meta, reads ->
+                [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
+             }
+            .join(cmsearch_deoverlap_out, by: [0])
+            .map{meta, var_region, var_regions_size, reads, cmsearch_deoverlap_out_ ->
+                [meta + ["var_region": var_region, "var_regions_size": var_regions_size], reads, cmsearch_deoverlap_out_]
+            }
 
         EXTRACT_RRNA_HITS_FROM_UNMERGED_READS(seqkit_input)
 

@@ -68,7 +68,7 @@ workflow MAPSEQ_ASV_KRONA {
         multi_region_concats = split_input
             .map { meta, var_region, asv_label, maps, asvtaxtable, filt_reads, extracted_var ->
                    [meta.subMap('id', 'single_end'), var_region, asv_label, meta['var_regions_size'], maps, asvtaxtable, filt_reads, extracted_var] }
-            .join(concat_var_regions, by: 0)
+            .combine(concat_var_regions, by: 0)
             .map { meta, _var_region, asv_label, var_regions_size, maps, asvtaxtable, filt_reads, _extracted_vars, concat_str, concat_vars ->
                    [meta + ['var_regions_size':var_regions_size], concat_str, asv_label, maps, asvtaxtable, filt_reads, concat_vars] }
 
@@ -77,7 +77,7 @@ workflow MAPSEQ_ASV_KRONA {
             .mix(multi_region_concats)
             .map { meta, var_region, asv_label, maps, asvtaxtable, filt_reads, extracted_var ->
                    [meta + ['var_region': var_region, 'asv_label': asv_label], maps, asvtaxtable, filt_reads, extracted_var, asv_label] }
-        
+
         MAKE_ASV_COUNT_TABLES(final_asv_count_table_input)
         ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions.first())
 
