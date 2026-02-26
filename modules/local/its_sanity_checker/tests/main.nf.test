@@ -22,7 +22,7 @@ nextflow_process {
                     [ id:'test', single_end:false ],
                     [
                         'Rfam_SSU_LSU': rfam_ssu_lsu_fp,
-                        'ITSone': itsone_fp,
+                        'ITSoneDB': itsone_fp,
                         'UNITE': unite_fp,
                     ]
                 ]
@@ -76,7 +76,7 @@ nextflow_process {
                     [ id:'test', single_end:false ],
                     [
                         'Rfam_SSU_LSU': rfam_ssu_lsu_fp,
-                        'ITSone': itsone_fp,
+                        'ITSoneDB': itsone_fp,
                         'UNITE': unite_fp,
                     ]
                 ]
