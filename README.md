@@ -38,26 +38,24 @@ At this stage, the only sequence amplicons that this pipeline is built for are:
 
 ### Tools
 
-| Tool                                                                                            | Version  | Purpose                                                |
-| ----------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------ |
-| [fastp](https://github.com/OpenGene/fastp)                                                      | 1.0.1    | Read quality control                                   |
-| [bbmap](https://sourceforge.net/projects/bbmap)                                                 | 35.85    | Standardise paired-end fastq files                     |
-| [SeqFu](https://github.com/telatin/seqfu2)                                                      | 1.20.3   | FASTQ sanity checking                                  |
-| [seqtk](https://github.com/lh3/seqtk)                                                           | 1.4      | FASTQ file manipulation                                |
-| [SeqKit](https://bioinf.shenwei.me/seqkit/)                                                     | 2.9.0    | FASTQ file manipulation                                |
-| [easel](https://github.com/EddyRivasLab/easel)                                                  | 0.49     | FASTA file manipulation                                |
-| [bedtools](https://bedtools.readthedocs.io/en/latest/)                                          | 2.30.0   | FASTA sequence masking                                 |
-| [Infernal/cmsearch](https://github.com/EddyRivasLab/infernal/tree/master)                       | 1.1.5    | rRNA sequence searching                                |
-| [cmsearch_tblout_deoverlap](https://github.com/nawrockie/cmsearch_tblout_deoverlap/tree/master) | 0.09     | Deoverlapping of cmsearch results                      |
-| [MAPseq](https://github.com/meringlab/MAPseq)                                                   | 2.1.1b   | Reference-based taxonomic classification of rRNA       |
-| [Krona](https://github.com/marbl/Krona)                                                         | 2.8.1    | Krona chart visualisation                              |
-| [cutadapt](https://cutadapt.readthedocs.io/en/stable/)                                          | 4.6      | Primer trimming                                        |
-| [R](https://www.r-project.org/)                                                                 | 4.3.3    | R programming language (runs DADA2)                    |
-| [DADA2](https://benjjneb.github.io/dada2/index.html)                                            | 1.30.0   | ASV calling                                            |
-| [MultiQC](https://github.com/MultiQC/MultiQC)                                                   | 1.24.1   | Result aggregation into HTML reports                   |
-| [mgnify-pipelines-toolkit](https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit)        | 0.1.8    | Toolkit containing various in-house processing scripts |
-| [PIMENTO](https://github.com/EBI-Metagenomics/PIMENTO)                                          | 1.0.2    | Primer inference toolkit used in the pipeline          |
-
+| Tool                                                                                            | Version | Purpose                                                |
+| ----------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------ |
+| [fastp](https://github.com/OpenGene/fastp)                                                      | 1.0.1   | Read quality control                                   |
+| [SeqFu](https://github.com/telatin/seqfu2)                                                      | 1.20.3  | FASTQ sanity checking                                  |
+| [seqtk](https://github.com/lh3/seqtk)                                                           | 1.4     | FASTQ file manipulation                                |
+| [SeqKit](https://bioinf.shenwei.me/seqkit/)                                                     | 2.9.0   | FASTQ file manipulation                                |
+| [easel](https://github.com/EddyRivasLab/easel)                                                  | 0.49    | FASTA file manipulation                                |
+| [bedtools](https://bedtools.readthedocs.io/en/latest/)                                          | 2.30.0  | FASTA sequence masking                                 |
+| [Infernal/cmsearch](https://github.com/EddyRivasLab/infernal/tree/master)                       | 1.1.5   | rRNA sequence searching                                |
+| [cmsearch_tblout_deoverlap](https://github.com/nawrockie/cmsearch_tblout_deoverlap/tree/master) | 0.09    | Deoverlapping of cmsearch results                      |
+| [MAPseq](https://github.com/meringlab/MAPseq)                                                   | 2.1.1b  | Reference-based taxonomic classification of rRNA       |
+| [Krona](https://github.com/marbl/Krona)                                                         | 2.8.1   | Krona chart visualisation                              |
+| [cutadapt](https://cutadapt.readthedocs.io/en/stable/)                                          | 4.6     | Primer trimming                                        |
+| [R](https://www.r-project.org/)                                                                 | 4.3.3   | R programming language (runs DADA2)                    |
+| [DADA2](https://benjjneb.github.io/dada2/index.html)                                            | 1.30.0  | ASV calling                                            |
+| [MultiQC](https://github.com/MultiQC/MultiQC)                                                   | 1.24.1  | Result aggregation into HTML reports                   |
+| [mgnify-pipelines-toolkit](https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit)        | 0.1.8   | Toolkit containing various in-house processing scripts |
+| [PIMENTO](https://github.com/EBI-Metagenomics/PIMENTO)                                          | 1.0.2   | Primer inference toolkit used in the pipeline          |
 
 ### Reference databases
 
@@ -93,21 +91,23 @@ SRR17062740,/path/to/reads/SRR17062740_1.fastq.gz,/path/to/reads/SRR17062740_2.f
 ### Defining reference MAPseq databases
 
 MAPseq databases for assigning taxonomy to sequences (i.e. reads or ASVs) are defined in a Nextflow config file as parameters. These definitions must adhere to a structure which describes
+
 1. filepaths
 2. flags determining how the database will be used by the pipeline
 3. labels for naming results files
 
 The structure is as follows:
-* `params.mapseq_databases`
-  * `<database_name>`
-    * `fasta`: filepath of MAPseq FASTA file containing reference sequences
-    * `tax`: filepath of MAPseq taxonomy of reference sequences
-    * `otu`: filepath of MAPseq pre-clustered OTU reference
-    * `mscluster`: filepath of MAPseq pre-computed k-mer clustering reference
-    * `run_otu`: true/false for whether this database is used to run OTU analysis
-    * `run_asv`: true/false for whether this database is used to run ASV analysis
-    * `label`: label to be used for naming OTU analysis outputs
-    * `asv_label`: label to be used for naming ASV analysis outputs (Required only if `run_asv = true`)
+
+- `params.mapseq_databases`
+  - `<database_name>`
+    - `fasta`: filepath of MAPseq FASTA file containing reference sequences
+    - `tax`: filepath of MAPseq taxonomy of reference sequences
+    - `otu`: filepath of MAPseq pre-clustered OTU reference
+    - `mscluster`: filepath of MAPseq pre-computed k-mer clustering reference
+    - `run_otu`: true/false for whether this database is used to run OTU analysis
+    - `run_asv`: true/false for whether this database is used to run ASV analysis
+    - `label`: label to be used for naming OTU analysis outputs
+    - `asv_label`: label to be used for naming ASV analysis outputs (Required only if `run_asv = true`)
 
 Examples can be found in `conf/test_dbs.config`.
 
@@ -141,59 +141,59 @@ Example output directory structure for one run (`ERR4334351`):
 
 ```
 ├── ERR4334351
-│   ├── amplified-region-inference
-│   │   ├── ERR4334351.16S.V3-V4.txt
-│   │   └── ERR4334351.tsv
-│   ├── asv
-│   │   ├── 16S-V3-V4
-│   │   │   └── ERR4334351_16S-V3-V4_asv_read_counts.tsv
-│   │   ├── ERR4334351_asv_seqs.fasta
-│   │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
-│   │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
-│   │   ├── ERR4334351_dada2_stats.tsv
-│   │   └── ERR4334351_dada2_truncation_points.txt
-│   ├── primer-identification
-│   │   ├── ERR4334351.cutadapt.json
-│   │   ├── fwd_primers.fasta
-│   │   ├── rev_primers.fasta
-│   │   └── ERR4334351_primer_validation.tsv
-│   ├── qc
-│   │   ├── ERR4334351.fastp.json
-│   │   ├── ERR4334351.merged.fastq.gz
-│   │   ├── ERR4334351_dada2_errors.txt
-│   │   ├── ERR4334351_multiqc_report.html
-│   │   ├── ERR4334351_seqfu.tsv
-│   │   └── ERR4334351_suffix_header_err.json
-│   ├── sequence-categorisation
-│   │   ├── ERR4334351_SSU.fasta
-│   │   ├── ERR4334351_SSU_rRNA_archaea.RF01959.fa
-│   │   ├── ERR4334351_SSU_rRNA_bacteria.RF00177.fa
-│   │   └── ERR4334351.tblout.deoverlapped
-│   └── taxonomy-summary
-│       ├── DADA2-PR2
-│       │   ├── ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt
-│       │   ├── ERR4334351_16S-V3-V4.html
-│       │   └── ERR4334351_DADA2-PR2.mseq
-│       ├── DADA2-SILVA
-│       │   ├── ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt
-│       │   ├── ERR4334351_16S-V3-V4.html
-│       │   └── ERR4334351_DADA2-SILVA.mseq
-│       ├── PR2
-│       │   ├── ERR4334351.html
-│       │   ├── ERR4334351_PR2.mseq
-│       │   ├── ERR4334351_PR2.tsv
-│       │   └── ERR4334351_PR2.txt
-│       └── SILVA-SSU
-│           ├── ERR4334351.html
-│           ├── ERR4334351_SILVA-SSU.mseq
-│           ├── ERR4334351_SILVA-SSU.tsv
-│           └── ERR4334351_SILVA-SSU.txt
+│   ├── amplified-region-inference
+│   │   ├── ERR4334351.16S.V3-V4.txt
+│   │   └── ERR4334351.tsv
+│   ├── asv
+│   │   ├── 16S-V3-V4
+│   │   │   └── ERR4334351_16S-V3-V4_asv_read_counts.tsv
+│   │   ├── ERR4334351_asv_seqs.fasta
+│   │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
+│   │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
+│   │   ├── ERR4334351_dada2_stats.tsv
+│   │   └── ERR4334351_dada2_truncation_points.txt
+│   ├── primer-identification
+│   │   ├── ERR4334351.cutadapt.json
+│   │   ├── fwd_primers.fasta
+│   │   ├── rev_primers.fasta
+│   │   └── ERR4334351_primer_validation.tsv
+│   ├── qc
+│   │   ├── ERR4334351.fastp.json
+│   │   ├── ERR4334351.merged.fastq.gz
+│   │   ├── ERR4334351_dada2_errors.txt
+│   │   ├── ERR4334351_multiqc_report.html
+│   │   ├── ERR4334351_seqfu.tsv
+│   │   └── ERR4334351_suffix_header_err.json
+│   ├── sequence-categorisation
+│   │   ├── ERR4334351_SSU.fasta
+│   │   ├── ERR4334351_SSU_rRNA_archaea.RF01959.fa
+│   │   ├── ERR4334351_SSU_rRNA_bacteria.RF00177.fa
+│   │   └── ERR4334351.tblout.deoverlapped
+│   └── taxonomy-summary
+│       ├── DADA2-PR2
+│       │   ├── ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt
+│       │   ├── ERR4334351_16S-V3-V4.html
+│       │   └── ERR4334351_DADA2-PR2.mseq
+│       ├── DADA2-SILVA
+│       │   ├── ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt
+│       │   ├── ERR4334351_16S-V3-V4.html
+│       │   └── ERR4334351_DADA2-SILVA.mseq
+│       ├── PR2
+│       │   ├── ERR4334351.html
+│       │   ├── ERR4334351_PR2.mseq
+│       │   ├── ERR4334351_PR2.tsv
+│       │   └── ERR4334351_PR2.txt
+│       └── SILVA-SSU
+│           ├── ERR4334351.html
+│           ├── ERR4334351_SILVA-SSU.mseq
+│           ├── ERR4334351_SILVA-SSU.tsv
+│           └── ERR4334351_SILVA-SSU.txt
 ├── pipeline_info
-│   ├── execution_report_2025-03-25_14-13-55.html
-│   ├── execution_timeline_2025-03-25_14-13-55.html
-│   ├── execution_trace_2025-03-25_14-13-55.txt
-│   ├── pipeline_dag_2025-03-25_14-13-55.html
-│   └── software_versions.yml
+│   ├── execution_report_2025-03-25_14-13-55.html
+│   ├── execution_timeline_2025-03-25_14-13-55.html
+│   ├── execution_trace_2025-03-25_14-13-55.txt
+│   ├── pipeline_dag_2025-03-25_14-13-55.html
+│   └── software_versions.yml
 ├── bco.json
 ├── study_multiqc_report.html
 ├── qc_passed_runs.csv
