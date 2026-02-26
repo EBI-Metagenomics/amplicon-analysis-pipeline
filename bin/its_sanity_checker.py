@@ -205,14 +205,14 @@ def its_sanity_checker(
         filepaths = json.load(f)
 
     # Validate required keys
-    required_keys = ["ITSone", "UNITE", "Rfam_SSU_LSU"]
+    required_keys = ["ITSoneDB", "UNITE", "Rfam_SSU_LSU"]
     missing_keys = [k for k in required_keys if k not in filepaths]
     if missing_keys:
         raise ValueError(f"Missing required keys in read assignments JSON: {missing_keys}")
 
     # Read MAPseq output files
     logging.info("Reading MAPseq assignment files...")
-    itsonedb_df = read_mseq_file(filepaths["ITSone"])
+    itsonedb_df = read_mseq_file(filepaths["ITSoneDB"])
     itsonedb_linecount = len(itsonedb_df)
     logging.info(f"ITSoneDB assignment count: {itsonedb_linecount}")
 
