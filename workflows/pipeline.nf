@@ -258,7 +258,6 @@ workflow AMPLICON_PIPELINE {
     extract_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
         .map{ meta, counts -> [meta.subMap('id', 'var_region'), counts] }
         .groupTuple()
-    extract_asv_read_counts_input.view { it -> "extract_asv_read_counts_input - ${it}"}
 
     EXTRACT_ASV_READ_COUNTS(extract_asv_read_counts_input)
     ch_versions = ch_versions.mix(EXTRACT_ASV_READ_COUNTS.out.versions)
@@ -283,7 +282,6 @@ workflow AMPLICON_PIPELINE {
         )
         .map{ meta_id, asvs_left, asv_seqs, asv_label, asvtaxtable ->
               [meta_id + ['asv_label': asv_label], asvs_left, asv_seqs, asvtaxtable, asv_label] }
-    extract_asvs_input.view { it -> "extract_asvs_input - ${it}"}
 
     EXTRACT_ASVS_LEFT(extract_asvs_input)
     ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())

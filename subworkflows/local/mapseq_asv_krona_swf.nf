@@ -58,7 +58,7 @@ workflow MAPSEQ_ASV_KRONA {
             .transpose(by: 1)
             .join(extracted_var_path, by: [0, 1])
             .join(split_mapseq2asvtable, by: [0, 1])
-            .transpose(by: 5)  // this isn't doing what I think it's doing. It will only "split" if it's a vector rather than a matrix... Will a tuple be treated different?
+            .transpose(by: 5)
             .map { meta, var_region, maps, filt_reads, extracted_var, asvlabel_asvtaxtable ->
                 def (asv_label, asvtaxtable) = asvlabel_asvtaxtable.flatten()
                 return [meta, var_region, asv_label, maps, asvtaxtable, filt_reads, extracted_var]
