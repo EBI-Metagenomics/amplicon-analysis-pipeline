@@ -52,7 +52,7 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
 
                     // Snapshot line counts for JSON, TSV, and FASTA files
                     {
-                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_mixed_amp.csv'])
+                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'bco.json', 'test_samplesheet_mixed_amp.csv'])
                         def lineCounts = dataFiles.collect { file ->
                             def lineCount = file.text.isEmpty() ? 0 : file.readLines().size()
                             "${file.name} - ${lineCount} lines"

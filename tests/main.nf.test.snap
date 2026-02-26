@@ -131,11 +131,11 @@
                 "test_samplesheet_mixed_amp.csv"
             ]
         ],
+        "timestamp": "2026-02-26T08:09:01.069258",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
-        },
-        "timestamp": "2026-02-19T22:19:47.876113"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "line_counts": {
         "content": [
@@ -181,7 +181,6 @@
                 "MOCKDOUBLEAMP_primer_validation.tsv - 5 lines",
                 "MOCKDOUBLEAMP_seqfu.tsv - 1 lines",
                 "MOCKDOUBLEAMP_suffix_header_err.json - 0 lines",
-                "bco.json - 4587 lines",
                 "fwd_primers.fasta - 2 lines",
                 "fwd_primers.fasta - 4 lines",
                 "primer_validation_summary.json - 54 lines",
@@ -189,11 +188,11 @@
                 "rev_primers.fasta - 4 lines"
             ]
         ],
+        "timestamp": "2026-02-26T08:09:01.246223",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
-        },
-        "timestamp": "2026-02-19T22:19:48.033098"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "file_sizes": {
         "content": [
@@ -218,7 +217,7 @@
                 "ERR4334351_PR2.tsv - 693 bytes",
                 "ERR4334351_PR2.txt - 611 bytes",
                 "ERR4334351_SILVA-SSU.mseq - 690708 bytes",
-                "ERR4334351_SILVA-SSU.tsv - 438 bytes",
+                "ERR4334351_SILVA-SSU.tsv - 444 bytes",
                 "ERR4334351_SILVA-SSU.txt - 339 bytes",
                 "ERR4334351_SSU.fasta - 3061214 bytes",
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
@@ -260,7 +259,7 @@
                 "MOCKDOUBLEAMP_PR2.tsv - 496 bytes",
                 "MOCKDOUBLEAMP_PR2.txt - 420 bytes",
                 "MOCKDOUBLEAMP_SILVA-SSU.mseq - 657473 bytes",
-                "MOCKDOUBLEAMP_SILVA-SSU.tsv - 304 bytes",
+                "MOCKDOUBLEAMP_SILVA-SSU.tsv - 310 bytes",
                 "MOCKDOUBLEAMP_SILVA-SSU.txt - 217 bytes",
                 "MOCKDOUBLEAMP_SSU.fasta - 4356854 bytes",
                 "MOCKDOUBLEAMP_SSU_rRNA_archaea.RF01959.fasta - 4374 bytes",
@@ -285,10 +284,10 @@
                 "rev_primers.fasta - 56 bytes"
             ]
         ],
+        "timestamp": "2026-02-26T08:09:01.131653",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
-        },
-        "timestamp": "2026-02-19T22:19:47.897705"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }
