@@ -561,6 +561,9 @@ workflow AMPLICON_PIPELINE {
             if ("has_dada2_results" in results && "has_ssu_lsu_taxonomies" in results) {
                 return "${meta.id},all_results"
             }
+            else if ("has_dada2_results" in results) {
+                return "${meta.id},asvs_only"
+            }
             else if ("has_its_taxonomies" in results || "has_ssu_lsu_taxonomies" in results) {
                 if ("dada2_stats_fail" in results) {
                     return "${meta.id},dada2_stats_fail"

@@ -157,6 +157,70 @@ def rank_proportion_test(
     )
 
 
+def _run_sanity_tests(filepaths: dict[str, str]) -> dict:
+    """Run all three sanity tests and return the results dictionary."""
+    # Read MAPseq output files
+    logging.info("Reading MAPseq assignment files...")
+    itsonedb_df = read_mseq_file(filepaths["ITSoneDB"])
+    itsonedb_linecount = len(itsonedb_df)
+    logging.info("ITSoneDB assignment count: %d", itsonedb_linecount)
+
+    unite_df = read_mseq_file(filepaths["UNITE"])
+    unite_linecount = len(unite_df)
+    logging.info("UNITE assignment count: %d", unite_linecount)
+
+    try:
+        rrna_readcount = count_sequences_in_file(filepaths["Rfam_SSU_LSU"])
+        logging.info("Potential ITS reads count: %d", rrna_readcount)
+    except Exception as e:
+        logging.error("Failed to count Rfam SSU+LSU sequences: %s", e)
+        rrna_readcount = 0
+
+    results_dict = {}
+
+    # Tax Assignment Count Test
+    logging.info("Running Tax Assignment Count Test")
+    tax_assignment_count_pass = tax_assignment_count_test(
+        itsonedb_linecount, unite_linecount
+    )
+    results_dict["tax_assignment_count_test"] = tax_assignment_count_pass
+
+    # Mapping Proportion Test
+    logging.info("Running Mapping Proportion Test")
+    mapping_proportion_pass, itsonedb_reads_mapping, unite_reads_mapping = (
+        mapping_proportion_test(itsonedb_linecount, unite_linecount, rrna_readcount)
+    )
+    results_dict["mapping_proportion_test"] = mapping_proportion_pass
+
+    # Rank Proportion Test
+    logging.info("Running Rank Proportion Test")
+    rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
+        rank_proportion_test(
+            itsonedb_df, unite_df, itsonedb_linecount, unite_linecount
+        )
+    )
+    results_dict["rank_proportion_test"] = rank_proportion_pass
+
+    # Log test results
+    for name, passed in [
+        ("Mapping Proportion", mapping_proportion_pass),
+        ("Tax Assignment Count", tax_assignment_count_pass),
+        ("Rank Proportion", rank_proportion_pass),
+    ]:
+        logging.info("%s test: %s", name, "PASSED" if passed else "FAILED")
+
+    # Add counts into the dictionary for debugging
+    results_dict["rrna_readcount"] = rrna_readcount
+    results_dict["itsonedb_linecount"] = itsonedb_linecount
+    results_dict["unite_linecount"] = unite_linecount
+    results_dict["itsonedb_reads_mapping"] = itsonedb_reads_mapping
+    results_dict["unite_reads_mapping"] = unite_reads_mapping
+    results_dict["itsone_ranks_below_kingdom"] = itsone_ranks_below_kingdom
+    results_dict["unite_ranks_below_kingdom"] = unite_ranks_below_kingdom
+
+    return results_dict
+
+
 ############## ITS Sanity Checker ##############
 @click.command(
     short_help="Sanity check whether a potential ITS result isn't just a different marker gene",
@@ -204,76 +268,29 @@ def its_sanity_checker(
     with open(read_assignments) as f:
         filepaths = json.load(f)
 
-    # Validate required keys
-    required_keys = ["ITSoneDB", "UNITE", "Rfam_SSU_LSU"]
-    missing_keys = [k for k in required_keys if k not in filepaths]
-    if missing_keys:
-        raise ValueError(f"Missing required keys in read assignments JSON: {missing_keys}")
-
-    # Read MAPseq output files
-    logging.info("Reading MAPseq assignment files...")
-    itsonedb_df = read_mseq_file(filepaths["ITSoneDB"])
-    itsonedb_linecount = len(itsonedb_df)
-    logging.info(f"ITSoneDB assignment count: {itsonedb_linecount}")
-
-    unite_df = read_mseq_file(filepaths["UNITE"])
-    unite_linecount = len(unite_df)
-    logging.info(f"UNITE assignment count: {unite_linecount}")
-
-    try:
-        rrna_readcount = count_sequences_in_file(filepaths["Rfam_SSU_LSU"])
-        logging.info(f"Potential ITS reads count: {rrna_readcount}")
-    except Exception as e:
-        logging.error(f"Failed to count Rfam SSU+LSU sequences: {e}")
-        rrna_readcount = 0
-
-    results_dict = {}
-
-    # Tax Assignment Count Test
-    logging.info("Running Tax Assignment Count Test")
-    tax_assignment_count_pass = tax_assignment_count_test(
-        itsonedb_linecount, unite_linecount
-    )
-    results_dict["tax_assignment_count_test"] = tax_assignment_count_pass
-
-    # Mapping Proportion Test
-    logging.info("Running Mapping Proportion Test")
-    mapping_proportion_pass, itsonedb_reads_mapping, unite_reads_mapping = (
-        mapping_proportion_test(itsonedb_linecount, unite_linecount, rrna_readcount)
-    )
-    results_dict["mapping_proportion_test"] = mapping_proportion_pass
-
-    # Rank Proportion Test
-    logging.info("Running Rank Proportion Test")
-    rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
-        rank_proportion_test(itsonedb_df, unite_df, itsonedb_linecount, unite_linecount)
-    )
-    results_dict["rank_proportion_test"] = rank_proportion_pass
-
-    # Log test results
-    if mapping_proportion_pass:
-        logging.info("Mapping Proportion test: PASSED")
+    # Check for required database keys
+    db_keys = ["ITSoneDB", "UNITE"]
+    missing_db_keys = [k for k in db_keys if k not in filepaths]
+    if missing_db_keys:
+        logging.warning(
+            "Missing database results in read assignments JSON: %s. "
+            "Outputting negative sanity check result.",
+            missing_db_keys,
+        )
+        results_dict = {
+            "tax_assignment_count_test": False,
+            "mapping_proportion_test": False,
+            "rank_proportion_test": False,
+            "rrna_readcount": 0,
+            "itsonedb_linecount": 0,
+            "unite_linecount": 0,
+            "itsonedb_reads_mapping": 0.0,
+            "unite_reads_mapping": 0.0,
+            "itsone_ranks_below_kingdom": 0.0,
+            "unite_ranks_below_kingdom": 0.0,
+        }
     else:
-        logging.info("Mapping Proportion test: FAILED")
-
-    if tax_assignment_count_pass:
-        logging.info("Tax Assignment Count test: PASSED")
-    else:
-        logging.info("Tax Assignment Count test: FAILED")
-
-    if rank_proportion_pass:
-        logging.info("Rank Proportion test: PASSED")
-    else:
-        logging.info("Rank Proportion test: FAILED")
-
-    # Add counts into the dictionary for debugging
-    results_dict["rrna_readcount"] = rrna_readcount
-    results_dict["itsonedb_linecount"] = itsonedb_linecount
-    results_dict["unite_linecount"] = unite_linecount
-    results_dict["itsonedb_reads_mapping"] = itsonedb_reads_mapping
-    results_dict["unite_reads_mapping"] = unite_reads_mapping
-    results_dict["itsone_ranks_below_kingdom"] = itsone_ranks_below_kingdom
-    results_dict["unite_ranks_below_kingdom"] = unite_ranks_below_kingdom
+        results_dict = _run_sanity_tests(filepaths)
 
     # set the prefix as the index, implied that it's the run ID for our purposes
     results_dict["run"] = output_prefix
