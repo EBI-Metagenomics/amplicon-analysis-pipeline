@@ -7,14 +7,14 @@ process PUBLISH_OTU_RESULTS {
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"
 
     input:
-    tuple val(meta), path(mseq), path(krona_input), path(biom_out), path(html)
+    tuple val(meta), path(mseq), path(krona_input), path(biom), path(html)
 
     output:
     tuple val(meta), path("*.mseq", includeInputs: true), emit: mseq
     tuple val(meta), path("*.txt", includeInputs: true) , emit: krona_input
-    tuple val(meta), path("*.tsv", includeInputs: true) , emit: biom_out
+    tuple val(meta), path("*.tsv", includeInputs: true) , emit: biom
     tuple val(meta), path("*.html", includeInputs: true), emit: html
-    path "versions.yml"                                  , emit: versions
+    path "versions.yml"                                 , emit: versions
 
     script:
     """

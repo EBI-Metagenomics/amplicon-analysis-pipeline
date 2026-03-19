@@ -12,7 +12,7 @@ process KRONA_KTIMPORTTEXT {
         'biocontainers/krona:2.8.1--pl5321hdfd78af_1' }"
 
     input:
-    tuple val(meta), path(report), val(db_label)
+    tuple val(meta), path(report)
 
     output:
     tuple val(meta), path ('*.html'), emit: html
@@ -24,11 +24,6 @@ process KRONA_KTIMPORTTEXT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    
-    if (meta.containsKey("var_region")){
-        prefix = prefix + "_${meta.var_region}"
-    }
-
     """
     ktImportText  \\
         $args \\

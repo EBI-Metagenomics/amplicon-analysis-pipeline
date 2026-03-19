@@ -120,7 +120,8 @@
         },
         "pimento_version": {
           "type": "string",
-          "description": "Version of the PIMENTO primer identification tool to use."
+          "description": "Version of the PIMENTO primer identification tool to use.",
+          "hidden": true
         }
       }
     },

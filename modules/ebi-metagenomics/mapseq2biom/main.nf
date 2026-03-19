@@ -12,9 +12,10 @@ process MAPSEQ2BIOM {
     tuple val(meta), path(msq), path(db_otu), val(db_label)
 
     output:
-    tuple val(meta), path("${meta.id}_${task.ext.db_label}.txt"), emit: krona_input
-    tuple val(meta), path("${meta.id}_${task.ext.db_label}.tsv"), emit: biom_out
-    path "versions.yml"                                         , emit: versions
+    tuple val(meta), path("${task.ext.prefix ?: meta.id}.txt")        , emit: krona_input
+    tuple val(meta), path("${task.ext.prefix ?: meta.id}.tsv")        , emit: biom_out
+    tuple val(meta), path("${task.ext.prefix ?: meta.id}.notaxid.tsv"), emit: biom_notaxid_out
+    path "versions.yml"                                                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,12 +27,12 @@ process MAPSEQ2BIOM {
     """
     mapseq2biom \
         ${args} \
-        --krona ${prefix}_${task.ext.db_label}.txt \
+        --krona ${prefix}.txt \
         --no-tax-id-file ${prefix}.notaxid.tsv \
         --label ${db_label} \
         --query ${msq} \
         --otu-table ${db_otu} \
-        --out-file ${prefix}_${task.ext.db_label}.tsv
+        --out-file ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -43,8 +44,9 @@ process MAPSEQ2BIOM {
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    touch ${prefix}_${task.ext.db_label}.txt
-    touch ${prefix}_${task.ext.db_label}.tsv
+    touch ${prefix}.txt
+    touch ${prefix}.notaxid.tsv
+    touch ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

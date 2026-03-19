@@ -127,8 +127,7 @@
                 "primer_validation_summary.json",
                 "qc_failed_runs.csv",
                 "qc_passed_runs.csv",
-                "study_multiqc_report.html",
-                "test_samplesheet_mixed_amp.csv"
+                "study_multiqc_report.html"
             ]
         ],
         "timestamp": "2026-02-26T08:09:01.069258",
@@ -295,8 +294,7 @@
                 "pipeline_info",
                 "primer_validation_summary.json",
                 "qc_passed_runs.csv",
-                "study_multiqc_report.html",
-                "test_samplesheet_no_asv_dbs.csv"
+                "study_multiqc_report.html"
             ]
         ],
         "timestamp": "2026-02-26T12:08:34.728732",
@@ -491,8 +489,7 @@
                 "pipeline_info",
                 "primer_validation_summary.json",
                 "qc_passed_runs.csv",
-                "study_multiqc_report.html",
-                "test_samplesheet_no_dbs.csv"
+                "study_multiqc_report.html"
             ]
         ],
         "timestamp": "2026-02-26T12:23:43.472628",
@@ -647,8 +644,7 @@
                 "pipeline_info",
                 "primer_validation_summary.json",
                 "qc_passed_runs.csv",
-                "study_multiqc_report.html",
-                "test_samplesheet_no_otu_dbs.csv"
+                "study_multiqc_report.html"
             ]
         ],
         "timestamp": "2026-02-26T14:23:51.421903",

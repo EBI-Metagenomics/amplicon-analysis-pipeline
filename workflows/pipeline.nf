@@ -74,9 +74,9 @@ workflow AMPLICON_PIPELINE {
         .map { meta, fields -> 
             def asv_label = fields.run_asv ? ['asv_label': fields.asv_label] : []
             def extra_meta = [
-                'label': fields.label, 
-                'asv': fields.run_asv, 
-                'otu': fields.run_otu, 
+                'db_label': fields.label,
+                'run_asv': fields.run_asv,
+                'run_otu': fields.run_otu,
             ]
 
             [
@@ -173,10 +173,9 @@ workflow AMPLICON_PIPELINE {
     ch_versions = ch_versions.mix(MASK_FASTA_SWF.out.versions)
 
     
-    // CHANGE HERE
     // Next five subworkflow calls are MAPseq annotation + Krona generation for SSU+LSU+ITS //
 
-    mapseq_otu_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.otu }
+    mapseq_otu_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.run_otu }
     MAPSEQ_OTU_KRONA(
         DETECT_RNA.out.ssu_fasta,
         mapseq_otu_dbs_in
@@ -239,7 +238,7 @@ workflow AMPLICON_PIPELINE {
 
 
     // ASV taxonomic assignments + generate Krona plots for each run+amp_region //
-    mapseq_asv_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.asv }
+    mapseq_asv_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.run_asv }
     MAPSEQ_ASV_KRONA(
         DADA2_SWF.out.dada2_out,
         AMP_REGION_INFERENCE.out.concat_var_regions,
@@ -337,6 +336,8 @@ workflow AMPLICON_PIPELINE {
                     [meta.subMap('id'), [('Rfam_SSU_LSU'): masked_reads]]
                 }
         )
+        // Merge all mseq and rfam results for the same sample into a single map
+        // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU': masked_reads })
         .groupTuple()
         .map { meta, results_list ->
             def results = [:]

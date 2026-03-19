@@ -18,18 +18,20 @@ workflow MAPSEQ_ASV_KRONA {
         ch_versions = channel.empty()
 
         mapseq_in = dada2_output
-            .map{ meta, maps, asv_seqs, filt_reads -> [meta, [maps, asv_seqs, filt_reads]] }
+            .map{ meta, maps, asv_seqs, _filt_reads -> [meta, [maps, asv_seqs]] }
             .combine(dbs_in)
             .map { asv_meta, asv_files, db_meta, db_files ->
                 def meta = asv_meta + ['db_id': db_meta.id, 'asv_label': db_meta.asv_label]
                 def (fasta, tax, _otu, mscluster, _label) = db_files
-                def (_maps, asv_seqs, _filt_reads) = asv_files
+                def (_maps, asv_seqs) = asv_files
                 return [meta.subMap('id', 'single_end', 'var_region', 'var_regions_size'), [meta, asv_seqs, fasta, tax, mscluster, meta.asv_label]]
             }
+            // Group (groupTuple()) to count number of items in each group, to be used in a future groupKey
             .groupTuple()
             .map { meta_k, vs -> [meta_k, vs.size(), vs] }
+            // then re-expand (transpose(by: 2)) with each item now carrying n in its meta.
             .transpose(by: 2)
-            .map{ _meta_k, n, v -> 
+            .map{ _meta_k, n, v ->
                 def (meta, asv_seqs, fasta, tax, mscluster, label) = v
                 return [meta + ['n': n], asv_seqs, fasta, tax, mscluster, label]
             }
@@ -37,9 +39,9 @@ workflow MAPSEQ_ASV_KRONA {
         MAPSEQ(mapseq_in)
         ch_versions = ch_versions.mix(MAPSEQ.out.versions.first())
 
-        mapseq2biom_in = MAPSEQ.out.mseq
+        mapseq2asvtable_in = MAPSEQ.out.mseq
             .map { meta, mapseq_out -> [meta, mapseq_out, meta.asv_label] }
-        MAPSEQ2ASVTABLE(mapseq2biom_in)
+        MAPSEQ2ASVTABLE(mapseq2asvtable_in)
         ch_versions = ch_versions.mix(MAPSEQ2ASVTABLE.out.versions.first())
 
         // Transpose by var region in case any samples have more than one
@@ -81,10 +83,7 @@ workflow MAPSEQ_ASV_KRONA {
         MAKE_ASV_COUNT_TABLES(final_asv_count_table_input)
         ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions.first())
 
-        KRONA_KTIMPORTTEXT(
-            MAKE_ASV_COUNT_TABLES.out.asv_krona_counts
-                .map { meta, asv_counts -> [meta, asv_counts, meta.asv_label] }
-        )
+        KRONA_KTIMPORTTEXT(MAKE_ASV_COUNT_TABLES.out.asv_krona_counts)
         ch_versions = ch_versions.mix(KRONA_KTIMPORTTEXT.out.versions.first())
 
     emit:

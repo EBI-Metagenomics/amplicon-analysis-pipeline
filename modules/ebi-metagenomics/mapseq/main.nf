@@ -30,7 +30,7 @@ process MAPSEQ {
         $db_tax \\
         -nthreads $task.cpus \\
         $args \\
-        > ${prefix}_${task.ext.db_label}.mseq
+        > ${prefix}.mseq
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
