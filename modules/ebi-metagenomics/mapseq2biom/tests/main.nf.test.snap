@@ -1,0 +1,144 @@
+{
+    "test_silva - mseq - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.notaxid.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "3": [
+                    "versions.yml:md5,d8270f637a909a58d0070c3abc946c52"
+                ],
+                "biom_notaxid_out": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.notaxid.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "biom_out": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.tsv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "krona_input": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.txt:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,d8270f637a909a58d0070c3abc946c52"
+                ]
+            }
+        ],
+        "timestamp": "2026-03-19T11:42:17.19046",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "test_silva - mseq": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.txt:md5,fa3ef8980608011a1ecdd15f93889c0a"
+                    ]
+                ],
+                "1": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.tsv:md5,627ca596232e79fe2777f0e9352df993"
+                    ]
+                ],
+                "2": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.notaxid.tsv:md5,4b4dc1c98f5da99339fa477dd47f371d"
+                    ]
+                ],
+                "3": [
+                    "versions.yml:md5,3c2bedf6a478699eb84a052535606d06"
+                ],
+                "biom_notaxid_out": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.notaxid.tsv:md5,4b4dc1c98f5da99339fa477dd47f371d"
+                    ]
+                ],
+                "biom_out": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.tsv:md5,627ca596232e79fe2777f0e9352df993"
+                    ]
+                ],
+                "krona_input": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test_SILVA-SSU.txt:md5,fa3ef8980608011a1ecdd15f93889c0a"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,3c2bedf6a478699eb84a052535606d06"
+                ]
+            }
+        ],
+        "timestamp": "2026-03-19T11:42:13.486849",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
