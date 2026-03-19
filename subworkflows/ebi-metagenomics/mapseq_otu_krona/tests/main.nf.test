@@ -18,16 +18,19 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0] = [ [ id:'test', single_end:false ], // meta map
+                input[0] = Channel.of( [ [ id:'test', single_end:false ], // meta map
                         file("${moduleDir}/tests/subunit_silva_SSU.fasta", checkIfExists: true)
-                        ]
+                        ] )
                 input[1] = Channel.of(
+                            [
+                            [ id:'silva_ssu', db_label:'SILVA' ],
                             [
                             file("${moduleDir}/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta", checkIfExists: true),
                             file("${moduleDir}/tests/silva_ssu/silva_ssu-20200130_SSU_filtered2.txt", checkIfExists: true),
                             file("${moduleDir}/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.otu", checkIfExists: true),
                             file("${moduleDir}/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta.mscluster", checkIfExists: true),
                             "SILVA"
+                            ]
                             ]
                         )
                 """
