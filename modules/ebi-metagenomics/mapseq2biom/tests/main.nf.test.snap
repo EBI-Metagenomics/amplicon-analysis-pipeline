@@ -30,7 +30,7 @@
                     ]
                 ],
                 "3": [
-                    "versions.yml:md5,d8270f637a909a58d0070c3abc946c52"
+                    "versions.yml:md5,3c2bedf6a478699eb84a052535606d06"
                 ],
                 "biom_notaxid_out": [
                     [
@@ -60,11 +60,11 @@
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,d8270f637a909a58d0070c3abc946c52"
+                    "versions.yml:md5,3c2bedf6a478699eb84a052535606d06"
                 ]
             }
         ],
-        "timestamp": "2026-03-19T11:42:17.19046",
+        "timestamp": "2026-03-23T12:22:10.216034",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -135,7 +135,7 @@
                 ]
             }
         ],
-        "timestamp": "2026-03-19T11:42:13.486849",
+        "timestamp": "2026-03-23T12:22:06.12297",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

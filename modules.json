@@ -72,8 +72,7 @@
           "mapseq2biom": {
             "branch": "main",
             "git_sha": "ac5436f095ff98b7c7a9da83f4550ff99757c0a5",
-            "installed_by": ["mapseq_otu_krona"],
-            "patch": "modules/ebi-metagenomics/mapseq2biom/mapseq2biom.diff"
+            "installed_by": ["mapseq_otu_krona"]
           },
           "pimento/generatebcv": {
             "branch": "main",
@@ -97,8 +96,7 @@
           "mapseq_otu_krona": {
             "branch": "main",
             "git_sha": "cc01ecb29008656fce3b4899a588c3c8b79547d4",
-            "installed_by": ["subworkflows"],
-            "patch": "subworkflows/ebi-metagenomics/mapseq_otu_krona/mapseq_otu_krona.diff"
+            "installed_by": ["subworkflows"]
           },
           "reads_qc": {
             "branch": "main",

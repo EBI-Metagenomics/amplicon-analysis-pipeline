@@ -33,11 +33,9 @@
                 "ERR4334351/taxonomy-summary/DADA2-PR2",
                 "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4.html",
                 "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt",
-                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_DADA2-PR2.mseq",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4.html",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt",
-                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_DADA2-SILVA.mseq",
                 "ERR4334351/taxonomy-summary/PR2",
                 "ERR4334351/taxonomy-summary/PR2/ERR4334351.html",
                 "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.mseq",
@@ -48,6 +46,8 @@
                 "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.mseq",
                 "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv",
                 "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.txt",
+                "ERR4334351/taxonomy-summary/[:]",
+                "ERR4334351/taxonomy-summary/[:]/ERR4334351_[:].mseq",
                 "ERRNOREADS",
                 "ERRNOREADS/qc",
                 "ERRNOREADS/qc/ERRNOREADS.fastp.json",
@@ -101,7 +101,6 @@
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-PR2/MOCKDOUBLEAMP_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-PR2/MOCKDOUBLEAMP_18S-V9.html",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-PR2/MOCKDOUBLEAMP_18S-V9_DADA2-PR2_asv_krona_counts.txt",
-                "MOCKDOUBLEAMP/taxonomy-summary/DADA2-PR2/MOCKDOUBLEAMP_DADA2-PR2.mseq",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-PR2/MOCKDOUBLEAMP_concat.html",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-PR2/MOCKDOUBLEAMP_concat_DADA2-PR2_asv_krona_counts.txt",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-SILVA",
@@ -109,7 +108,6 @@
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-SILVA/MOCKDOUBLEAMP_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-SILVA/MOCKDOUBLEAMP_18S-V9.html",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-SILVA/MOCKDOUBLEAMP_18S-V9_DADA2-SILVA_asv_krona_counts.txt",
-                "MOCKDOUBLEAMP/taxonomy-summary/DADA2-SILVA/MOCKDOUBLEAMP_DADA2-SILVA.mseq",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-SILVA/MOCKDOUBLEAMP_concat.html",
                 "MOCKDOUBLEAMP/taxonomy-summary/DADA2-SILVA/MOCKDOUBLEAMP_concat_DADA2-SILVA_asv_krona_counts.txt",
                 "MOCKDOUBLEAMP/taxonomy-summary/PR2",
@@ -122,6 +120,8 @@
                 "MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.mseq",
                 "MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.tsv",
                 "MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.txt",
+                "MOCKDOUBLEAMP/taxonomy-summary/[:]",
+                "MOCKDOUBLEAMP/taxonomy-summary/[:]/MOCKDOUBLEAMP_[:].mseq",
                 "bco.json",
                 "pipeline_info",
                 "primer_validation_summary.json",
@@ -130,7 +130,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-02-26T08:09:01.069258",
+        "timestamp": "2026-03-23T11:29:00.162487",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -318,9 +318,7 @@
                 "ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt - 501 bytes",
                 "ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt - 272 bytes",
                 "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 1121 bytes",
-                "ERR4334351_DADA2-PR2.mseq - 11019 bytes",
                 "ERR4334351_DADA2-PR2_asv_tax.tsv - 6111 bytes",
-                "ERR4334351_DADA2-SILVA.mseq - 10782 bytes",
                 "ERR4334351_DADA2-SILVA_asv_tax.tsv - 4997 bytes",
                 "ERR4334351_PR2.mseq - 773551 bytes",
                 "ERR4334351_PR2.tsv - 693 bytes",
@@ -331,6 +329,7 @@
                 "ERR4334351_SSU.fasta - 3061214 bytes",
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
+                "ERR4334351_[:].mseq - 11019 bytes",
                 "ERR4334351_asv_seqs.fasta - 47888 bytes",
                 "ERR4334351_dada2_stats.tsv - 118 bytes",
                 "ERR4334351_primer_validation.tsv - 250 bytes",
@@ -360,9 +359,7 @@
                 "MOCKDOUBLEAMP_18S-V9_DADA2-PR2_asv_krona_counts.txt - 22 bytes",
                 "MOCKDOUBLEAMP_18S-V9_DADA2-SILVA_asv_krona_counts.txt - 19 bytes",
                 "MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv - 30 bytes",
-                "MOCKDOUBLEAMP_DADA2-PR2.mseq - 9292 bytes",
                 "MOCKDOUBLEAMP_DADA2-PR2_asv_tax.tsv - 4759 bytes",
-                "MOCKDOUBLEAMP_DADA2-SILVA.mseq - 9719 bytes",
                 "MOCKDOUBLEAMP_DADA2-SILVA_asv_tax.tsv - 4434 bytes",
                 "MOCKDOUBLEAMP_PR2.mseq - 645080 bytes",
                 "MOCKDOUBLEAMP_PR2.tsv - 496 bytes",
@@ -374,6 +371,7 @@
                 "MOCKDOUBLEAMP_SSU_rRNA_archaea.RF01959.fasta - 4374 bytes",
                 "MOCKDOUBLEAMP_SSU_rRNA_bacteria.RF00177.fasta - 3003201 bytes",
                 "MOCKDOUBLEAMP_SSU_rRNA_eukarya.RF01960.fasta - 1349279 bytes",
+                "MOCKDOUBLEAMP_[:].mseq - 9719 bytes",
                 "MOCKDOUBLEAMP_asv_seqs.fasta - 44892 bytes",
                 "MOCKDOUBLEAMP_concat.html - 226658 bytes",
                 "MOCKDOUBLEAMP_concat.html - 227264 bytes",
@@ -393,7 +391,7 @@
                 "rev_primers.fasta - 56 bytes"
             ]
         ],
-        "timestamp": "2026-02-26T08:09:01.131653",
+        "timestamp": "2026-03-23T11:47:02.212728",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -412,13 +410,12 @@
                 "ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt - 501 bytes",
                 "ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt - 272 bytes",
                 "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 1121 bytes",
-                "ERR4334351_DADA2-PR2.mseq - 11019 bytes",
                 "ERR4334351_DADA2-PR2_asv_tax.tsv - 6111 bytes",
-                "ERR4334351_DADA2-SILVA.mseq - 10782 bytes",
                 "ERR4334351_DADA2-SILVA_asv_tax.tsv - 4997 bytes",
                 "ERR4334351_SSU.fasta - 3061214 bytes",
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
+                "ERR4334351_[:].mseq - 11019 bytes",
                 "ERR4334351_asv_seqs.fasta - 47888 bytes",
                 "ERR4334351_dada2_stats.tsv - 118 bytes",
                 "ERR4334351_primer_validation.tsv - 250 bytes",
@@ -430,7 +427,7 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-02-26T14:23:51.458787",
+        "timestamp": "2026-03-23T11:35:03.167354",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -470,11 +467,9 @@
                 "ERR4334351/taxonomy-summary/DADA2-PR2",
                 "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4.html",
                 "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt",
-                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_DADA2-PR2.mseq",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4.html",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt",
-                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_DADA2-SILVA.mseq",
                 "ERR4334351/taxonomy-summary/PR2",
                 "ERR4334351/taxonomy-summary/PR2/ERR4334351.html",
                 "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.mseq",
@@ -485,6 +480,8 @@
                 "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.mseq",
                 "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv",
                 "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.txt",
+                "ERR4334351/taxonomy-summary/[:]",
+                "ERR4334351/taxonomy-summary/[:]/ERR4334351_[:].mseq",
                 "bco.json",
                 "pipeline_info",
                 "primer_validation_summary.json",
@@ -492,7 +489,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-02-26T12:23:43.472628",
+        "timestamp": "2026-03-23T11:38:10.302876",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -513,9 +510,7 @@
                 "ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt - 501 bytes",
                 "ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt - 272 bytes",
                 "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 1121 bytes",
-                "ERR4334351_DADA2-PR2.mseq - 11019 bytes",
                 "ERR4334351_DADA2-PR2_asv_tax.tsv - 6111 bytes",
-                "ERR4334351_DADA2-SILVA.mseq - 10782 bytes",
                 "ERR4334351_DADA2-SILVA_asv_tax.tsv - 4997 bytes",
                 "ERR4334351_PR2.mseq - 773551 bytes",
                 "ERR4334351_PR2.tsv - 693 bytes",
@@ -526,6 +521,7 @@
                 "ERR4334351_SSU.fasta - 3061214 bytes",
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
+                "ERR4334351_[:].mseq - 10782 bytes",
                 "ERR4334351_asv_seqs.fasta - 47888 bytes",
                 "ERR4334351_dada2_stats.tsv - 118 bytes",
                 "ERR4334351_primer_validation.tsv - 250 bytes",
@@ -537,7 +533,7 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-02-26T12:23:43.506903",
+        "timestamp": "2026-03-23T11:38:10.321429",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
@@ -635,11 +631,11 @@
                 "ERR4334351/taxonomy-summary/DADA2-PR2",
                 "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4.html",
                 "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt",
-                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_DADA2-PR2.mseq",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4.html",
                 "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt",
-                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_DADA2-SILVA.mseq",
+                "ERR4334351/taxonomy-summary/[:]",
+                "ERR4334351/taxonomy-summary/[:]/ERR4334351_[:].mseq",
                 "bco.json",
                 "pipeline_info",
                 "primer_validation_summary.json",
@@ -647,7 +643,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-02-26T14:23:51.421903",
+        "timestamp": "2026-03-23T11:35:03.14867",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

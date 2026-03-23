@@ -36,7 +36,14 @@ workflow MAPSEQ_ASV_KRONA {
                 return [meta + ['n': n], asv_seqs, fasta, tax, mscluster, label]
             }
 
-        MAPSEQ(mapseq_in)
+        mapseq_in
+            .multiMap { meta, asv_seqs, fasta, tax, mscluster, _label ->
+                reads_ch: [meta, asv_seqs]
+                db_ch: [fasta, tax, mscluster]
+            }
+            .set { mapseq_split }
+
+        MAPSEQ(mapseq_split.reads_ch, mapseq_split.db_ch)
         ch_versions = ch_versions.mix(MAPSEQ.out.versions.first())
 
         mapseq2asvtable_in = MAPSEQ.out.mseq

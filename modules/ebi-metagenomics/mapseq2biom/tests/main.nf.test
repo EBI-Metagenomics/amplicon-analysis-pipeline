@@ -16,8 +16,10 @@ nextflow_process {
             process {
                 """
                 input[0] = [
-                    [ id:'test', single_end:false ], // meta map
-                    file("${moduleDir}/tests/test.mseq", checkIfExists: true),
+                    [ id:'test', single_end:false ],
+                    file("${moduleDir}/tests/test.mseq", checkIfExists: true)
+                ]
+                input[1] = [
                     file("${moduleDir}/tests/silva_ssu/test.otu", checkIfExists: true),
                     "SILVA-SSU"
                 ]
@@ -42,8 +44,10 @@ nextflow_process {
             process {
                 """
                 input[0] = [
-                    [ id:'test', single_end:false ], // meta map
-                    file("${moduleDir}/tests/test.mseq", checkIfExists: true),
+                    [ id:'test', single_end:false ],
+                    file("${moduleDir}/tests/test.mseq", checkIfExists: true)
+                ]
+                input[1] = [
                     file("${moduleDir}/tests/silva_ssu/test.otu", checkIfExists: true),
                     "SILVA-SSU"
                 ]
