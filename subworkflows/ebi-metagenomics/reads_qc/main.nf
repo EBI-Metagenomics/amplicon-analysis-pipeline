@@ -103,4 +103,3 @@ workflow  READS_QC {
     reads_fasta           = SEQTK_SEQ.out.fastx                        // channel: [ val(meta), [ fasta ] ]
     versions              = ch_versions                                // channel: [ versions.yml ]
 }
-

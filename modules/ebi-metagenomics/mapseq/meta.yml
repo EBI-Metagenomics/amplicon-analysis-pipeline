@@ -1,7 +1,6 @@
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/yaml-schema.json
 name: "mapseq"
-description: Perform taxonomic classification of rRNA reads using reference databases
+description: Perform taxonomic classification of rRNA reads using reference
+  databases
 keywords:
   - taxonomy
   - reads
@@ -9,48 +8,54 @@ keywords:
   - rRNA
 tools:
   - "mapseq":
-      description: "Open source metagenomic 16S/18S read classifier enabling comparative metagenomics."
+      description: "Open source metagenomic 16S/18S read classifier enabling comparative
+        metagenomics."
       documentation: https://github.com/jfmrod/MAPseq
       doi: "10.1093/bioinformatics/btx517"
-      licence: "['dual-licensed under GPL v3+ or BSD 2-clause']"
-
+      licence:
+        - "dual-licensed under GPL v3+ or BSD 2-clause"
+      identifier: biotools:mapseq
 input:
-  - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information
-        e.g. `[ id:'test', single_end:false ]`
-  - subunit_reads:
-      type: file
-      description: FASTA file containing rRNA gene reads
-      pattern: "*.{fa,fasta}"
-  - db_fasta:
-      type: file
-      description: Reference database FASTA file
-      pattern: "*.{fa,fasta}"
-  - db_tax:
-      type: file
-      description: Reference database OTU classifications file
-      pattern: "*.txt"
-  - db_mscluster:
-      type: file
-      description: Reference database OTU pre-clustering file
-      pattern: "*.txt"
-
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'test', single_end:false ]`
+    - subunit_reads:
+        type: file
+        description: FASTA file containing rRNA gene reads
+        pattern: "*.{fa,fasta}"
+        ontologies: []
+  - - db_fasta:
+        type: file
+        description: Reference database FASTA file
+        pattern: "*.{fa,fasta}"
+        ontologies: []
+    - db_tax:
+        type: file
+        description: Reference database OTU classifications file
+        pattern: "*.txt"
+        ontologies: []
+    - db_mscluster:
+        type: file
+        description: Reference database OTU pre-clustering file
+        pattern: "*.txt"
+        ontologies: []
 output:
-  - meta:
-      type: map
-      description: |
-        Groovy Map containing sample information
-        e.g. `[ id:'test', single_end:false ]`
-  - versions:
-      type: file
-      description: File containing software versions
-      pattern: "versions.yml"
-  - mseq:
-      type: file
-      description: Read classification output file
-      pattern: "*.mseq"
-
+  mseq:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. `[ id:'test', single_end:false ]`
+      - "*.mseq":
+          type: file
+          description: Read classification output file
+          pattern: "*.mseq"
+  versions:
+    - "versions.yml":
+        type: file
+        description: File containing software versions
+        pattern: "versions.yml"
 authors:
   - "@chrisata"
