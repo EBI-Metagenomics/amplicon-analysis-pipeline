@@ -65,7 +65,7 @@ nextflow_workflow {
                 },
                 {
                     def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
-                        [item[0].id, new groovy.json.JsonSlurper().parseText(path(item[1]).text)]
+                        [item[0].id, path(item[1]).json]
                     }
                     assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
                     assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646
@@ -120,7 +120,7 @@ nextflow_workflow {
                 },
                 {
                     def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
-                        [item[0].id, new groovy.json.JsonSlurper().parseText(path(item[1]).text)]
+                        [item[0].id, path(item[1]).json]
                     }
                     assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
                     assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646
@@ -181,7 +181,7 @@ nextflow_workflow {
                 },
                 {
                     def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
-                        [item[0].id, new groovy.json.JsonSlurper().parseText(path(item[1]).text)]
+                        [item[0].id, path(item[1]).json]
                     }
                     // ERR4674038 fails seqfu check and is excluded from fastp
                     assert !fastp.containsKey("ERR4674038")
@@ -240,7 +240,7 @@ nextflow_workflow {
                 },
                 {
                     def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
-                        [item[0].id, new groovy.json.JsonSlurper().parseText(path(item[1]).text)]
+                        [item[0].id, path(item[1]).json]
                     }
                     // ERR4674038 fails suffix/header check and is excluded from fastp
                     assert !fastp.containsKey("ERR4674038")
@@ -336,7 +336,7 @@ nextflow_workflow {
                 },
                 {
                     def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
-                        [item[0].id, new groovy.json.JsonSlurper().parseText(path(item[1]).text)]
+                        [item[0].id, path(item[1]).json]
                     }
                     assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
                     assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646

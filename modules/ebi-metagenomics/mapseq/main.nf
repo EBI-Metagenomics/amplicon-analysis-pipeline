@@ -1,9 +1,9 @@
 
 process MAPSEQ {
     tag "$meta.id"
-    label 'medium'
+    label 'process_single'
 
-    conda "bioconda::mapseq=2.1.1"
+    conda "bioconda::mapseq=2.1.1b"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mapseq:2.1.1b--h3ab3c3b_0':
         'biocontainers/mapseq:2.1.1b--h3ab3c3b_0' }"
@@ -25,7 +25,6 @@ process MAPSEQ {
 
     """
     mapseq \\
-        -seed 12 \\
         $subunit_reads \\
         $db_fasta \\
         $db_tax \\

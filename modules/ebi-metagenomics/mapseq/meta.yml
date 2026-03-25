@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ebi-metagenomics/nf-modules/main/modules/meta-schema.json
 name: "mapseq"
 description: Perform taxonomic classification of rRNA reads using reference
   databases
@@ -25,12 +26,14 @@ input:
         type: file
         description: FASTA file containing rRNA gene reads
         pattern: "*.{fa,fasta}"
-        ontologies: []
+        ontologies:
+          - edam: http://edamontology.org/format_1929 # FASTA
   - - db_fasta:
         type: file
         description: Reference database FASTA file
         pattern: "*.{fa,fasta}"
-        ontologies: []
+        ontologies:
+          - edam: http://edamontology.org/format_1929 # FASTA
     - db_tax:
         type: file
         description: Reference database OTU classifications file
