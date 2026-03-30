@@ -38,12 +38,14 @@ input:
         type: file
         description: Reference database OTU classifications file
         pattern: "*.txt"
-        ontologies: []
+        ontologies:
+          - edam: http://edamontology.org/format_2330 # Text file
     - db_mscluster:
         type: file
         description: Reference database OTU pre-clustering file
         pattern: "*.txt"
-        ontologies: []
+        ontologies:
+          - edam: http://edamontology.org/format_2330 # Text file
 output:
   mseq:
     - - meta:
@@ -60,5 +62,9 @@ output:
         type: file
         description: File containing software versions
         pattern: "versions.yml"
+        ontologies:
+          - edam: "http://edamontology.org/format_3750" # YAML
 authors:
+  - "@chrisata"
+maintainers:
   - "@chrisata"
