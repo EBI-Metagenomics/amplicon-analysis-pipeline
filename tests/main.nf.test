@@ -7,24 +7,10 @@ nextflow_pipeline {
 
         tag "mixed_amp"
 
-        setup {
-            // Create samplesheet with resolved projectDir paths for local test fixtures
-            def samplesheet = new File("${outputDir}/test_samplesheet_mixed_amp.csv")
-            samplesheet.text = """\
-sample,fastq_1,fastq_2,single_end
-ERRSEQFUFAIL,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSEQFUFAIL_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSEQFUFAIL_2.fastq.gz,false
-ERRSFXHDFAIL,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSFXHDFAIL_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRSFXHDFAIL_2.fastq.gz,false
-ERRNOREADS,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRNOREADS_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERRNOREADS_2.fastq.gz,false
-ERR4334351,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERR4334351_test_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/dev/assets/test-fixtures/test-reads/ERR4334351_test_2.fastq.gz,false
-MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fastq.gz,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_2.fastq.gz,false
-"""
-        }
-
         when {
             params {
-                input  = "${outputDir}/test_samplesheet_mixed_amp.csv"
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_mixed_amp.csv"
                 outdir = "$outputDir"
-                non_insdc = true
             }
         }
 
@@ -36,9 +22,9 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                     { assert success },
 
                     // Snapshot of names and file structure of output directory
-                    { 
+                    {
                         def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,yml}'])
-                        assert snapshot(stable_name).match("directory_structure") 
+                        assert snapshot(stable_name).match("directory_structure")
                     },
 
                     // Snapshot all output file sizes for regression detection
@@ -52,7 +38,7 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
 
                     // Snapshot line counts for JSON, TSV, and FASTA files
                     {
-                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_mixed_amp.csv'])
+                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'bco.json', 'test_samplesheet_mixed_amp.csv'])
                         def lineCounts = dataFiles.collect { file ->
                             def lineCount = file.text.isEmpty() ? 0 : file.readLines().size()
                             "${file.name} - ${lineCount} lines"
@@ -333,7 +319,7 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                         def fastp = new groovy.json.JsonSlurper().parseText(fastp_json)
                         assert fastp instanceof Map
                         assert fastp.summary
-                        
+
                         def seqfu_tsv = path("${params.outdir}/ERR4334351/qc/ERR4334351_seqfu.tsv").text
                         assert seqfu_tsv.contains("OK") && seqfu_tsv.contains("PE")
 
@@ -360,6 +346,129 @@ MOCKDOUBLEAMP,${projectDir}/assets/test-fixtures/test-reads/mock_double_amp_1.fa
                         def versions = path("${params.outdir}/pipeline_info/software_versions.yml").text
                         assert !versions.empty
                         assert versions.contains(":")
+                    }
+                )
+            }
+        }
+    }
+
+    test("End-to-end pipeline with no ASV databases") {
+
+        tag "no_asv_dbs"
+
+        options "-c ${projectDir}/conf/test_no_asv_dbs.config"
+
+        when {
+            params {
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_ERR4334351.csv"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    {
+                        def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,yml}'])
+                        assert snapshot(stable_name).match("no_asv_dbs_directory_structure")
+                    },
+                    {
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_ERR4334351.csv', '**/*.fastp.json', 'bco.json', '*_multiqc_report.html', '**/*_multiqc_report.html'])
+                        def fileSizes = allFiles.collect { file ->
+                            "${file.name} - ${file.size()} bytes"
+                        }.sort()
+                        assert snapshot(fileSizes).match("no_asv_dbs_file_sizes")
+                    },
+                    {
+                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'bco.json', 'test_samplesheet_ERR4334351.csv'])
+                        def lineCounts = dataFiles.collect { file ->
+                            def lineCount = file.text.isEmpty() ? 0 : file.readLines().size()
+                            "${file.name} - ${lineCount} lines"
+                        }.sort()
+                        assert snapshot(lineCounts).match("no_asv_dbs_line_counts")
+                    }
+                )
+            }
+        }
+    }
+
+    test("End-to-end pipeline with no OTU databases") {
+
+        tag "no_otu_dbs"
+
+        options "-c ${projectDir}/conf/test_no_otu_dbs.config"
+
+        when {
+            params {
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_ERR4334351.csv"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    {
+                        def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,yml}'])
+                        assert snapshot(stable_name).match("no_otu_dbs_directory_structure")
+                    },
+                    {
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_ERR4334351.csv', '**/*.fastp.json', 'bco.json', '*_multiqc_report.html', '**/*_multiqc_report.html'])
+                        def fileSizes = allFiles.collect { file ->
+                            "${file.name} - ${file.size()} bytes"
+                        }.sort()
+                        assert snapshot(fileSizes).match("no_otu_dbs_file_sizes")
+                    },
+                    {
+                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'bco.json', 'test_samplesheet_ERR4334351.csv'])
+                        def lineCounts = dataFiles.collect { file ->
+                            def lineCount = file.text.isEmpty() ? 0 : file.readLines().size()
+                            "${file.name} - ${lineCount} lines"
+                        }.sort()
+                        assert snapshot(lineCounts).match("no_otu_dbs_line_counts")
+                    }
+                )
+            }
+        }
+    }
+
+    test("End-to-end pipeline with no databases") {
+
+        tag "no_dbs"
+
+        options "-c ${projectDir}/conf/test_no_dbs.config"
+
+        when {
+            params {
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_ERR4334351.csv"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    {
+                        def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,yml}'])
+                        assert snapshot(stable_name).match("no_dbs_directory_structure")
+                    },
+                    {
+                        def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_ERR4334351.csv', '**/*.fastp.json', 'bco.json', '*_multiqc_report.html', '**/*_multiqc_report.html'])
+                        def fileSizes = allFiles.collect { file ->
+                            "${file.name} - ${file.size()} bytes"
+                        }.sort()
+                        assert snapshot(fileSizes).match("no_dbs_file_sizes")
+                    },
+                    {
+                        def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'bco.json', 'test_samplesheet_ERR4334351.csv'])
+                        def lineCounts = dataFiles.collect { file ->
+                            def lineCount = file.text.isEmpty() ? 0 : file.readLines().size()
+                            "${file.name} - ${lineCount} lines"
+                        }.sort()
+                        assert snapshot(lineCounts).match("no_dbs_line_counts")
                     }
                 )
             }

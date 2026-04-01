@@ -1,5 +1,4 @@
----
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ebi-metagenomics/nf-modules/main/modules/meta-schema.json
 name: "mapseq2biom"
 description: Process MAPseq output into biom and krona-txt formats
 keywords:

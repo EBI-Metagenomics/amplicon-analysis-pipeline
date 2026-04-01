@@ -14,11 +14,17 @@ nextflow_process {
             }
             process {
                 """
+                def itsone_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_ITSoneDB.mseq', checkIfExists: true)
+                def unite_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_UNITE.mseq', checkIfExists: true)
+                def rfam_ssu_lsu_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_rRNA.fa', checkIfExists: true)
+
                 input[0] = [
-                    [ id:'test', single_end:false], // meta map
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_rRNA.fa', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_ITSoneDB.mseq', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_UNITE.mseq', checkIfExists: true),
+                    [ id:'test', single_end:false ],
+                    [
+                        'Rfam_SSU_LSU': rfam_ssu_lsu_fp,
+                        'ITSoneDB': itsone_fp,
+                        'UNITE': unite_fp,
+                    ]
                 ]
                 """
             }
@@ -27,7 +33,28 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out.its_sanity_check_out, process.out.its_sanity_check_out_mqc).match() }
+                // Check JSON output contains expected keys and test results
+                {
+                    def json_output = path(process.out.its_sanity_check_out[0][1]).text
+                    def parsed = new groovy.json.JsonSlurper().parseText(json_output)
+                    assert parsed[0].tax_assignment_count_test == true
+                    assert parsed[0].mapping_proportion_test == true
+                    assert parsed[0].rank_proportion_test == true
+                    assert parsed[0].rrna_readcount == 1199
+                    assert parsed[0].itsonedb_linecount == 1004
+                    assert parsed[0].unite_linecount == 1004
+                },
+                // Check TSV output has header and data line with correct test results
+                {
+                    def tsv_output = path(process.out.its_sanity_check_out_mqc[0][1]).text
+                    def lines = tsv_output.trim().split('\n')
+                    assert lines.size() == 2 : "Expected 2 lines (header + data)"
+                    assert lines[0].contains('tax_assignment_count_test')
+                    assert lines[0].contains('mapping_proportion_test')
+                    assert lines[0].contains('rank_proportion_test')
+                    assert lines[1].contains('test') // run ID
+                    assert lines[1].contains('True') // all tests pass
+                }
             )
         }
 
@@ -41,11 +68,17 @@ nextflow_process {
             }
             process {
                 """
+                def itsone_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_ITSoneDB.mseq', checkIfExists: true)
+                def unite_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_UNITE.mseq', checkIfExists: true)
+                def rfam_ssu_lsu_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_rRNA.fa', checkIfExists: true)
+
                 input[0] = [
-                    [ id:'test', single_end:false], // meta map
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_rRNA.fa', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_ITSoneDB.mseq', checkIfExists: true),
-                    file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_NOTITS_UNITE.mseq', checkIfExists: true),
+                    [ id:'test', single_end:false ],
+                    [
+                        'Rfam_SSU_LSU': rfam_ssu_lsu_fp,
+                        'ITSoneDB': itsone_fp,
+                        'UNITE': unite_fp,
+                    ]
                 ]
                 """
             }
@@ -54,7 +87,28 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out.its_sanity_check_out, process.out.its_sanity_check_out_mqc).match() }
+                // Check JSON output contains expected keys and test results
+                {
+                    def json_output = path(process.out.its_sanity_check_out[0][1]).text
+                    def parsed = new groovy.json.JsonSlurper().parseText(json_output)
+                    assert parsed[0].tax_assignment_count_test == false
+                    assert parsed[0].mapping_proportion_test == false
+                    assert parsed[0].rank_proportion_test == false
+                    assert parsed[0].rrna_readcount == 87
+                    assert parsed[0].itsonedb_linecount == 29
+                    assert parsed[0].unite_linecount == 29
+                },
+                // Check TSV output has header and data line with correct test results
+                {
+                    def tsv_output = path(process.out.its_sanity_check_out_mqc[0][1]).text
+                    def lines = tsv_output.trim().split('\n')
+                    assert lines.size() == 2 : "Expected 2 lines (header + data)"
+                    assert lines[0].contains('tax_assignment_count_test')
+                    assert lines[0].contains('mapping_proportion_test')
+                    assert lines[0].contains('rank_proportion_test')
+                    assert lines[1].contains('test') // run ID
+                    assert lines[1].contains('False') // all tests fail
+                }
             )
         }
 

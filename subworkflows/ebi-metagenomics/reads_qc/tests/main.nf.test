@@ -10,7 +10,8 @@ nextflow_workflow {
     tag "subworkflows/reads_qc"
     tag "seqfu/check"
     tag "fastqsuffixheadercheck"
-    tag "assessmcpproportions"
+    tag "pimento/generatebcv"
+    tag "librarystrategycheck"
     tag "subworkflows/../../modules/nf-core/fastp"
     tag "subworkflows/../../modules/nf-core/seqtk"
     tag "subworkflows/../../modules/nf-core/seqtk/seq"
@@ -20,8 +21,8 @@ nextflow_workflow {
         nfcoreInstall(
             "${launchDir}/library/",
             [
-                "fastp",
-                "seqtk/seq"
+                [name: "fastp",     sha: "d9ec4ef289ad39b8a662a7a12be50409b11df84b"],
+                [name: "seqtk/seq", sha: "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46"]
             ]
         )
         nfcoreLink("${launchDir}/library/", "${baseDir}/modules/")
@@ -58,10 +59,18 @@ nextflow_workflow {
                     workflow.out.amplicon_check,
                     workflow.out.reads,
                     workflow.out.reads_se_and_merged,
-                    workflow.out.fastp_summary_json,
                     workflow.out.reads_fasta,
                     workflow.out.versions.collect { path(it).yaml }
                     ).match()
+                },
+                {
+                    def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
+                        [item[0].id, path(item[1]).json]
+                    }
+                    assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
+                    assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646
+                    assert fastp["SRR21814853"].summary.after_filtering.total_reads  == 4602
+                    assert fastp["SRR21814853"].summary.after_filtering.total_bases  == 1837390
                 }
             )
         }
@@ -70,7 +79,7 @@ nextflow_workflow {
         }
     }
 
-        test("test_reads_qc_success_PE_and_SE") {
+    test("test_reads_qc_success_PE_and_SE") {
 
         when {
             params {
@@ -105,10 +114,22 @@ nextflow_workflow {
                     workflow.out.amplicon_check,
                     workflow.out.reads,
                     workflow.out.reads_se_and_merged,
-                    workflow.out.fastp_summary_json,
                     workflow.out.reads_fasta,
                     workflow.out.versions.collect { path(it).yaml }
                     ).match()
+                },
+                {
+                    def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
+                        [item[0].id, path(item[1]).json]
+                    }
+                    assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
+                    assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646
+                    assert fastp["SRR21814853"].summary.after_filtering.total_reads  == 4602
+                    assert fastp["SRR21814853"].summary.after_filtering.total_bases  == 1837390
+                    assert fastp["SRR9674626"].summary.before_filtering.total_reads  == 64176
+                    assert fastp["SRR9674626"].summary.before_filtering.total_bases  == 10309910
+                    assert fastp["SRR9674626"].summary.after_filtering.total_reads   == 64176
+                    assert fastp["SRR9674626"].summary.after_filtering.total_bases   == 10309910
                 }
             )
         }
@@ -154,10 +175,20 @@ nextflow_workflow {
                     workflow.out.amplicon_check,
                     workflow.out.reads,
                     workflow.out.reads_se_and_merged,
-                    workflow.out.fastp_summary_json,
                     workflow.out.reads_fasta,
                     workflow.out.versions.collect { path(it).yaml }
                     ).match()
+                },
+                {
+                    def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
+                        [item[0].id, path(item[1]).json]
+                    }
+                    // ERR4674038 fails seqfu check and is excluded from fastp
+                    assert !fastp.containsKey("ERR4674038")
+                    assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
+                    assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646
+                    assert fastp["SRR21814853"].summary.after_filtering.total_reads  == 4602
+                    assert fastp["SRR21814853"].summary.after_filtering.total_bases  == 1837390
                 }
             )
         }
@@ -203,10 +234,20 @@ nextflow_workflow {
                     workflow.out.amplicon_check,
                     workflow.out.reads,
                     workflow.out.reads_se_and_merged,
-                    workflow.out.fastp_summary_json,
                     workflow.out.reads_fasta,
                     workflow.out.versions.collect { path(it).yaml }
                     ).match()
+                },
+                {
+                    def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
+                        [item[0].id, path(item[1]).json]
+                    }
+                    // ERR4674038 fails suffix/header check and is excluded from fastp
+                    assert !fastp.containsKey("ERR4674038")
+                    assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
+                    assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646
+                    assert fastp["SRR21814853"].summary.after_filtering.total_reads  == 4602
+                    assert fastp["SRR21814853"].summary.after_filtering.total_bases  == 1837390
                 }
             )
         }
@@ -246,11 +287,11 @@ nextflow_workflow {
                     workflow.out.amplicon_check,
                     workflow.out.reads,
                     workflow.out.reads_se_and_merged,
-                    workflow.out.fastp_summary_json,
                     workflow.out.reads_fasta,
                     workflow.out.versions.collect { path(it).yaml }
                     ).match()
-                }
+                },
+                { assert workflow.out.fastp_summary_json.size() == 0 }
             )
         }
         cleanup {
@@ -289,10 +330,18 @@ nextflow_workflow {
                     workflow.out.amplicon_check,
                     workflow.out.reads,
                     workflow.out.reads_se_and_merged,
-                    workflow.out.fastp_summary_json,
                     workflow.out.reads_fasta,
                     workflow.out.versions.collect { path(it).yaml }
                     ).match()
+                },
+                {
+                    def fastp = workflow.out.fastp_summary_json.collectEntries { item ->
+                        [item[0].id, path(item[1]).json]
+                    }
+                    assert fastp["SRR21814853"].summary.before_filtering.total_reads == 71282
+                    assert fastp["SRR21814853"].summary.before_filtering.total_bases == 21353646
+                    assert fastp["SRR21814853"].summary.after_filtering.total_reads  == 4602
+                    assert fastp["SRR21814853"].summary.after_filtering.total_bases  == 1837390
                 }
             )
         }

@@ -5,7 +5,7 @@ nextflow_process {
     script "../main.nf"
     process "MAPSEQ2BIOM"
     config "./nextflow.config"
-    
+
     tag "modules"
     tag "modules_nfcore"
     tag "mapseq2biom"
@@ -14,11 +14,11 @@ nextflow_process {
 
         when {
             process {
-                """                
+                """
                 input[0] = [
-                    [ id:'test', single_end:false ], // meta map
+                    [ id:'test', single_end:false ],
                     file("${moduleDir}/tests/test.mseq", checkIfExists: true)
-                    ]
+                ]
                 input[1] = [
                     file("${moduleDir}/tests/silva_ssu/test.otu", checkIfExists: true),
                     "SILVA-SSU"
@@ -44,9 +44,9 @@ nextflow_process {
             process {
                 """
                 input[0] = [
-                    [ id:'test', single_end:false ], // meta map
+                    [ id:'test', single_end:false ],
                     file("${moduleDir}/tests/test.mseq", checkIfExists: true)
-                    ]
+                ]
                 input[1] = [
                     file("${moduleDir}/tests/silva_ssu/test.otu", checkIfExists: true),
                     "SILVA-SSU"

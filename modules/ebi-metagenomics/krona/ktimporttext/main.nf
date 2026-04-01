@@ -4,7 +4,7 @@
 
 process KRONA_KTIMPORTTEXT {
     tag "$meta.id"
-    label 'very_light'
+    label 'process_single'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -24,11 +24,6 @@ process KRONA_KTIMPORTTEXT {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    
-    if (meta.containsKey("var_region")){
-        prefix = prefix + "_${meta.var_region}"
-    }
-
     """
     ktImportText  \\
         $args \\

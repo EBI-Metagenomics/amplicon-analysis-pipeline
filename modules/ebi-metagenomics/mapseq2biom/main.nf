@@ -1,4 +1,3 @@
-
 process MAPSEQ2BIOM {
     tag "$meta.id"
     label 'process_single'
@@ -13,26 +12,27 @@ process MAPSEQ2BIOM {
     tuple path(db_otu), val(db_label)
 
     output:
-    tuple val(meta), path("${meta.id}_${task.ext.db_label}.txt"), emit: krona_input
-    tuple val(meta), path("${meta.id}_${task.ext.db_label}.tsv"), emit: biom_out
-    path "versions.yml"                                         , emit: versions
+    tuple val(meta), path("${prefix}.txt")        , emit: krona_input
+    tuple val(meta), path("${prefix}.tsv")        , emit: biom_out
+    tuple val(meta), path("${prefix}.notaxid.tsv"), emit: biom_notaxid_out, optional: true
+    path "versions.yml"                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
 
     """
     mapseq2biom \
         ${args} \
-        --krona ${prefix}_${task.ext.db_label}.txt \
+        --krona ${prefix}.txt \
         --no-tax-id-file ${prefix}.notaxid.tsv \
         --label ${db_label} \
         --query ${msq} \
         --otu-table ${db_otu} \
-        --out-file ${prefix}_${task.ext.db_label}.tsv
+        --out-file ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -41,15 +41,16 @@ process MAPSEQ2BIOM {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    prefix = task.ext.prefix ?: "${meta.id}"
 
     """
-    touch ${prefix}_${task.ext.db_label}.txt
-    touch ${prefix}_${task.ext.db_label}.tsv
+    touch ${prefix}.txt
+    touch ${prefix}.notaxid.tsv
+    touch ${prefix}.tsv
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        mapseq2biom: 0.1.1
+        mgnify-pipelines-toolkit: \$(get_mpt_version)
     END_VERSIONS
     """
 }

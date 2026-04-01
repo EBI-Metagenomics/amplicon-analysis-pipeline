@@ -62,15 +62,6 @@
                         "id": "SRR21814853",
                         "single_end": false
                     },
-                    "SRR21814853.fastp.json:md5,c01d84e7c50bf599baa3fde9fe4d16b5"
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "SRR21814853",
-                        "single_end": false
-                    },
                     "SRR21814853.seqtk-seq.fasta.gz:md5,a14b76b1e8c24d3f9d98e61d03a62a53"
                 ]
             ],
@@ -107,11 +98,11 @@
                 }
             ]
         ],
+        "timestamp": "2026-03-23T13:32:47.80814",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-10-21T14:48:53.38909"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "test_reads_onlyfail": {
         "content": [
@@ -146,9 +137,6 @@
                 
             ],
             [
-                
-            ],
-            [
                 {
                     "READS_QC:SEQFU_CHECK": {
                         "seqfu": "1.20.3"
@@ -161,11 +149,11 @@
                 }
             ]
         ],
+        "timestamp": "2026-03-23T13:34:03.102211",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-10-21T13:56:33.390132"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "test_reads_qc_success": {
         "content": [
@@ -223,15 +211,6 @@
                         "id": "SRR21814853",
                         "single_end": false
                     },
-                    "SRR21814853.fastp.json:md5,c01d84e7c50bf599baa3fde9fe4d16b5"
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "SRR21814853",
-                        "single_end": false
-                    },
                     "SRR21814853.seqtk-seq.fasta.gz:md5,a14b76b1e8c24d3f9d98e61d03a62a53"
                 ]
             ],
@@ -268,11 +247,11 @@
                 }
             ]
         ],
+        "timestamp": "2026-03-23T13:30:55.079164",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-10-21T14:47:40.255571"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "test_reads_qc_success_PE_and_SE": {
         "content": [
@@ -358,22 +337,6 @@
                         "id": "SRR21814853",
                         "single_end": false
                     },
-                    "SRR21814853.fastp.json:md5,c01d84e7c50bf599baa3fde9fe4d16b5"
-                ],
-                [
-                    {
-                        "id": "SRR9674626",
-                        "single_end": true
-                    },
-                    "SRR9674626.fastp.json:md5,dee10680579ca7830d5bfdd6d627d973"
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "SRR21814853",
-                        "single_end": false
-                    },
                     "SRR21814853.seqtk-seq.fasta.gz:md5,a14b76b1e8c24d3f9d98e61d03a62a53"
                 ],
                 [
@@ -417,11 +380,11 @@
                 }
             ]
         ],
+        "timestamp": "2026-03-23T13:31:52.900634",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-11-05T09:58:59.506194"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "test_reads_fail_suffixheader": {
         "content": [
@@ -493,15 +456,6 @@
                         "id": "SRR21814853",
                         "single_end": false
                     },
-                    "SRR21814853.fastp.json:md5,c01d84e7c50bf599baa3fde9fe4d16b5"
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "SRR21814853",
-                        "single_end": false
-                    },
                     "SRR21814853.seqtk-seq.fasta.gz:md5,a14b76b1e8c24d3f9d98e61d03a62a53"
                 ]
             ],
@@ -538,11 +492,11 @@
                 }
             ]
         ],
+        "timestamp": "2026-03-23T13:33:42.338244",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-10-21T14:50:09.126295"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "test_reads_qc_notamplicon": {
         "content": [
@@ -594,15 +548,6 @@
                         "id": "SRR21814853",
                         "single_end": false
                     },
-                    "SRR21814853.fastp.json:md5,c01d84e7c50bf599baa3fde9fe4d16b5"
-                ]
-            ],
-            [
-                [
-                    {
-                        "id": "SRR21814853",
-                        "single_end": false
-                    },
                     "SRR21814853.seqtk-seq.fasta.gz:md5,a14b76b1e8c24d3f9d98e61d03a62a53"
                 ]
             ],
@@ -629,10 +574,10 @@
                 }
             ]
         ],
+        "timestamp": "2026-03-23T13:34:51.511535",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-10-21T14:51:42.767549"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }

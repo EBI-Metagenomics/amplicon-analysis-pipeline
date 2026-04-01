@@ -8,8 +8,7 @@ process MAKE_ASV_COUNT_TABLES {
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"
 
     input:
-    tuple val(meta), path(maps), path(asvtaxtable), path(reads), path(extracted_var_path)
-    val db_label
+    tuple val(meta), path(maps), path(asvtaxtable), path(reads), path(extracted_var_path), val(db_label)
 
     output:
     tuple val(meta), path("*asv_krona_counts.txt"), optional: true, emit: asv_krona_counts

@@ -17,7 +17,7 @@ The amplicon analysis pipeline v6.0 re-implements all of the existing features f
 The amplicon analysis pipeline v6.0 also contains multiple significant changes:
 
 - Refactoring from CWL to [Nextflow](https://www.nextflow.io/) for pipeline definition
-- Simplification the reads quality control using [fastp](https://github.com/OpenGene/fastp)
+- Simplification of reads quality control using [fastp](https://github.com/OpenGene/fastp)
 - Automatic amplified region inference for 16S and 18S rRNA
 - Automatic primer identification, trimming, and validation
 - Addition of Amplicon Sequence Variant (ASV) calling using [DADA2](https://benjjneb.github.io/dada2/index.html)
@@ -88,6 +88,29 @@ SRR9674618,/path/to/reads/SRR9674618.fastq.gz,,true
 SRR17062740,/path/to/reads/SRR17062740_1.fastq.gz,/path/to/reads/SRR17062740_2.fastq.gz,false
 ```
 
+### Defining reference MAPseq databases
+
+MAPseq databases for assigning taxonomy to sequences (i.e. reads or ASVs) are defined in a Nextflow config file as parameters. These definitions must adhere to a structure which describes
+
+1. filepaths
+2. flags determining how the database will be used by the pipeline
+3. labels for naming results files
+
+The structure is as follows:
+
+- `params.mapseq_databases`
+  - `<database_name>`
+    - `fasta`: filepath of MAPseq FASTA file containing reference sequences
+    - `tax`: filepath of MAPseq taxonomy of reference sequences
+    - `otu`: filepath of MAPseq pre-clustered OTU reference
+    - `mscluster`: filepath of MAPseq pre-computed k-mer clustering reference
+    - `run_otu`: true/false for whether this database is used to run OTU analysis
+    - `run_asv`: true/false for whether this database is used to run ASV analysis
+    - `label`: label to be used for naming OTU analysis outputs
+    - `asv_label`: label to be used for naming ASV analysis outputs (Required only if `run_asv = true`)
+
+Examples can be found in `conf/test_dbs.config`.
+
 ### Execution
 
 You can run the current version of the pipeline on SLURM like this:
@@ -118,58 +141,58 @@ Example output directory structure for one run (`ERR4334351`):
 
 ```
 ├── ERR4334351
-│   ├── amplified-region-inference
-│   │   ├── ERR4334351.16S.V3-V4.txt
-│   │   └── ERR4334351.tsv
-│   ├── asv
-│   │   ├── 16S-V3-V4
-│   │   │   └── ERR4334351_16S-V3-V4_asv_read_counts.tsv
-│   │   ├── ERR4334351_asv_seqs.fasta
-│   │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
-│   │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
-│   │   └── ERR4334351_dada2_stats.tsv
-│   ├── primer-identification
-│   │   ├── ERR4334351.cutadapt.json
-│   │   ├── fwd_primers.fasta
-│   │   ├── rev_primers.fasta
-│   │   └── ERR4334351_primer_validation.tsv
-│   ├── qc
-│   │   ├── ERR4334351.fastp.json
-│   │   ├── ERR4334351.merged.fastq.gz
-│   │   ├── ERR4334351_dada2_errors.txt
-│   │   ├── ERR4334351_multiqc_report.html
-│   │   ├── ERR4334351_seqfu.tsv
-│   │   └── ERR4334351_suffix_header_err.json
-│   ├── sequence-categorisation
-│   │   ├── ERR4334351_SSU.fasta
-│   │   ├── ERR4334351_SSU_rRNA_archaea.RF01959.fa
-│   │   ├── ERR4334351_SSU_rRNA_bacteria.RF00177.fa
-│   │   └── ERR4334351.tblout.deoverlapped
-│   └── taxonomy-summary
-│       ├── DADA2-PR2
-│       │   ├── ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt
-│       │   ├── ERR4334351_16S-V3-V4.html
-│       │   └── ERR4334351_DADA2-PR2.mseq
-│       ├── DADA2-SILVA
-│       │   ├── ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt
-│       │   ├── ERR4334351_16S-V3-V4.html
-│       │   └── ERR4334351_DADA2-SILVA.mseq
-│       ├── PR2
-│       │   ├── ERR4334351.html
-│       │   ├── ERR4334351_PR2.mseq
-│       │   ├── ERR4334351_PR2.tsv
-│       │   └── ERR4334351_PR2.txt
-│       └── SILVA-SSU
-│           ├── ERR4334351.html
-│           ├── ERR4334351_SILVA-SSU.mseq
-│           ├── ERR4334351_SILVA-SSU.tsv
-│           └── ERR4334351_SILVA-SSU.txt
+│   ├── amplified-region-inference
+│   │   ├── ERR4334351.16S.V3-V4.txt
+│   │   └── ERR4334351.tsv
+│   ├── asv
+│   │   ├── 16S-V3-V4
+│   │   │   └── ERR4334351_16S-V3-V4_asv_read_counts.tsv
+│   │   ├── ERR4334351_asv_seqs.fasta
+│   │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
+│   │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
+│   │   └── ERR4334351_dada2_stats.tsv
+│   ├── primer-identification
+│   │   ├── ERR4334351.cutadapt.json
+│   │   ├── fwd_primers.fasta
+│   │   ├── rev_primers.fasta
+│   │   └── ERR4334351_primer_validation.tsv
+│   ├── qc
+│   │   ├── ERR4334351.fastp.json
+│   │   ├── ERR4334351.merged.fastq.gz
+│   │   ├── ERR4334351_dada2_errors.txt
+│   │   ├── ERR4334351_multiqc_report.html
+│   │   ├── ERR4334351_seqfu.tsv
+│   │   └── ERR4334351_suffix_header_err.json
+│   ├── sequence-categorisation
+│   │   ├── ERR4334351_SSU.fasta
+│   │   ├── ERR4334351_SSU_rRNA_archaea.RF01959.fa
+│   │   ├── ERR4334351_SSU_rRNA_bacteria.RF00177.fa
+│   │   └── ERR4334351.tblout.deoverlapped
+│   └── taxonomy-summary
+│       ├── DADA2-PR2
+│       │   ├── ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt
+│       │   ├── ERR4334351_16S-V3-V4.html
+│       │   └── ERR4334351_DADA2-PR2.mseq
+│       ├── DADA2-SILVA
+│       │   ├── ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt
+│       │   ├── ERR4334351_16S-V3-V4.html
+│       │   └── ERR4334351_DADA2-SILVA.mseq
+│       ├── PR2
+│       │   ├── ERR4334351.html
+│       │   ├── ERR4334351_PR2.mseq
+│       │   ├── ERR4334351_PR2.tsv
+│       │   └── ERR4334351_PR2.txt
+│       └── SILVA-SSU
+│           ├── ERR4334351.html
+│           ├── ERR4334351_SILVA-SSU.mseq
+│           ├── ERR4334351_SILVA-SSU.tsv
+│           └── ERR4334351_SILVA-SSU.txt
 ├── pipeline_info
-│   ├── execution_report_2025-03-25_14-13-55.html
-│   ├── execution_timeline_2025-03-25_14-13-55.html
-│   ├── execution_trace_2025-03-25_14-13-55.txt
-│   ├── pipeline_dag_2025-03-25_14-13-55.html
-│   └── software_versions.yml
+│   ├── execution_report_2025-03-25_14-13-55.html
+│   ├── execution_timeline_2025-03-25_14-13-55.html
+│   ├── execution_trace_2025-03-25_14-13-55.txt
+│   ├── pipeline_dag_2025-03-25_14-13-55.html
+│   └── software_versions.yml
 ├── bco.json
 ├── study_multiqc_report.html
 ├── qc_passed_runs.csv
@@ -188,7 +211,7 @@ This profile is specifically designed to accommodate the increased computational
 When running the pipeline use:
 
 ```
-$ nextflow run ... -p large_samples ...
+$ nextflow run ... -profile large_samples ...
 ```
 
 ## Citations

@@ -11,7 +11,7 @@ workflow PRIMER_VALIDATION {
 
     main:
 
-        ch_versions = Channel.empty()
+        ch_versions = channel.empty()
 
         PERMUTE_PRIMERS(primer_validation_input)
         ch_versions = ch_versions.mix(PERMUTE_PRIMERS.out.versions.first())
@@ -29,12 +29,12 @@ workflow PRIMER_VALIDATION {
         ch_versions = ch_versions.mix(PRIMER_VALIDATION_DEOVERLAP.out.versions.first())
 
         primer_validation_classify_var_regions_input = PRIMER_VALIDATION_DEOVERLAP.out.cmsearch_tblout_deoverlapped
-                                                       .map{ tuple(["id":it[0].id, "single_end":it[0].single_end], it[0].var_region, it[1]) }
+                                                       .map{ it -> tuple(["id":it[0].id, "single_end":it[0].single_end], it[0].var_region, it[1]) }
                                                        .join(PERMUTE_PRIMERS.out.permuted_primers.map { meta, permuted_primers -> {
                                                             tuple(["id": meta.id, "single_end": meta.single_end], meta.var_region, permuted_primers)
                                                             }
                                                         }, by: 0)
-                                                       .map{ tuple(it[0] + ["var_region":it[1]], it[2], it[4]) }
+                                                       .map{ it -> tuple( it[0] + ["var_region":it[1]], it[2], it[4]) }
         
         PRIMER_VALIDATION_CLASSIFY_VAR_REGIONS(
             primer_validation_classify_var_regions_input

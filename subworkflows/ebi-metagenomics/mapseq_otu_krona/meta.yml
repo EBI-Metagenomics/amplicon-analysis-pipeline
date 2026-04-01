@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/ebi-metagenomics/nf-modules/main/subworkflows/yaml-schema.json
 name: "mapseq_otu_krona"
 description: Taxononmy assignment and visualisation of reads using input reference database
 keywords:

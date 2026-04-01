@@ -55,8 +55,7 @@
           "krona/ktimporttext": {
             "branch": "main",
             "git_sha": "172e93318ac2e2db5f9885b07ffb80443e67848a",
-            "installed_by": ["mapseq_otu_krona"],
-            "patch": "modules/ebi-metagenomics/krona/ktimporttext/krona-ktimporttext.diff"
+            "installed_by": ["mapseq_otu_krona"]
           },
           "librarystrategycheck": {
             "branch": "main",
@@ -65,15 +64,13 @@
           },
           "mapseq": {
             "branch": "main",
-            "git_sha": "1375e8b3072c40346eb4f7d9c1ae15459c07b620",
-            "installed_by": ["mapseq_otu_krona"],
-            "patch": "modules/ebi-metagenomics/mapseq/mapseq.diff"
+            "git_sha": "901ae828e0fdfb98ac31e2a8ee93d56a8c6167e8",
+            "installed_by": ["mapseq_otu_krona"]
           },
           "mapseq2biom": {
             "branch": "main",
-            "git_sha": "ac5436f095ff98b7c7a9da83f4550ff99757c0a5",
-            "installed_by": ["mapseq_otu_krona"],
-            "patch": "modules/ebi-metagenomics/mapseq2biom/mapseq2biom.diff"
+            "git_sha": "901ae828e0fdfb98ac31e2a8ee93d56a8c6167e8",
+            "installed_by": ["mapseq_otu_krona"]
           },
           "pimento/generatebcv": {
             "branch": "main",
@@ -96,13 +93,12 @@
           },
           "mapseq_otu_krona": {
             "branch": "main",
-            "git_sha": "cc01ecb29008656fce3b4899a588c3c8b79547d4",
-            "installed_by": ["subworkflows"],
-            "patch": "subworkflows/ebi-metagenomics/mapseq_otu_krona/mapseq_otu_krona.diff"
+            "git_sha": "f165749011d4fe61bd04f61c6cefa57fe8595b0f",
+            "installed_by": ["subworkflows"]
           },
           "reads_qc": {
             "branch": "main",
-            "git_sha": "38229c929de149f1be74ae49c565de6587b6f9c0",
+            "git_sha": "1c8e5da1c3a7caa29a0b519b38418392d232621f",
             "installed_by": ["subworkflows"]
           }
         }

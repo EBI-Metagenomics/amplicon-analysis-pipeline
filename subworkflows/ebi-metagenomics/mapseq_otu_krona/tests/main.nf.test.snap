@@ -3,40 +3,40 @@
         "content": [
             true
         ],
+        "timestamp": "2026-03-30T10:43:22.61164",
         "meta": {
-            "nf-test": "0.8.4",
-            "nextflow": "23.04.3"
-        },
-        "timestamp": "2024-04-18T12:06:53.987371352"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "mapseq2biom_output_biom": {
         "content": [
             true
         ],
+        "timestamp": "2026-03-30T10:43:22.613793",
         "meta": {
-            "nf-test": "0.8.4",
-            "nextflow": "23.04.3"
-        },
-        "timestamp": "2024-04-18T12:06:54.014873914"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "mapseq_output": {
         "content": [
             true
         ],
+        "timestamp": "2026-03-30T10:43:22.606392",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2026-01-20T10:41:40.760421"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "krona_output": {
         "content": [
             true
         ],
+        "timestamp": "2026-03-30T10:43:22.62343",
         "meta": {
-            "nf-test": "0.8.4",
-            "nextflow": "23.04.3"
-        },
-        "timestamp": "2024-04-18T12:06:54.050582264"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }

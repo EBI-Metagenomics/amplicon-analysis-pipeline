@@ -127,15 +127,75 @@
                 "primer_validation_summary.json",
                 "qc_failed_runs.csv",
                 "qc_passed_runs.csv",
-                "study_multiqc_report.html",
-                "test_samplesheet_mixed_amp.csv"
+                "study_multiqc_report.html"
             ]
         ],
+        "timestamp": "2026-03-23T22:26:12.652002",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
-        },
-        "timestamp": "2026-02-19T22:19:47.876113"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_asv_dbs_line_counts": {
+        "content": [
+            [
+                "ERR4334351.cutadapt.json - 119 lines",
+                "ERR4334351.fastp.json - 326 lines",
+                "ERR4334351.tsv - 2 lines",
+                "ERR4334351_PR2.tsv - 7 lines",
+                "ERR4334351_SILVA-SSU.tsv - 7 lines",
+                "ERR4334351_SSU.fasta - 48925 lines",
+                "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 9 lines",
+                "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 48916 lines",
+                "ERR4334351_dada2_stats.tsv - 4 lines",
+                "ERR4334351_primer_validation.tsv - 3 lines",
+                "ERR4334351_seqfu.tsv - 1 lines",
+                "ERR4334351_suffix_header_err.json - 0 lines",
+                "fwd_primers.fasta - 2 lines",
+                "primer_validation_summary.json - 21 lines",
+                "rev_primers.fasta - 2 lines"
+            ]
+        ],
+        "timestamp": "2026-02-26T12:08:34.872152",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_asv_dbs_file_sizes": {
+        "content": [
+            [
+                "ERR4334351.16S.V3-V4.txt - 85979 bytes",
+                "ERR4334351.cutadapt.json - 3360 bytes",
+                "ERR4334351.html - 227418 bytes",
+                "ERR4334351.html - 227581 bytes",
+                "ERR4334351.merged.fastq.gz - 907300 bytes",
+                "ERR4334351.tblout.deoverlapped - 841605 bytes",
+                "ERR4334351.tsv - 139 bytes",
+                "ERR4334351_PR2.mseq - 773551 bytes",
+                "ERR4334351_PR2.tsv - 693 bytes",
+                "ERR4334351_PR2.txt - 611 bytes",
+                "ERR4334351_SILVA-SSU.mseq - 690708 bytes",
+                "ERR4334351_SILVA-SSU.tsv - 444 bytes",
+                "ERR4334351_SILVA-SSU.txt - 339 bytes",
+                "ERR4334351_SSU.fasta - 3061214 bytes",
+                "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
+                "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
+                "ERR4334351_dada2_stats.tsv - 118 bytes",
+                "ERR4334351_primer_validation.tsv - 250 bytes",
+                "ERR4334351_seqfu.tsv - 50 bytes",
+                "ERR4334351_suffix_header_err.json - 0 bytes",
+                "fwd_primers.fasta - 24 bytes",
+                "primer_validation_summary.json - 526 bytes",
+                "qc_passed_runs.csv - 23 bytes",
+                "rev_primers.fasta - 28 bytes"
+            ]
+        ],
+        "timestamp": "2026-02-26T12:08:34.766232",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "line_counts": {
         "content": [
@@ -181,7 +241,6 @@
                 "MOCKDOUBLEAMP_primer_validation.tsv - 5 lines",
                 "MOCKDOUBLEAMP_seqfu.tsv - 1 lines",
                 "MOCKDOUBLEAMP_suffix_header_err.json - 0 lines",
-                "bco.json - 4587 lines",
                 "fwd_primers.fasta - 2 lines",
                 "fwd_primers.fasta - 4 lines",
                 "primer_validation_summary.json - 54 lines",
@@ -189,11 +248,60 @@
                 "rev_primers.fasta - 4 lines"
             ]
         ],
+        "timestamp": "2026-02-26T08:09:01.246223",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
-        },
-        "timestamp": "2026-02-19T22:19:48.033098"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_asv_dbs_directory_structure": {
+        "content": [
+            [
+                "ERR4334351",
+                "ERR4334351/amplified-region-inference",
+                "ERR4334351/amplified-region-inference/ERR4334351.16S.V3-V4.txt",
+                "ERR4334351/amplified-region-inference/ERR4334351.tsv",
+                "ERR4334351/asv",
+                "ERR4334351/asv/ERR4334351_dada2_stats.tsv",
+                "ERR4334351/primer-identification",
+                "ERR4334351/primer-identification/ERR4334351.cutadapt.json",
+                "ERR4334351/primer-identification/ERR4334351_primer_validation.tsv",
+                "ERR4334351/primer-identification/fwd_primers.fasta",
+                "ERR4334351/primer-identification/rev_primers.fasta",
+                "ERR4334351/qc",
+                "ERR4334351/qc/ERR4334351.fastp.json",
+                "ERR4334351/qc/ERR4334351.merged.fastq.gz",
+                "ERR4334351/qc/ERR4334351_multiqc_report.html",
+                "ERR4334351/qc/ERR4334351_seqfu.tsv",
+                "ERR4334351/qc/ERR4334351_suffix_header_err.json",
+                "ERR4334351/sequence-categorisation",
+                "ERR4334351/sequence-categorisation/ERR4334351.tblout.deoverlapped",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU.fasta",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_archaea.RF01959.fasta",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_bacteria.RF00177.fasta",
+                "ERR4334351/taxonomy-summary",
+                "ERR4334351/taxonomy-summary/PR2",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351.html",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.mseq",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.tsv",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.txt",
+                "ERR4334351/taxonomy-summary/SILVA-SSU",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351.html",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.mseq",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.txt",
+                "bco.json",
+                "pipeline_info",
+                "primer_validation_summary.json",
+                "qc_passed_runs.csv",
+                "study_multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-02-26T12:08:34.728732",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     },
     "file_sizes": {
         "content": [
@@ -218,7 +326,7 @@
                 "ERR4334351_PR2.tsv - 693 bytes",
                 "ERR4334351_PR2.txt - 611 bytes",
                 "ERR4334351_SILVA-SSU.mseq - 690708 bytes",
-                "ERR4334351_SILVA-SSU.tsv - 438 bytes",
+                "ERR4334351_SILVA-SSU.tsv - 444 bytes",
                 "ERR4334351_SILVA-SSU.txt - 339 bytes",
                 "ERR4334351_SSU.fasta - 3061214 bytes",
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
@@ -260,7 +368,7 @@
                 "MOCKDOUBLEAMP_PR2.tsv - 496 bytes",
                 "MOCKDOUBLEAMP_PR2.txt - 420 bytes",
                 "MOCKDOUBLEAMP_SILVA-SSU.mseq - 657473 bytes",
-                "MOCKDOUBLEAMP_SILVA-SSU.tsv - 304 bytes",
+                "MOCKDOUBLEAMP_SILVA-SSU.tsv - 310 bytes",
                 "MOCKDOUBLEAMP_SILVA-SSU.txt - 217 bytes",
                 "MOCKDOUBLEAMP_SSU.fasta - 4356854 bytes",
                 "MOCKDOUBLEAMP_SSU_rRNA_archaea.RF01959.fasta - 4374 bytes",
@@ -285,10 +393,264 @@
                 "rev_primers.fasta - 56 bytes"
             ]
         ],
+        "timestamp": "2026-03-23T22:26:12.699344",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.10.2"
-        },
-        "timestamp": "2026-02-19T22:19:47.897705"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_otu_dbs_file_sizes": {
+        "content": [
+            [
+                "ERR4334351.16S.V3-V4.txt - 85979 bytes",
+                "ERR4334351.cutadapt.json - 3360 bytes",
+                "ERR4334351.merged.fastq.gz - 907300 bytes",
+                "ERR4334351.tblout.deoverlapped - 841605 bytes",
+                "ERR4334351.tsv - 139 bytes",
+                "ERR4334351_16S-V3-V4.html - 227399 bytes",
+                "ERR4334351_16S-V3-V4.html - 227562 bytes",
+                "ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt - 501 bytes",
+                "ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt - 272 bytes",
+                "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 1121 bytes",
+                "ERR4334351_DADA2-PR2.mseq - 11019 bytes",
+                "ERR4334351_DADA2-PR2_asv_tax.tsv - 6111 bytes",
+                "ERR4334351_DADA2-SILVA.mseq - 10782 bytes",
+                "ERR4334351_DADA2-SILVA_asv_tax.tsv - 4997 bytes",
+                "ERR4334351_SSU.fasta - 3061214 bytes",
+                "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
+                "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
+                "ERR4334351_asv_seqs.fasta - 47888 bytes",
+                "ERR4334351_dada2_stats.tsv - 118 bytes",
+                "ERR4334351_primer_validation.tsv - 250 bytes",
+                "ERR4334351_seqfu.tsv - 50 bytes",
+                "ERR4334351_suffix_header_err.json - 0 bytes",
+                "fwd_primers.fasta - 24 bytes",
+                "primer_validation_summary.json - 526 bytes",
+                "qc_passed_runs.csv - 21 bytes",
+                "rev_primers.fasta - 28 bytes"
+            ]
+        ],
+        "timestamp": "2026-03-23T22:32:15.02583",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_dbs_directory_structure": {
+        "content": [
+            [
+                "ERR4334351",
+                "ERR4334351/amplified-region-inference",
+                "ERR4334351/amplified-region-inference/ERR4334351.16S.V3-V4.txt",
+                "ERR4334351/amplified-region-inference/ERR4334351.tsv",
+                "ERR4334351/asv",
+                "ERR4334351/asv/16S-V3-V4",
+                "ERR4334351/asv/16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv",
+                "ERR4334351/asv/ERR4334351_DADA2-PR2_asv_tax.tsv",
+                "ERR4334351/asv/ERR4334351_DADA2-SILVA_asv_tax.tsv",
+                "ERR4334351/asv/ERR4334351_asv_seqs.fasta",
+                "ERR4334351/asv/ERR4334351_dada2_stats.tsv",
+                "ERR4334351/primer-identification",
+                "ERR4334351/primer-identification/ERR4334351.cutadapt.json",
+                "ERR4334351/primer-identification/ERR4334351_primer_validation.tsv",
+                "ERR4334351/primer-identification/fwd_primers.fasta",
+                "ERR4334351/primer-identification/rev_primers.fasta",
+                "ERR4334351/qc",
+                "ERR4334351/qc/ERR4334351.fastp.json",
+                "ERR4334351/qc/ERR4334351.merged.fastq.gz",
+                "ERR4334351/qc/ERR4334351_multiqc_report.html",
+                "ERR4334351/qc/ERR4334351_seqfu.tsv",
+                "ERR4334351/qc/ERR4334351_suffix_header_err.json",
+                "ERR4334351/sequence-categorisation",
+                "ERR4334351/sequence-categorisation/ERR4334351.tblout.deoverlapped",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU.fasta",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_archaea.RF01959.fasta",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_bacteria.RF00177.fasta",
+                "ERR4334351/taxonomy-summary",
+                "ERR4334351/taxonomy-summary/DADA2-PR2",
+                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4.html",
+                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt",
+                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_DADA2-PR2.mseq",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4.html",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_DADA2-SILVA.mseq",
+                "ERR4334351/taxonomy-summary/PR2",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351.html",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.mseq",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.tsv",
+                "ERR4334351/taxonomy-summary/PR2/ERR4334351_PR2.txt",
+                "ERR4334351/taxonomy-summary/SILVA-SSU",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351.html",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.mseq",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv",
+                "ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.txt",
+                "bco.json",
+                "pipeline_info",
+                "primer_validation_summary.json",
+                "qc_passed_runs.csv",
+                "study_multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-03-23T22:35:19.782657",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_dbs_file_sizes": {
+        "content": [
+            [
+                "ERR4334351.16S.V3-V4.txt - 85979 bytes",
+                "ERR4334351.cutadapt.json - 3360 bytes",
+                "ERR4334351.html - 227418 bytes",
+                "ERR4334351.html - 227581 bytes",
+                "ERR4334351.merged.fastq.gz - 907300 bytes",
+                "ERR4334351.tblout.deoverlapped - 841605 bytes",
+                "ERR4334351.tsv - 139 bytes",
+                "ERR4334351_16S-V3-V4.html - 227399 bytes",
+                "ERR4334351_16S-V3-V4.html - 227562 bytes",
+                "ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt - 501 bytes",
+                "ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt - 272 bytes",
+                "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 1121 bytes",
+                "ERR4334351_DADA2-PR2.mseq - 11019 bytes",
+                "ERR4334351_DADA2-PR2_asv_tax.tsv - 6111 bytes",
+                "ERR4334351_DADA2-SILVA.mseq - 10782 bytes",
+                "ERR4334351_DADA2-SILVA_asv_tax.tsv - 4997 bytes",
+                "ERR4334351_PR2.mseq - 773551 bytes",
+                "ERR4334351_PR2.tsv - 693 bytes",
+                "ERR4334351_PR2.txt - 611 bytes",
+                "ERR4334351_SILVA-SSU.mseq - 690708 bytes",
+                "ERR4334351_SILVA-SSU.tsv - 444 bytes",
+                "ERR4334351_SILVA-SSU.txt - 339 bytes",
+                "ERR4334351_SSU.fasta - 3061214 bytes",
+                "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
+                "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
+                "ERR4334351_asv_seqs.fasta - 47888 bytes",
+                "ERR4334351_dada2_stats.tsv - 118 bytes",
+                "ERR4334351_primer_validation.tsv - 250 bytes",
+                "ERR4334351_seqfu.tsv - 50 bytes",
+                "ERR4334351_suffix_header_err.json - 0 bytes",
+                "fwd_primers.fasta - 24 bytes",
+                "primer_validation_summary.json - 526 bytes",
+                "qc_passed_runs.csv - 23 bytes",
+                "rev_primers.fasta - 28 bytes"
+            ]
+        ],
+        "timestamp": "2026-03-23T22:35:19.806133",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_otu_dbs_line_counts": {
+        "content": [
+            [
+                "ERR4334351.cutadapt.json - 119 lines",
+                "ERR4334351.fastp.json - 326 lines",
+                "ERR4334351.tsv - 2 lines",
+                "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 114 lines",
+                "ERR4334351_DADA2-PR2_asv_tax.tsv - 99 lines",
+                "ERR4334351_DADA2-SILVA_asv_tax.tsv - 114 lines",
+                "ERR4334351_SSU.fasta - 48925 lines",
+                "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 9 lines",
+                "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 48916 lines",
+                "ERR4334351_asv_seqs.fasta - 226 lines",
+                "ERR4334351_dada2_stats.tsv - 4 lines",
+                "ERR4334351_primer_validation.tsv - 3 lines",
+                "ERR4334351_seqfu.tsv - 1 lines",
+                "ERR4334351_suffix_header_err.json - 0 lines",
+                "fwd_primers.fasta - 2 lines",
+                "primer_validation_summary.json - 21 lines",
+                "rev_primers.fasta - 2 lines"
+            ]
+        ],
+        "timestamp": "2026-02-26T14:23:51.563392",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_dbs_line_counts": {
+        "content": [
+            [
+                "ERR4334351.cutadapt.json - 119 lines",
+                "ERR4334351.fastp.json - 326 lines",
+                "ERR4334351.tsv - 2 lines",
+                "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 114 lines",
+                "ERR4334351_DADA2-PR2_asv_tax.tsv - 99 lines",
+                "ERR4334351_DADA2-SILVA_asv_tax.tsv - 114 lines",
+                "ERR4334351_PR2.tsv - 7 lines",
+                "ERR4334351_SILVA-SSU.tsv - 7 lines",
+                "ERR4334351_SSU.fasta - 48925 lines",
+                "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 9 lines",
+                "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 48916 lines",
+                "ERR4334351_asv_seqs.fasta - 226 lines",
+                "ERR4334351_dada2_stats.tsv - 4 lines",
+                "ERR4334351_primer_validation.tsv - 3 lines",
+                "ERR4334351_seqfu.tsv - 1 lines",
+                "ERR4334351_suffix_header_err.json - 0 lines",
+                "fwd_primers.fasta - 2 lines",
+                "primer_validation_summary.json - 21 lines",
+                "rev_primers.fasta - 2 lines"
+            ]
+        ],
+        "timestamp": "2026-02-26T12:23:43.570805",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "no_otu_dbs_directory_structure": {
+        "content": [
+            [
+                "ERR4334351",
+                "ERR4334351/amplified-region-inference",
+                "ERR4334351/amplified-region-inference/ERR4334351.16S.V3-V4.txt",
+                "ERR4334351/amplified-region-inference/ERR4334351.tsv",
+                "ERR4334351/asv",
+                "ERR4334351/asv/16S-V3-V4",
+                "ERR4334351/asv/16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv",
+                "ERR4334351/asv/ERR4334351_DADA2-PR2_asv_tax.tsv",
+                "ERR4334351/asv/ERR4334351_DADA2-SILVA_asv_tax.tsv",
+                "ERR4334351/asv/ERR4334351_asv_seqs.fasta",
+                "ERR4334351/asv/ERR4334351_dada2_stats.tsv",
+                "ERR4334351/primer-identification",
+                "ERR4334351/primer-identification/ERR4334351.cutadapt.json",
+                "ERR4334351/primer-identification/ERR4334351_primer_validation.tsv",
+                "ERR4334351/primer-identification/fwd_primers.fasta",
+                "ERR4334351/primer-identification/rev_primers.fasta",
+                "ERR4334351/qc",
+                "ERR4334351/qc/ERR4334351.fastp.json",
+                "ERR4334351/qc/ERR4334351.merged.fastq.gz",
+                "ERR4334351/qc/ERR4334351_multiqc_report.html",
+                "ERR4334351/qc/ERR4334351_seqfu.tsv",
+                "ERR4334351/qc/ERR4334351_suffix_header_err.json",
+                "ERR4334351/sequence-categorisation",
+                "ERR4334351/sequence-categorisation/ERR4334351.tblout.deoverlapped",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU.fasta",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_archaea.RF01959.fasta",
+                "ERR4334351/sequence-categorisation/ERR4334351_SSU_rRNA_bacteria.RF00177.fasta",
+                "ERR4334351/taxonomy-summary",
+                "ERR4334351/taxonomy-summary/DADA2-PR2",
+                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4.html",
+                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt",
+                "ERR4334351/taxonomy-summary/DADA2-PR2/ERR4334351_DADA2-PR2.mseq",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4.html",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt",
+                "ERR4334351/taxonomy-summary/DADA2-SILVA/ERR4334351_DADA2-SILVA.mseq",
+                "bco.json",
+                "pipeline_info",
+                "primer_validation_summary.json",
+                "qc_passed_runs.csv",
+                "study_multiqc_report.html"
+            ]
+        ],
+        "timestamp": "2026-03-23T22:32:14.994249",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }

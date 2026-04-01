@@ -18,10 +18,12 @@ nextflow_workflow {
         when {
             workflow {
                 """
-                input[0] = [ [ id:'test', single_end:false ], // meta map
+                input[0] = Channel.of( [ [ id:'test', single_end:false ], // meta map
                         file("${moduleDir}/tests/subunit_silva_SSU.fasta", checkIfExists: true)
-                        ]
+                        ] )
                 input[1] = Channel.of(
+                            [
+                            [ id:'silva_ssu', db_label:'SILVA' ],
                             [
                             file("${moduleDir}/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta", checkIfExists: true),
                             file("${moduleDir}/tests/silva_ssu/silva_ssu-20200130_SSU_filtered2.txt", checkIfExists: true),
@@ -29,19 +31,20 @@ nextflow_workflow {
                             file("${moduleDir}/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta.mscluster", checkIfExists: true),
                             "SILVA"
                             ]
+                            ]
                         )
                 """
             }
         }
         then {
             assertAll(
-                // These tests mainly check for headers rather than content because MAPseq is not deterministic. 
+                // These tests mainly check for headers rather than content because MAPseq is not deterministic.
                 // This will change soon though so we can update these tests later.
                 { assert workflow.success},
                 { assert snapshot(path(workflow.out.mseq.get(0).get(1)).readLines()[1].contains("AF350223.1.1756")).match("mapseq_output") },
                 { assert snapshot(path(workflow.out.krona_input.get(0).get(1)).readLines()[0].contains("sk__Bacteria")).match("mapseq2biom_output_krona") },
                 { assert snapshot(path(workflow.out.biom_out.get(0).get(1)).readLines()[0].contains("# Constructed from biom file")).match("mapseq2biom_output_biom") },
-                { assert snapshot(path(workflow.out.html.get(0).get(1)).readLines()[0].contains("DOCTYPE html PUBLIC")).match("krona_output") },                
+                { assert snapshot(path(workflow.out.html.get(0).get(1)).readLines()[0].contains("DOCTYPE html PUBLIC")).match("krona_output") },
             )
         }
     }

@@ -16,7 +16,7 @@ workflow AUTOMATIC_PRIMER_PREDICTION {
         auto_trimming_input
     main:
 
-        ch_versions = Channel.empty()
+        ch_versions = channel.empty()
         // Use Most Common Prefix (MCP) method to generate curves of base conservation
         PIMENTO_GENERATEBCV(
             auto_trimming_input,
@@ -29,7 +29,7 @@ workflow AUTOMATIC_PRIMER_PREDICTION {
         )
         ch_versions = ch_versions.mix(FIND_PRIMER_CUTOFFS.out.versions.first())
 
-        extracted_reads = auto_trimming_input.map{ meta, fwd_flag, rev_flag, extracted_reads ->
+        extracted_reads = auto_trimming_input.map{ meta, _fwd_flag, _rev_flag, extracted_reads ->
                                                     [ meta, extracted_reads ]
                                                  }
         // Join fastq channel and the inf_points channel

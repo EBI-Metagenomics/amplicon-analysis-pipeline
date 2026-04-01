@@ -11,7 +11,7 @@ process FILTER_MASKED_N {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("*_ITS_rRNA.fa"), emit: filtered_its_fasta, optional: true
+    tuple val(meta), path("*_ITS_rRNA.fa"), emit: filtered_its_fasta
     path "versions.yml"                   , emit: versions
 
     script:
@@ -24,6 +24,8 @@ process FILTER_MASKED_N {
     if [ \$num_lines -gt 0 ]
     then
         seqkit tab2fx temp_fasta.tab -o ${meta.id}_ITS_rRNA.fa
+    else
+        touch ${meta.id}_ITS_rRNA.fa
     fi
 
     cat <<-END_VERSIONS > versions.yml
