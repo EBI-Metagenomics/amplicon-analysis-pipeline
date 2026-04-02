@@ -51,7 +51,6 @@ write.table(trunc_df, file = trunc_fp, sep = "\t", row.names = FALSE, quote = FA
 
 # Do some quality filtering
 filt_f =  paste0("./", prefix, "_1", "_filt.fastq.gz")
-filt_r <- NA
 tryCatch(
   {
     if (!is.na(path_r)){
@@ -225,6 +224,7 @@ for (i in 1:length(final_f_map)){
     final_r_output[[i]] = f_map_list[1]
   }
 }
+
 # The extremely vast majority of forwards+reverse pairs should be assigned the same ASV. This checks it
 traced_remainder = length(final_f_map) - length(unmatched_asvs)
 total_dada2_reads = sum(seqtab.nochim)
