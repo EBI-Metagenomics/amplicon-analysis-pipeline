@@ -41,6 +41,14 @@ if (!is.na(path_r)){
   final_where_to_cut_r = trunc_len_automation(path_r)
 }
 
+# Write truncation points to TSV
+trunc_fp <- paste0("./", prefix, "_dada2_truncation_points.tsv")
+trunc_df <- data.frame(pair = "forward", position = final_where_to_cut_f)
+if (!is.na(path_r)) {
+  trunc_df <- rbind(trunc_df, data.frame(pair = "reverse", position = final_where_to_cut_r))
+}
+write.table(trunc_df, file = trunc_fp, sep = "\t", row.names = FALSE, quote = FALSE)
+
 # Do some quality filtering
 filt_f =  paste0("./", prefix, "_1", "_filt.fastq.gz")
 tryCatch(

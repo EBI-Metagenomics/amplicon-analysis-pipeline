@@ -19,27 +19,14 @@ process DADA2 {
     script:
     if ( meta.single_end ){
         """
-        stdout_file="${meta.id}_dada2_stdout.txt"
-        stderr_file="${meta.id}_dada2_stderr.txt"
+        output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} $reads 1> \$stdout_file 2> \$stderr_file
-
-        fwd_trunc=\$(grep -E "The forward strand truncation point is: " \$stdout_file | sed -E 's/^\\[[0-9]+\\][^0-9]*([0-9]+)[^0-9]*\$/\\1/')
-        rev_trunc=\$(grep -E "The reverse strand truncation point is: " \$stdout_file | sed -E 's/^\\[[0-9]+\\][^0-9]*([0-9]+)[^0-9]*\$/\\1/')
-        
-        trunc_fp="${meta.id}_dada2_truncation_points.tsv"
-        echo "pair\tposition" > \$trunc_fp
-        if [ -n \$fwd_trunc ]; then
-            echo "forward\t\$fwd_trunc" >> \$trunc_fp
-        fi
-        if [ -n \$rev_trunc ]; then
-            echo "reverse\t\$rev_trunc" >> \$trunc_fp
-        fi
+        dada2.R ${meta.id} $reads 2> \$output_file
 
         stats_fail=false
-        if [[ -s \$stderr_file ]] && grep -q "Caught an error" \$stderr_file; then
+        if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
             stats_fail=true
-            mv \$stderr_file \$error_file
+            mv \$output_file \$error_file
         fi
 
         cat <<-END_VERSIONS > versions.yml
@@ -50,27 +37,14 @@ process DADA2 {
         """
     } else {
         """
-        stdout_file="${meta.id}_dada2_stdout.txt"
-        stderr_file="${meta.id}_dada2_stderr.txt"
+        output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} ${reads[0]} ${reads[1]} 1> \$stdout_file 2> \$stderr_file
-
-        fwd_trunc=\$(grep -E "The forward strand truncation point is: " \$stdout_file | sed -E 's/^\\[[0-9]+\\][^0-9]*([0-9]+)[^0-9]*\$/\\1/')
-        rev_trunc=\$(grep -E "The reverse strand truncation point is: " \$stdout_file | sed -E 's/^\\[[0-9]+\\][^0-9]*([0-9]+)[^0-9]*\$/\\1/')
-        
-        trunc_fp="${meta.id}_dada2_truncation_points.tsv"
-        echo "pair\tposition" > \$trunc_fp
-        if [ -n \$fwd_trunc ]; then
-            echo "forward\t\$fwd_trunc" >> \$trunc_fp
-        fi
-        if [ -n \$rev_trunc ]; then
-            echo "reverse\t\$rev_trunc" >> \$trunc_fp
-        fi
+        dada2.R ${meta.id} ${reads[0]} ${reads[1]} 2> \$output_file
 
         stats_fail=false
-        if [[ -s \$stderr_file ]] && grep -q "Caught an error" \$stderr_file; then
+        if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
             stats_fail=true
-            mv \$stderr_file \$error_file
+            mv \$output_file \$error_file
         fi
 
         cat <<-END_VERSIONS > versions.yml
