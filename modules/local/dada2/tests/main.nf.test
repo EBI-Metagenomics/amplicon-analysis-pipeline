@@ -28,7 +28,8 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(process.out.dada2_out).match() }
+                { assert snapshot(process.out.dada2_out).match("dada2_out") },
+                { assert snapshot(process.out.dada2_truncation_points).match("dada2_truncation_points") }
             )
         }
 
