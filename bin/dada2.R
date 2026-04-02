@@ -51,6 +51,7 @@ write.table(trunc_df, file = trunc_fp, sep = "\t", row.names = FALSE, quote = FA
 
 # Do some quality filtering
 filt_f =  paste0("./", prefix, "_1", "_filt.fastq.gz")
+filt_r <- NA
 tryCatch(
   {
     if (!is.na(path_r)){
@@ -67,6 +68,40 @@ tryCatch(
     quit()
   }
 )
+
+# Compute read counts for original and filtered forward and reverse fastqs
+count_fastq_reads <- function(reads_path){
+  decompressed_reads <- gzfile(reads_path, "rt")
+  total_lines <- 0L
+  while(length(chunk <- readLines(decompressed_reads, n = 100000)) > 0){
+    total_lines <- total_lines + length(chunk)
+  }
+  return(as.integer(total_lines/4))
+}
+
+f_reads_count <- count_fastq_reads(path_f)
+f_trimmed_reads_count <- count_fastq_reads(filt_f)
+if (!is.na(path_r)){
+  r_reads_count <- count_fastq_reads(path_r)
+  r_trimmed_reads_count <- count_fastq_reads(filt_r)
+}
+
+# DADA2 continues only if at least 10% of the reads have been saved by filterAndTrim
+min_retained_fraction <- 0.1
+
+prop_f <- f_trimmed_reads_count / f_reads_count
+if (!is.na(path_r)){
+  prop_r <- r_trimmed_reads_count / r_reads_count
+}
+
+if (prop_f < min_retained_fraction){
+  exit_msg <- paste0("Too few reads retained after filtering on forward reads - ", round(prop_f*100,2), "%(<", min_retained_fraction*100, "%) -")
+  if (!is.na(path_r) && prop_r < min_retained_fraction){
+    exit_msg <- paste(exit_msg, "and on reverse reads - ", round(prop_r*100,2), "%(<", min_retained_fraction*100, "%)")
+  }
+  message(paste("Caught an error after the `filterAndTrim` stage:\n", exit_msg))
+  quit()
+}
 
 tryCatch(
   {
@@ -189,7 +224,6 @@ for (i in 1:length(final_f_map)){
   if (!is.na(path_r)){
     final_r_output[[i]] = f_map_list[1]
   }
-
 }
 # The extremely vast majority of forwards+reverse pairs should be assigned the same ASV. This checks it
 traced_remainder = length(final_f_map) - length(unmatched_asvs)
