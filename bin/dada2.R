@@ -71,6 +71,7 @@ tryCatch(
 # Compute read counts for original and filtered forward and reverse fastqs
 count_fastq_reads <- function(reads_path){
   decompressed_reads <- gzfile(reads_path, "rt")
+  on.exit(close(decompressed_reads))
   total_lines <- 0L
   while(length(chunk <- readLines(decompressed_reads, n = 100000)) > 0){
     total_lines <- total_lines + length(chunk)
@@ -155,8 +156,19 @@ tryCatch(
   }
 )
 
-if (length(merged$sequence) == 0){
+merged_read_count <- length(merged$sequence)
+if (merged_read_count == 0){
   message("Caught an error - No ASVs - stopping script early.")
+  quit()
+}
+
+# Now checking if less than min_merged_fraction reads have survived the merging
+drp_f_read_count <- sum(drp_f$uniques)
+min_merged_fraction <- 0.1
+
+prop_drp_merged <- merged_read_count / drp_f_read_count
+if (prop_drp_merged < min_merged_fraction){
+  message("Caught an error after the `mergePairs` stage: too few reads retained")
   quit()
 }
 
