@@ -1,6 +1,6 @@
 nextflow_process {
 
-    name "Test Process INERNAL/CMSCAN"
+    name "Test Process INFERNAL/CMSCAN"
     script "../main.nf"
     process "INFERNAL_CMSCAN"
     config "./nextflow.config"
