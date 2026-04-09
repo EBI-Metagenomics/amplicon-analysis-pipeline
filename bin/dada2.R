@@ -27,9 +27,10 @@ box::use(./trunc_len_automation[...])
 
 args = commandArgs(trailingOnly=TRUE) # Expects at most three arguments, a prefix, and one fastq for each strand (F and R)
                                       # If it's a single-end run, then the third argument should not be used
-prefix = args[1] # Prefix
-path_f = args[2] # Forward fastq
-path_r = args[3] # Reverse fastq
+prefix = args[1]                 # Prefix
+min_survival_fraction <- args[2] # If less reads than this threshold survive, execution breaks
+path_f = args[3]                 # Forward fastq
+path_r = args[4]                 # Reverse fastq
 
 # different tax ranks for silva/pr2
 silva_tax_vec = c("Superkingdom", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
@@ -86,18 +87,16 @@ if (!is.na(path_r)){
   r_trimmed_reads_count <- count_fastq_reads(filt_r)
 }
 
-# DADA2 continues only if at least 10% of the reads have been saved by filterAndTrim
-min_retained_fraction <- 0.1
-
+# DADA2 continues only if at least min_survival_fraction of the reads have been saved by filterAndTrim
 prop_f <- f_trimmed_reads_count / f_reads_count
 if (!is.na(path_r)){
   prop_r <- r_trimmed_reads_count / r_reads_count
 }
 
-if (prop_f < min_retained_fraction){
-  exit_msg <- paste0("Too few reads retained after filtering on forward reads - ", round(prop_f*100,2), "%(<", min_retained_fraction*100, "%) -")
-  if (!is.na(path_r) && prop_r < min_retained_fraction){
-    exit_msg <- paste(exit_msg, "and on reverse reads - ", round(prop_r*100,2), "%(<", min_retained_fraction*100, "%)")
+if (prop_f < min_survival_fraction){
+  exit_msg <- paste0("Too few reads retained after filtering on forward reads - ", round(prop_f*100,2), "%(<", min_survival_fraction*100, "%) -")
+  if (!is.na(path_r) && prop_r < min_survival_fraction){
+    exit_msg <- paste(exit_msg, "and on reverse reads - ", round(prop_r*100,2), "%(<", min_survival_fraction*100, "%)")
   }
   message(paste("Caught an error after the `filterAndTrim` stage:\n", exit_msg))
   quit()
@@ -162,13 +161,12 @@ if (merged_read_count == 0){
   quit()
 }
 
-# Now checking if less than min_merged_fraction reads have survived the merging
+# Now checking if less than min_survival_fraction reads have survived the merging
 drp_f_read_count <- sum(drp_f$uniques)
-min_merged_fraction <- 0.1
 
 prop_drp_merged <- merged_read_count / drp_f_read_count
-if (prop_drp_merged < min_merged_fraction){
-  message("Caught an error after the `mergePairs` stage: too few reads retained")
+if (prop_drp_merged < min_survival_fraction){
+  message(paste("Caught an error after the `mergePairs` stage: too few reads retained (", merged_read_count, "/", drp_f_read_count, ")"))
   quit()
 }
 

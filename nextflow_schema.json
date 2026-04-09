@@ -122,6 +122,14 @@
           "type": "string",
           "description": "Version of the PIMENTO primer identification tool to use.",
           "hidden": true
+        },
+        "non_insdc": {
+          "type": "boolean",
+          "description": "Add description here please"
+        },
+        "min_survival_fraction": {
+          "type": "number",
+          "description": "During DADA2 processing, reads can be filtered out at different stages. If the proportion of reads falls under this threshold at any stage, DADA2 stops."
         }
       }
     },

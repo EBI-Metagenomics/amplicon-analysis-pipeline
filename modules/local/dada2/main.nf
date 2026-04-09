@@ -7,6 +7,7 @@ process DADA2 {
 
     input:
     tuple val(meta), path(reads)
+    val(min_survival_fraction)
 
     output:
     tuple val(meta), path("*map.txt"), path("*asvs.fasta"), path("*_filt.fastq.gz"), optional: true, emit: dada2_out
@@ -21,7 +22,7 @@ process DADA2 {
         """
         output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} $reads 2> \$output_file
+        dada2.R ${meta.id} ${min_survival_fraction} $reads 2> \$output_file
 
         stats_fail=false
         if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
@@ -39,7 +40,7 @@ process DADA2 {
         """
         output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} ${reads[0]} ${reads[1]} 2> \$output_file
+        dada2.R ${meta.id} ${min_survival_fraction} ${reads[0]} ${reads[1]} 2> \$output_file
 
         stats_fail=false
         if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
