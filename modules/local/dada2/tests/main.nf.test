@@ -29,7 +29,37 @@ nextflow_process {
             assertAll(
                 { assert process.success },
                 { assert snapshot(process.out.dada2_out).match("dada2_out") },
-                { assert snapshot(process.out.dada2_truncation_points).match("dada2_truncation_points") }
+                { assert snapshot(process.out.dada2_out).match("dada2_stats") },
+                { assert snapshot(process.out.dada2_truncation_points).match("dada2_truncation_points_success") }
+            )
+        }
+
+    }
+
+    test("Should not produce results - not enough reads left after merging") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false ], // meta map
+                    [ 
+                        file('${projectDir}/modules/local/dada2/tests/data/test_poor_merge_1.fastq.gz', checkIfExists: true),
+                        file('${projectDir}/modules/local/dada2/tests/data/test_poor_merge_2.fastq.gz', checkIfExists: true) 
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.dada2_errors).match("dada2_errors") },
+                { assert snapshot(process.out.dada2_truncation_points).match("dada2_truncation_points_fail") }
             )
         }
 
