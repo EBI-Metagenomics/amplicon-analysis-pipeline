@@ -21,6 +21,7 @@ nextflow_process {
                         file('${projectDir}/modules/local/dada2/tests/data/test_noambig_2.fastq.gz', checkIfExists: true) 
                     ]
                 ]
+                input[1] = 0.1
                 """
             }
         }
@@ -51,6 +52,7 @@ nextflow_process {
                         file('${projectDir}/modules/local/dada2/tests/data/test_poor_merge_2.fastq.gz', checkIfExists: true) 
                     ]
                 ]
+                input[1] = 0.1
                 """
             }
         }
