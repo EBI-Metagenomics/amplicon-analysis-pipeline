@@ -132,9 +132,9 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-01T14:35:03.985073",
+        "timestamp": "2026-04-14T20:14:35.674021663",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -149,7 +149,7 @@
                 "ERR4334351_SSU.fasta - 48925 lines",
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 9 lines",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 48916 lines",
-                "ERR4334351_dada2_stats.tsv - 4 lines",
+                "ERR4334351_dada2_stats.tsv - 8 lines",
                 "ERR4334351_dada2_truncation_points.tsv - 3 lines",
                 "ERR4334351_primer_validation.tsv - 3 lines",
                 "ERR4334351_seqfu.tsv - 1 lines",
@@ -159,9 +159,9 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-04-01T14:38:59.519653",
+        "timestamp": "2026-04-14T20:20:21.225092898",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -184,7 +184,7 @@
                 "ERR4334351_SSU.fasta - 3061214 bytes",
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
-                "ERR4334351_dada2_stats.tsv - 118 bytes",
+                "ERR4334351_dada2_stats.tsv - 192 bytes",
                 "ERR4334351_dada2_truncation_points.tsv - 38 bytes",
                 "ERR4334351_primer_validation.tsv - 250 bytes",
                 "ERR4334351_seqfu.tsv - 50 bytes",
@@ -195,9 +195,9 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-04-01T14:38:59.473779",
+        "timestamp": "2026-04-14T20:20:21.166108763",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -216,7 +216,7 @@
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 9 lines",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 48916 lines",
                 "ERR4334351_asv_seqs.fasta - 226 lines",
-                "ERR4334351_dada2_stats.tsv - 4 lines",
+                "ERR4334351_dada2_stats.tsv - 8 lines",
                 "ERR4334351_dada2_truncation_points.tsv - 3 lines",
                 "ERR4334351_primer_validation.tsv - 3 lines",
                 "ERR4334351_seqfu.tsv - 1 lines",
@@ -242,7 +242,7 @@
                 "MOCKDOUBLEAMP_SSU_rRNA_eukarya.RF01960.fasta - 22825 lines",
                 "MOCKDOUBLEAMP_asv_seqs.fasta - 210 lines",
                 "MOCKDOUBLEAMP_concat_asv_read_counts.tsv - 106 lines",
-                "MOCKDOUBLEAMP_dada2_stats.tsv - 4 lines",
+                "MOCKDOUBLEAMP_dada2_stats.tsv - 8 lines",
                 "MOCKDOUBLEAMP_dada2_truncation_points.tsv - 3 lines",
                 "MOCKDOUBLEAMP_primer_validation.tsv - 5 lines",
                 "MOCKDOUBLEAMP_seqfu.tsv - 1 lines",
@@ -254,9 +254,9 @@
                 "rev_primers.fasta - 4 lines"
             ]
         ],
-        "timestamp": "2026-04-01T14:35:04.150165",
+        "timestamp": "2026-04-14T20:14:35.996083433",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -304,9 +304,9 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-01T14:38:59.464403",
+        "timestamp": "2026-04-14T20:20:21.149460788",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -339,7 +339,7 @@
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
                 "ERR4334351_asv_seqs.fasta - 47888 bytes",
-                "ERR4334351_dada2_stats.tsv - 118 bytes",
+                "ERR4334351_dada2_stats.tsv - 192 bytes",
                 "ERR4334351_dada2_truncation_points.tsv - 38 bytes",
                 "ERR4334351_primer_validation.tsv - 250 bytes",
                 "ERR4334351_seqfu.tsv - 50 bytes",
@@ -388,7 +388,7 @@
                 "MOCKDOUBLEAMP_concat_DADA2-PR2_asv_krona_counts.txt - 262 bytes",
                 "MOCKDOUBLEAMP_concat_DADA2-SILVA_asv_krona_counts.txt - 22 bytes",
                 "MOCKDOUBLEAMP_concat_asv_read_counts.tsv - 1095 bytes",
-                "MOCKDOUBLEAMP_dada2_stats.tsv - 133 bytes",
+                "MOCKDOUBLEAMP_dada2_stats.tsv - 210 bytes",
                 "MOCKDOUBLEAMP_dada2_truncation_points.tsv - 34 bytes",
                 "MOCKDOUBLEAMP_primer_validation.tsv - 420 bytes",
                 "MOCKDOUBLEAMP_seqfu.tsv - 50 bytes",
@@ -402,9 +402,9 @@
                 "rev_primers.fasta - 56 bytes"
             ]
         ],
-        "timestamp": "2026-04-01T14:35:04.015855",
+        "timestamp": "2026-04-14T20:14:35.72571375",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -429,7 +429,7 @@
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
                 "ERR4334351_asv_seqs.fasta - 47888 bytes",
-                "ERR4334351_dada2_stats.tsv - 118 bytes",
+                "ERR4334351_dada2_stats.tsv - 192 bytes",
                 "ERR4334351_dada2_truncation_points.tsv - 38 bytes",
                 "ERR4334351_primer_validation.tsv - 250 bytes",
                 "ERR4334351_seqfu.tsv - 50 bytes",
@@ -440,9 +440,9 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-04-01T14:42:54.79299",
+        "timestamp": "2026-04-14T20:26:19.437767882",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -503,9 +503,9 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-01T14:47:19.265467",
+        "timestamp": "2026-04-14T20:32:45.830680052",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -538,7 +538,7 @@
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 533 bytes",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 3060681 bytes",
                 "ERR4334351_asv_seqs.fasta - 47888 bytes",
-                "ERR4334351_dada2_stats.tsv - 118 bytes",
+                "ERR4334351_dada2_stats.tsv - 192 bytes",
                 "ERR4334351_dada2_truncation_points.tsv - 38 bytes",
                 "ERR4334351_primer_validation.tsv - 250 bytes",
                 "ERR4334351_seqfu.tsv - 50 bytes",
@@ -549,9 +549,9 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-04-01T14:47:19.275082",
+        "timestamp": "2026-04-14T20:32:45.846407705",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -568,7 +568,7 @@
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 9 lines",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 48916 lines",
                 "ERR4334351_asv_seqs.fasta - 226 lines",
-                "ERR4334351_dada2_stats.tsv - 4 lines",
+                "ERR4334351_dada2_stats.tsv - 8 lines",
                 "ERR4334351_dada2_truncation_points.tsv - 3 lines",
                 "ERR4334351_primer_validation.tsv - 3 lines",
                 "ERR4334351_seqfu.tsv - 1 lines",
@@ -578,9 +578,9 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-04-01T14:42:54.833845",
+        "timestamp": "2026-04-14T20:26:19.532568027",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -631,9 +631,9 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-01T14:42:54.783459",
+        "timestamp": "2026-04-14T20:26:19.416263975",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -652,7 +652,7 @@
                 "ERR4334351_SSU_rRNA_archaea.RF01959.fasta - 9 lines",
                 "ERR4334351_SSU_rRNA_bacteria.RF00177.fasta - 48916 lines",
                 "ERR4334351_asv_seqs.fasta - 226 lines",
-                "ERR4334351_dada2_stats.tsv - 4 lines",
+                "ERR4334351_dada2_stats.tsv - 8 lines",
                 "ERR4334351_dada2_truncation_points.tsv - 3 lines",
                 "ERR4334351_primer_validation.tsv - 3 lines",
                 "ERR4334351_seqfu.tsv - 1 lines",
@@ -662,9 +662,9 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-04-01T14:47:19.314402",
+        "timestamp": "2026-04-14T20:32:45.904284367",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     }
