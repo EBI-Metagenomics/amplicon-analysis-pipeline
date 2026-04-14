@@ -8,8 +8,6 @@ workflow DADA2_SWF {
     take:
         dada2_input
         cmsearch_deoverlap_out
-        min_survival_fraction
-
 
     main:
 
@@ -32,8 +30,7 @@ workflow DADA2_SWF {
         ch_versions = ch_versions.mix(REMOVE_AMBIGUOUS_READS.out.versions.first())
 
         DADA2(
-            REMOVE_AMBIGUOUS_READS.out.noambig_out,
-            min_survival_fraction
+            REMOVE_AMBIGUOUS_READS.out.noambig_out
         )
         ch_versions = ch_versions.mix(DADA2.out.versions.first())
 

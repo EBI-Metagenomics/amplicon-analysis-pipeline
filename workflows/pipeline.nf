@@ -232,8 +232,7 @@ workflow AMPLICON_PIPELINE {
     // Run DADA2 ASV generation //
     DADA2_SWF(
         dada2_input,
-        DETECT_RNA.out.cmsearch_deoverlap_coords,
-        params.min_survival_fraction
+        DETECT_RNA.out.cmsearch_deoverlap_coords
     )
     ch_versions = ch_versions.mix(DADA2_SWF.out.versions)
 

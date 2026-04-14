@@ -1,53 +1,31 @@
 {
-    "dada2_truncation_points_fail": {
-        "content": [
-            [
-                [
-                    {
-                        "id": "test",
-                        "single_end": false
-                    },
-                    "test_dada2_truncation_points.tsv:md5,73e457151d15bb898be73b2f4f7eac86"
-                ]
-            ]
-        ],
-        "timestamp": "2026-04-10T09:31:07.380276497",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "25.10.4"
-        }
-    },
     "dada2_out": {
         "content": [
             [
-                
-            ]
-        ],
-        "timestamp": "2026-04-10T09:30:31.487820602",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "25.10.4"
-        }
-    },
-    "dada2_errors": {
-        "content": [
-            [
                 [
                     {
                         "id": "test",
                         "single_end": false
                     },
-                    "test_dada2_errors.txt:md5,f8974846da6e846b9ca6559387b0242d"
+                    [
+                        "test_1_map.txt:md5,93a753df1317f72cb181045bc2be3949",
+                        "test_2_map.txt:md5,93a753df1317f72cb181045bc2be3949"
+                    ],
+                    "test_asvs.fasta:md5,3150f757e54a9f7fcc911d44f6495b4e",
+                    [
+                        "test_1_filt.fastq.gz:md5,35819d59fab6649520fa36e63a405da4",
+                        "test_2_filt.fastq.gz:md5,54d86d90378ecdb21e57e545f081f4a4"
+                    ]
                 ]
             ]
         ],
-        "timestamp": "2026-04-10T09:31:07.372251269",
+        "timestamp": "2026-04-14T19:13:06.552282377",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
-    "dada2_truncation_points_success": {
+    "dada2_truncation_points": {
         "content": [
             [
                 [
@@ -59,7 +37,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-04-10T09:30:31.503989691",
+        "timestamp": "2026-04-14T19:13:06.628599261",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -68,10 +46,24 @@
     "dada2_stats": {
         "content": [
             [
-                
+                [
+                    {
+                        "id": "test",
+                        "single_end": false
+                    },
+                    [
+                        "test_1_map.txt:md5,93a753df1317f72cb181045bc2be3949",
+                        "test_2_map.txt:md5,93a753df1317f72cb181045bc2be3949"
+                    ],
+                    "test_asvs.fasta:md5,3150f757e54a9f7fcc911d44f6495b4e",
+                    [
+                        "test_1_filt.fastq.gz:md5,35819d59fab6649520fa36e63a405da4",
+                        "test_2_filt.fastq.gz:md5,54d86d90378ecdb21e57e545f081f4a4"
+                    ]
+                ]
             ]
         ],
-        "timestamp": "2026-04-10T09:30:31.500622431",
+        "timestamp": "2026-04-14T19:13:06.586585012",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"

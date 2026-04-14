@@ -28,13 +28,26 @@ box::use(./trunc_len_automation[...])
 args = commandArgs(trailingOnly=TRUE) # Expects at most three arguments, a prefix, and one fastq for each strand (F and R)
                                       # If it's a single-end run, then the third argument should not be used
 prefix = args[1]                 # Prefix
-min_survival_fraction <- args[2] # If less reads than this threshold survive, execution breaks
-path_f = args[3]                 # Forward fastq
-path_r = args[4]                 # Reverse fastq
+path_f = args[2]                 # Forward fastq
+path_r = args[3]                 # Reverse fastq
 
 # different tax ranks for silva/pr2
 silva_tax_vec = c("Superkingdom", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
 pr2_tax_vec = c("Domain", "Supergroup", "Division", "Subdivision", "Class", "Order", "Family", "Genus", "Species")
+
+count_fastq_reads <- function(reads_path){
+  decompressed_reads <- gzfile(reads_path, "rt")
+  on.exit(close(decompressed_reads))
+  total_lines <- 0L
+  while(length(chunk <- readLines(decompressed_reads, n = 100000)) > 0){
+    total_lines <- total_lines + length(chunk)
+  }
+  return(as.integer(total_lines/4))
+}
+
+# read counts for reads will only be based on the forward strand 
+# (at this stage we assume numbers should be similar for forward and reverse)
+f_reads_count <- count_fastq_reads(path_f)
 
 # Identify truncLen parameter for filterAndTrim function
 final_where_to_cut_f = trunc_len_automation(path_f)
@@ -69,38 +82,7 @@ tryCatch(
   }
 )
 
-# Compute read counts for original and filtered forward and reverse fastqs
-count_fastq_reads <- function(reads_path){
-  decompressed_reads <- gzfile(reads_path, "rt")
-  on.exit(close(decompressed_reads))
-  total_lines <- 0L
-  while(length(chunk <- readLines(decompressed_reads, n = 100000)) > 0){
-    total_lines <- total_lines + length(chunk)
-  }
-  return(as.integer(total_lines/4))
-}
-
-f_reads_count <- count_fastq_reads(path_f)
 f_trimmed_reads_count <- count_fastq_reads(filt_f)
-if (!is.na(path_r)){
-  r_reads_count <- count_fastq_reads(path_r)
-  r_trimmed_reads_count <- count_fastq_reads(filt_r)
-}
-
-# DADA2 continues only if at least min_survival_fraction of the reads have been saved by filterAndTrim
-prop_f <- f_trimmed_reads_count / f_reads_count
-if (!is.na(path_r)){
-  prop_r <- r_trimmed_reads_count / r_reads_count
-}
-
-if (prop_f < min_survival_fraction){
-  exit_msg <- paste0("Too few reads retained after filtering on forward reads - ", round(prop_f*100,2), "%(<", min_survival_fraction*100, "%) -")
-  if (!is.na(path_r) && prop_r < min_survival_fraction){
-    exit_msg <- paste(exit_msg, "and on reverse reads - ", round(prop_r*100,2), "%(<", min_survival_fraction*100, "%)")
-  }
-  message(paste("Caught an error after the `filterAndTrim` stage:\n", exit_msg))
-  quit()
-}
 
 tryCatch(
   {
@@ -127,6 +109,8 @@ tryCatch(
     quit()
   }
 )
+
+drp_reads_count <- sum(drp_f$uniques)
 
 tryCatch(
   {
@@ -158,15 +142,6 @@ tryCatch(
 merged_read_count <- length(merged$sequence)
 if (merged_read_count == 0){
   message("Caught an error - No ASVs - stopping script early.")
-  quit()
-}
-
-# Now checking if less than min_survival_fraction reads have survived the merging
-drp_f_read_count <- sum(drp_f$uniques)
-
-prop_drp_merged <- merged_read_count / drp_f_read_count
-if (prop_drp_merged < min_survival_fraction){
-  message(paste("Caught an error after the `mergePairs` stage: too few reads retained (", merged_read_count, "/", drp_f_read_count, ")"))
   quit()
 }
 
@@ -268,7 +243,25 @@ unqs = getUniques(seqtab)[asvs_left]
 uniquesToFasta(unqs, paste0("./", prefix, "_asvs.fasta"), id_list)
 
 output_report_df <- data.frame(
-  names = c("initial_number_of_reads", "proportion_matched", "proportion_chimeric", "final_number_of_reads"),
-  values = c(length(final_f_map), final_matched_perc, proportion_chimeric, total_dada2_reads)
+  names = c(
+    "initial_number_of_reads",
+    "after_filterAndTrim",
+    "dereplicated",
+    "merged",
+    "asvs",
+    "proportion_matched",
+    "proportion_chimeric",
+    "final_number_of_reads"
+  ),
+  values = c(
+    f_reads_count,
+    f_trimmed_reads_count,
+    drp_reads_count,
+    merged_read_count,
+    length(final_f_map),
+    final_matched_perc,
+    proportion_chimeric,
+    total_dada2_reads
+  )
 )
 write.table(output_report_df, file = paste0("./", prefix, "_dada2_stats.tsv"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
