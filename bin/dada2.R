@@ -27,9 +27,9 @@ box::use(./trunc_len_automation[...])
 
 args = commandArgs(trailingOnly=TRUE) # Expects at most three arguments, a prefix, and one fastq for each strand (F and R)
                                       # If it's a single-end run, then the third argument should not be used
-prefix = args[1]                 # Prefix
-path_f = args[2]                 # Forward fastq
-path_r = args[3]                 # Reverse fastq
+prefix = args[1] # Prefix
+path_f = args[2] # Forward fastq
+path_r = args[3] # Reverse fastq
 
 # different tax ranks for silva/pr2
 silva_tax_vec = c("Superkingdom", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
@@ -248,7 +248,7 @@ output_report_df <- data.frame(
     "after_filterAndTrim",
     "dereplicated",
     "merged",
-    "asvs",
+    "read_with_asvs",
     "proportion_matched",
     "proportion_chimeric",
     "final_number_of_reads"
