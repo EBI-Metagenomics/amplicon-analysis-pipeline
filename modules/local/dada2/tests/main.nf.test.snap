@@ -25,24 +25,6 @@
             "nextflow": "25.10.4"
         }
     },
-    "dada2_truncation_points": {
-        "content": [
-            [
-                [
-                    {
-                        "id": "test",
-                        "single_end": false
-                    },
-                    "test_dada2_truncation_points.tsv:md5,22003c0a6bc7eca086464655dc9628ee"
-                ]
-            ]
-        ],
-        "timestamp": "2026-04-14T19:13:06.628599261",
-        "meta": {
-            "nf-test": "0.9.5",
-            "nextflow": "25.10.4"
-        }
-    },
     "dada2_stats": {
         "content": [
             [
@@ -51,21 +33,13 @@
                         "id": "test",
                         "single_end": false
                     },
-                    [
-                        "test_1_map.txt:md5,93a753df1317f72cb181045bc2be3949",
-                        "test_2_map.txt:md5,93a753df1317f72cb181045bc2be3949"
-                    ],
-                    "test_asvs.fasta:md5,3150f757e54a9f7fcc911d44f6495b4e",
-                    [
-                        "test_1_filt.fastq.gz:md5,35819d59fab6649520fa36e63a405da4",
-                        "test_2_filt.fastq.gz:md5,54d86d90378ecdb21e57e545f081f4a4"
-                    ]
+                    "test_dada2_stats.tsv:md5,a596156c3f8c2b2688f8ddcd8a878872"
                 ]
             ]
         ],
-        "timestamp": "2026-04-14T19:13:06.586585012",
+        "timestamp": "2026-04-16T12:04:57.481094",
         "meta": {
-            "nf-test": "0.9.5",
+            "nf-test": "0.9.4",
             "nextflow": "25.10.4"
         }
     }

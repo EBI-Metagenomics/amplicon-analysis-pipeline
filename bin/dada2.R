@@ -55,14 +55,6 @@ if (!is.na(path_r)){
   final_where_to_cut_r = trunc_len_automation(path_r)
 }
 
-# Write truncation points to TSV
-trunc_fp <- paste0("./", prefix, "_dada2_truncation_points.tsv")
-trunc_df <- data.frame(pair = "forward", position = final_where_to_cut_f)
-if (!is.na(path_r)) {
-  trunc_df <- rbind(trunc_df, data.frame(pair = "reverse", position = final_where_to_cut_r))
-}
-write.table(trunc_df, file = trunc_fp, sep = "\t", row.names = FALSE, quote = FALSE)
-
 # Do some quality filtering
 filt_f =  paste0("./", prefix, "_1", "_filt.fastq.gz")
 tryCatch(
@@ -244,14 +236,16 @@ uniquesToFasta(unqs, paste0("./", prefix, "_asvs.fasta"), id_list)
 
 output_report_df <- data.frame(
   names = c(
-    "initial_number_of_reads",
-    "after_filterAndTrim",
-    "dereplicated",
-    "merged",
-    "read_with_asvs",
-    "proportion_matched",
-    "proportion_chimeric",
-    "final_number_of_reads"
+    "initial_read_count",
+    "filtered_trimmed_read_count",
+    "dereplicated_read_count",
+    "merged_read_count",
+    "with_asv_read_count",
+    "proportion_reads_matched",
+    "proportion_reads_chimeric",
+    "final_read_count",
+    "truncation_point_forward",
+    "truncation_point_reverse"
   ),
   values = c(
     f_reads_count,
@@ -261,7 +255,9 @@ output_report_df <- data.frame(
     length(final_f_map),
     final_matched_perc,
     proportion_chimeric,
-    total_dada2_reads
+    total_dada2_reads,
+    final_where_to_cut_f,
+    if (!is.na(path_r)) final_where_to_cut_r else NA
   )
 )
 write.table(output_report_df, file = paste0("./", prefix, "_dada2_stats.tsv"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)

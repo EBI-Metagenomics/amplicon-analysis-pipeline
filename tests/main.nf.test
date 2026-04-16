@@ -179,20 +179,32 @@ nextflow_pipeline {
 
                     // Verify ERR4334351 DADA2 stats file has expected metrics
                     {
-                        def stats_content = path("${params.outdir}/ERR4334351/asv/ERR4334351_dada2_stats.tsv").text
-                        assert stats_content.contains("initial_number_of_reads")
-                        assert stats_content.contains("proportion_matched")
-                        assert stats_content.contains("proportion_chimeric")
-                        assert stats_content.contains("final_number_of_reads")
+                        def stats_content = path("${params.outdir}/ERR4334351/qc/ERR4334351_dada2_stats.tsv").text
+                        assert stats_content.contains("initial_read_count")
+                        assert stats_content.contains("filtered_trimmed_read_count")
+                        assert stats_content.contains("dereplicated_read_count")
+                        assert stats_content.contains("merged_read_count")
+                        assert stats_content.contains("with_asv_read_count")
+                        assert stats_content.contains("proportion_reads_matched")
+                        assert stats_content.contains("proportion_reads_chimeric")
+                        assert stats_content.contains("final_read_count")
+                        assert stats_content.contains("truncation_point_forward")
+                        assert stats_content.contains("truncation_point_reverse")
                     },
 
                     // Verify MOCKDOUBLEAMP DADA2 stats file has expected metrics
                     {
-                        def stats_content = path("${params.outdir}/MOCKDOUBLEAMP/asv/MOCKDOUBLEAMP_dada2_stats.tsv").text
-                        assert stats_content.contains("initial_number_of_reads")
-                        assert stats_content.contains("proportion_matched")
-                        assert stats_content.contains("proportion_chimeric")
-                        assert stats_content.contains("final_number_of_reads")
+                        def stats_content = path("${params.outdir}/MOCKDOUBLEAMP/qc/MOCKDOUBLEAMP_dada2_stats.tsv").text
+                        assert stats_content.contains("initial_read_count")
+                        assert stats_content.contains("filtered_trimmed_read_count")
+                        assert stats_content.contains("dereplicated_read_count")
+                        assert stats_content.contains("merged_read_count")
+                        assert stats_content.contains("with_asv_read_count")
+                        assert stats_content.contains("proportion_reads_matched")
+                        assert stats_content.contains("proportion_reads_chimeric")
+                        assert stats_content.contains("final_read_count")
+                        assert stats_content.contains("truncation_point_forward")
+                        assert stats_content.contains("truncation_point_reverse")
                     },
 
                     // Verify ERR4334351 ASV read counts
