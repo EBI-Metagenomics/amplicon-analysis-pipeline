@@ -12,6 +12,6 @@
 # Query file:      ribo.cm
 # Target file:     ERR4674657_final_concat_primers.fasta
 # Option settings: cmsearch -g -o /dev/null --tblout ERR4674657.cmsearch_matches.tbl --noali ribo.cm ERR4674657_final_concat_primers.fasta 
-# Current dir:     /hps/nobackup/rdf/metagenomics/service-team/users/chrisata/nf-work/c6/cb529bc7c258ef84498350e26d42a4
+# Current dir:     nf-work/c6/cb529bc7c258ef84498350e26d42a4
 # Date:            Tue Apr 30 16:02:08 2024
 # [ok]
