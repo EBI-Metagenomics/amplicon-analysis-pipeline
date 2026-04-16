@@ -380,7 +380,7 @@
                 "MOCKDOUBLEAMP_concat_DADA2-PR2_asv_krona_counts.txt - 262 bytes",
                 "MOCKDOUBLEAMP_concat_DADA2-SILVA_asv_krona_counts.txt - 22 bytes",
                 "MOCKDOUBLEAMP_concat_asv_read_counts.tsv - 1095 bytes",
-                "MOCKDOUBLEAMP_dada2_stats.tsv - 301 bytes",
+                "MOCKDOUBLEAMP_dada2_stats.tsv - 303 bytes",
                 "MOCKDOUBLEAMP_primer_validation.tsv - 420 bytes",
                 "MOCKDOUBLEAMP_seqfu.tsv - 50 bytes",
                 "MOCKDOUBLEAMP_suffix_header_err.json - 0 bytes",
@@ -393,7 +393,7 @@
                 "rev_primers.fasta - 56 bytes"
             ]
         ],
-        "timestamp": "2026-04-16T12:11:20.042503",
+        "timestamp": "2026-04-16T14:31:40.608088",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
