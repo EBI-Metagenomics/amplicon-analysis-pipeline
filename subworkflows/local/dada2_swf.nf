@@ -9,7 +9,6 @@ workflow DADA2_SWF {
         dada2_input
         cmsearch_deoverlap_out
 
-
     main:
 
         ch_versions = channel.empty()
