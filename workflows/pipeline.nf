@@ -531,13 +531,9 @@ workflow AMPLICON_PIPELINE {
         return [key, ["stats_fail": stats_fail]]
     }
 
-    // Label runs that have reach DADA2 and whether they succeed/fail
-    DADA2_SWF.out.dada2_report
-        .map { meta, dada2_report -> [meta.subMap('id'), dada2_report] }
-        .concat(dada2_stats_fail)
-        .groupTuple()
-        .map{ meta, dada2_results ->
-            if (dada2_results[1]["stats_fail"] == "true"){
+    dada2_stats_fail
+        .map{ meta, stats_fail ->
+            if (stats_fail["stats_fail"] == "true"){
                 [meta, "dada2_stats_fail"]
             }
             else{

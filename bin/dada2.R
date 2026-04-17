@@ -35,19 +35,25 @@ path_r = args[3] # Reverse fastq
 silva_tax_vec = c("Superkingdom", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
 pr2_tax_vec = c("Domain", "Supergroup", "Division", "Subdivision", "Class", "Order", "Family", "Genus", "Species")
 
+count_fastq_reads <- function(reads_path){
+  decompressed_reads <- gzfile(reads_path, "rt")
+  on.exit(close(decompressed_reads))
+  total_lines <- 0L
+  while(length(chunk <- readLines(decompressed_reads, n = 100000)) > 0){
+    total_lines <- total_lines + length(chunk)
+  }
+  return(as.integer(total_lines/4))
+}
+
+# read counts for reads will only be based on the forward strand 
+# (at this stage we assume numbers should be similar for forward and reverse)
+f_reads_count <- count_fastq_reads(path_f)
+
 # Identify truncLen parameter for filterAndTrim function
 final_where_to_cut_f = trunc_len_automation(path_f)
 if (!is.na(path_r)){
   final_where_to_cut_r = trunc_len_automation(path_r)
 }
-
-# Write truncation points to TSV
-trunc_fp <- paste0("./", prefix, "_dada2_truncation_points.tsv")
-trunc_df <- data.frame(pair = "forward", position = final_where_to_cut_f)
-if (!is.na(path_r)) {
-  trunc_df <- rbind(trunc_df, data.frame(pair = "reverse", position = final_where_to_cut_r))
-}
-write.table(trunc_df, file = trunc_fp, sep = "\t", row.names = FALSE, quote = FALSE)
 
 # Do some quality filtering
 filt_f =  paste0("./", prefix, "_1", "_filt.fastq.gz")
@@ -67,6 +73,8 @@ tryCatch(
     quit()
   }
 )
+
+f_trimmed_reads_count <- count_fastq_reads(filt_f)
 
 tryCatch(
   {
@@ -93,6 +101,8 @@ tryCatch(
     quit()
   }
 )
+
+drp_reads_count <- sum(drp_f$uniques)
 
 tryCatch(
   {
@@ -121,7 +131,8 @@ tryCatch(
   }
 )
 
-if (length(merged$sequence) == 0){
+merged_read_count <- length(merged$sequence)
+if (merged_read_count == 0){
   message("Caught an error - No ASVs - stopping script early.")
   quit()
 }
@@ -189,8 +200,8 @@ for (i in 1:length(final_f_map)){
   if (!is.na(path_r)){
     final_r_output[[i]] = f_map_list[1]
   }
-
 }
+
 # The extremely vast majority of forwards+reverse pairs should be assigned the same ASV. This checks it
 traced_remainder = length(final_f_map) - length(unmatched_asvs)
 total_dada2_reads = sum(seqtab.nochim)
@@ -223,8 +234,37 @@ id_list = paste("seq", asvs_left, sep="_")
 unqs = getUniques(seqtab)[asvs_left]
 uniquesToFasta(unqs, paste0("./", prefix, "_asvs.fasta"), id_list)
 
+report_where_to_cut_f <- if (final_where_to_cut_f==0) -1 else final_where_to_cut_f
+if (!is.na(path_r)){
+    report_where_to_cut_r <- if (final_where_to_cut_r==0) -1 else final_where_to_cut_r
+} else {
+    report_where_to_cut_r <- NA
+}
+
 output_report_df <- data.frame(
-  names = c("initial_number_of_reads", "proportion_matched", "proportion_chimeric", "final_number_of_reads"),
-  values = c(length(final_f_map), final_matched_perc, proportion_chimeric, total_dada2_reads)
+  names = c(
+    "initial_read_count",
+    "filtered_trimmed_read_count",
+    "dereplicated_read_count",
+    "merged_read_count",
+    "with_asv_read_count",
+    "proportion_reads_matched",
+    "proportion_reads_chimeric",
+    "final_read_count",
+    "truncation_point_forward",
+    "truncation_point_reverse"
+  ),
+  values = c(
+    f_reads_count,
+    f_trimmed_reads_count,
+    drp_reads_count,
+    merged_read_count,
+    length(final_f_map),
+    final_matched_perc,
+    proportion_chimeric,
+    total_dada2_reads,
+    report_where_to_cut_f,
+    report_where_to_cut_r
+  )
 )
 write.table(output_report_df, file = paste0("./", prefix, "_dada2_stats.tsv"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
