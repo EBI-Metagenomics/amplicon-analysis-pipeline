@@ -22,8 +22,7 @@ include { AUTOMATIC_PRIMER_PREDICTION      } from '../subworkflows/local/automat
 include { CONCAT_PRIMER_CUTADAPT           } from '../subworkflows/local/concat_primer_cutadapt.nf'
 include { DADA2_SWF                        } from '../subworkflows/local/dada2_swf.nf'
 include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
-include { EXTRACT_ASV_READ_COUNTS          } from '../modules/local/extract_asv_read_counts/main'
-include { EXTRACT_ASVS_LEFT                } from '../modules/local/extract_asvs_left/main'
+include { MERGE_ASV_READ_COUNTS            } from '../modules/local/merge_asv_read_counts/main'
 include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
 include { PUBLISH_OTU_RESULTS              } from '../modules/local/publish_otu_results/main'
 
@@ -247,43 +246,13 @@ workflow AMPLICON_PIPELINE {
     )
     ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA.out.versions)
 
-    /*  
-    Multiple steps in ASV calling + annotation can result in lost ASVs
-    These final modules make sure the set of ASVs being reported in the different outputs
-    are consistent i.e. ASVs in read count files, ASV sequences in FASTA files, etc.
-    */
-    // Group all databases' read counts per sample+region so that sort|uniq
-    // deduplicates ASV IDs across databases (matching original SILVA+PR2 join)
-    extract_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
-        .map{ meta, counts -> [meta.subMap('id', 'var_region'), counts] }
+    // Merge per-DB ASV read count files into one non-DB-specific file per sample+var_region //
+    merge_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
+        .map { meta, counts -> [meta.subMap('id', 'var_region'), counts] }
         .groupTuple()
 
-    EXTRACT_ASV_READ_COUNTS(extract_asv_read_counts_input)
-    ch_versions = ch_versions.mix(EXTRACT_ASV_READ_COUNTS.out.versions)
-
-    // Pair each sample's shared asvs_left with each database's asvtaxtable
-    extract_asvs_input = EXTRACT_ASV_READ_COUNTS.out.asvs_left
-        .filter { meta, _asvs_left -> meta.var_region != "concat" }
-        .map{ meta, asvs_left ->
-              [meta.subMap('id'), asvs_left] }
-        .groupTuple()
-        .combine(
-            DADA2_SWF.out.dada2_out
-                .map { meta, _maps, asv_seqs, _filt_reads ->
-                       [meta.subMap('id'), asv_seqs] },
-            by: 0
-        )
-        .combine(
-            MAPSEQ_ASV_KRONA.out.asvtaxtable
-                .map{ meta, asvtaxtable ->
-                      [meta.subMap('id'), meta.asv_label, asvtaxtable] },
-            by: 0
-        )
-        .map{ meta_id, asvs_left, asv_seqs, asv_label, asvtaxtable ->
-              [meta_id + ['asv_label': asv_label], asvs_left, asv_seqs, asvtaxtable, asv_label] }
-
-    EXTRACT_ASVS_LEFT(extract_asvs_input)
-    ch_versions = ch_versions.mix(EXTRACT_ASVS_LEFT.out.versions.first())
+    MERGE_ASV_READ_COUNTS(merge_asv_read_counts_input)
+    ch_versions = ch_versions.mix(MERGE_ASV_READ_COUNTS.out.versions)
 
     // Summarise primer validation information into study-wide JSON file //
     CONCAT_PRIMER_CUTADAPT.out.primer_validation_out

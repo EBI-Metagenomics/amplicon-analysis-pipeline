@@ -217,15 +217,20 @@ nextflow_pipeline {
                         def asv_counts_18s = path("${params.outdir}/MOCKDOUBLEAMP/asv/18S-V9/MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv").text
                         assert !asv_counts_18s.isEmpty()
                         def asv_count_18s_lines = asv_counts_18s.readLines()
-                        assert asv_count_18s_lines[0].contains("asv") && asv_count_18s_lines[0].contains("count")
-                        assert asv_count_18s_lines[1].contains("seq_267") && asv_count_18s_lines[1].contains("2")
+                        def asv_count_18s_lines_0 = asv_count_18s_lines[0].tokenize('\t') 
+                        assert asv_count_18s_lines_0[0].contains("asv") && asv_count_18s_lines_0[1].contains("count")
+                        def asv_count_18s_lines_1 = asv_count_18s_lines[1].tokenize('\t') 
+                        assert asv_count_18s_lines_1[0].contains("seq_10") && asv_count_18s_lines_1[1].contains("166")
 
                         def asv_counts_concat = path("${params.outdir}/MOCKDOUBLEAMP/asv/concat/MOCKDOUBLEAMP_concat_asv_read_counts.tsv").text
                         assert !asv_counts_concat.isEmpty()
                         def asv_count_concat_lines = asv_counts_concat.readLines()
-                        assert asv_count_concat_lines[0].contains("asv") && asv_count_concat_lines[0].contains("count")
-                        assert asv_count_concat_lines[1].contains("seq_1") && asv_count_concat_lines[1].contains("309")
-                        assert asv_count_concat_lines[10].contains("seq_114") && asv_count_concat_lines[10].contains("22")
+                        def asv_count_concat_lines_0 = asv_count_concat_lines[0].tokenize('\t') 
+                        assert asv_count_concat_lines_0[0].contains("asv") && asv_count_concat_lines_0[1].contains("count")
+                        def asv_count_concat_lines_1 = asv_count_concat_lines[1].tokenize('\t') 
+                        assert asv_count_concat_lines_1[0].contains("seq_1") && asv_count_concat_lines_1[1].contains("309")
+                        def asv_count_concat_lines_18 = asv_count_concat_lines[18].tokenize('\t') 
+                        assert asv_count_concat_lines_18[0].contains("seq_114") && asv_count_concat_lines_18[1].contains("22")
                     },
 
                     // Verify ERR4334351 primer identification outputs
