@@ -8,7 +8,7 @@
                         "single_end": false,
                         "var_region": "16S-V3-V4"
                     },
-                    "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_PR2_asv_krona_counts.txt:md5,ec5d39eef4d33386346c3f6fa007b59d"
+                    "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_PR2_asv_krona_counts.txt:md5,673676dec525b019c4f71a8b7513f9d0"
                 ]
             ],
             [
@@ -18,14 +18,14 @@
                         "single_end": false,
                         "var_region": "16S-V3-V4"
                     },
-                    "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_asv_read_counts.tsv:md5,33b5f2e1b30e5bc48c1b8b2d16c84e0b"
+                    "test_16S-V3-V4_DADA2-PR2_16S.V3-V4_asv_read_counts.tsv:md5,e102a7fd8dd6e7ca5e5ce27f59526b1a"
                 ]
             ]
         ],
+        "timestamp": "2026-04-17T11:05:44.360655",
         "meta": {
-            "nf-test": "0.9.2",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-11-13T14:28:08.09548"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }
