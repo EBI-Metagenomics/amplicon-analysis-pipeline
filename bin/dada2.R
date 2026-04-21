@@ -348,6 +348,13 @@ id_list = paste("seq", asvs_left, sep="_")
 unqs = getUniques(seqtab)[asvs_left]
 uniquesToFasta(unqs, paste0("./", prefix, "_asvs.fasta"), id_list)
 
+report_where_to_cut_f <- if (final_where_to_cut_f==0) -1 else final_where_to_cut_f
+if (!is.na(path_r)){
+    report_where_to_cut_r <- if (final_where_to_cut_r==0) -1 else final_where_to_cut_r
+} else {
+    report_where_to_cut_r <- NA
+}
+
 output_report_df <- data.frame(
   names = c(
     "initial_read_count",
@@ -370,8 +377,8 @@ output_report_df <- data.frame(
     final_matched_perc,
     proportion_chimeric,
     total_dada2_reads,
-    final_where_to_cut_f,
-    if (is_paired) final_where_to_cut_r else NA
+    report_where_to_cut_f,
+    report_where_to_cut_r
   )
 )
 write.table(output_report_df, file = paste0("./", prefix, "_dada2_stats.tsv"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
