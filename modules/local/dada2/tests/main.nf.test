@@ -33,4 +33,62 @@ nextflow_process {
             )
         }
     }
+
+    test("Should run in gap mode (justConcatenate)") {
+
+        when {
+            params {
+                outdir           = "$outputDir"
+                dada2_merge_mode = "gap"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test_gap', single_end:false ], // meta map
+                    [
+                        file('${projectDir}/modules/local/dada2/tests/data/test_noambig_1.fastq.gz', checkIfExists: true),
+                        file('${projectDir}/modules/local/dada2/tests/data/test_noambig_2.fastq.gz', checkIfExists: true)
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.dada2_out).match("dada2_out_gap") },
+                { assert snapshot(process.out.dada2_stats).match("dada2_stats_gap") }
+            )
+        }
+    }
+
+    test("Should run in separate mode") {
+
+        when {
+            params {
+                outdir           = "$outputDir"
+                dada2_merge_mode = "separate"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test_separate', single_end:false ], // meta map
+                    [
+                        file('${projectDir}/modules/local/dada2/tests/data/test_noambig_1.fastq.gz', checkIfExists: true),
+                        file('${projectDir}/modules/local/dada2/tests/data/test_noambig_2.fastq.gz', checkIfExists: true)
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.dada2_out).match("dada2_out_separate") },
+                { assert snapshot(process.out.dada2_stats).match("dada2_stats_separate") }
+            )
+        }
+    }
 }

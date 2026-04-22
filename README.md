@@ -194,6 +194,20 @@ Example output directory structure for one run (`ERR4334351`):
 
 For a more detailed description of the different output files, see the [OUTPUTS_DESCRIPTION.md](https://github.com/EBI-Metagenomics/amplicon-pipeline/blob/main/OUTPUTS_DESCRIPTION.md) file.
 
+### DADA2 merge mode
+
+The `--dada2_merge_mode` parameter controls how paired-end reads are handled during the ASV calling step:
+
+| Value                | Behaviour                                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `standard` (default) | Merge overlapping read pairs; discard pairs that fail to merge                                                               |
+| `gap`                | Merge reads inserting a `NNNNNNNNNN` spacer if there is no overlap (uses DADA2's `justConcatenate` option)                   |
+| `separate`           | Run DADA2 independently on forward and reverse reads; concatenate the two ASV sets into a single output FASTA and stats file |
+
+> **Note:** `gap` and `separate` only differ from `standard` for paired-end samples. Single-end samples are unaffected by this parameter.
+
+> **Note (separate mode):** Forward ASVs are labelled `seq_f_N` and reverse ASVs `seq_r_N` in the output FASTA. The downstream count-table step uses the forward map only, so reverse ASVs will be classified by MAPseq but will not receive read counts.
+
 ## Citations
 
 This pipeline uses code developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
