@@ -7,9 +7,8 @@
         "ebi-metagenomics": {
           "cmsearchtbloutdeoverlap": {
             "branch": "main",
-            "git_sha": "696324c637a7e0cf06fe331faffee42e36826898",
-            "installed_by": ["detect_rna", "modules"],
-            "patch": "modules/ebi-metagenomics/cmsearchtbloutdeoverlap/cmsearchtbloutdeoverlap.diff"
+            "git_sha": "2a57f028ca4c969608800ab3c9478c7248720756",
+            "installed_by": ["modules"]
           },
           "convertcmscantocmsearch": {
             "branch": "main",
