@@ -194,18 +194,6 @@ Example output directory structure for one run (`ERR4334351`):
 
 For a more detailed description of the different output files, see the [OUTPUTS_DESCRIPTION.md](https://github.com/EBI-Metagenomics/amplicon-pipeline/blob/main/OUTPUTS_DESCRIPTION.md) file.
 
-### Large samples profile
-
-When working with deeply sequenced data or complex biomes, it is recommended to use the large_samples profile.
-
-This profile is specifically designed to accommodate the increased computational demands associated with such datasets, especially in DADA2.
-
-When running the pipeline use:
-
-```
-$ nextflow run ... -profile large_samples ...
-```
-
 ### DADA2 merge mode
 
 The `--dada2_merge_mode` parameter controls how paired-end reads are handled during the ASV calling step:
