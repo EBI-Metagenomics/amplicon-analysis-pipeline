@@ -1,4 +1,74 @@
 {
+    "dada2_stats_gap": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_gap",
+                        "single_end": false
+                    },
+                    "test_gap_dada2_stats.tsv:md5,008ebf72ca8091e1950a617d58e4d46d"
+                ]
+            ]
+        ],
+        "timestamp": "2026-04-16T17:23:59.731525",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "dada2_out_gap": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_gap",
+                        "single_end": false
+                    },
+                    [
+                        "test_gap_1_map.txt:md5,53ec85f36f514896918398137820a44c",
+                        "test_gap_2_map.txt:md5,53ec85f36f514896918398137820a44c"
+                    ],
+                    "test_gap_asvs.fasta:md5,bf97373a18378a104288cea97e297f55",
+                    [
+                        "test_gap_1_filt.fastq.gz:md5,35819d59fab6649520fa36e63a405da4",
+                        "test_gap_2_filt.fastq.gz:md5,54d86d90378ecdb21e57e545f081f4a4"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-04-16T17:23:59.706504",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "dada2_out_separate": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_separate",
+                        "single_end": false
+                    },
+                    [
+                        "test_separate_1_map.txt:md5,52296df2cd0531ba5fa518d1d51ffbfe",
+                        "test_separate_2_map.txt:md5,84cd95e5197ac20d7bb04b677e3616c9"
+                    ],
+                    "test_separate_asvs.fasta:md5,af5d41e077ff71d237684a3a68565d84",
+                    [
+                        "test_separate_1_filt.fastq.gz:md5,35819d59fab6649520fa36e63a405da4",
+                        "test_separate_2_filt.fastq.gz:md5,54d86d90378ecdb21e57e545f081f4a4"
+                    ]
+                ]
+            ]
+        ],
+        "timestamp": "2026-04-16T17:24:18.028322",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
     "dada2_out": {
         "content": [
             [
@@ -38,6 +108,24 @@
             ]
         ],
         "timestamp": "2026-04-16T12:04:57.481094",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "dada2_stats_separate": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test_separate",
+                        "single_end": false
+                    },
+                    "test_separate_dada2_stats.tsv:md5,f299e71401ca303d5eb8a631df916854"
+                ]
+            ]
+        ],
+        "timestamp": "2026-04-16T17:24:18.054262",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"
