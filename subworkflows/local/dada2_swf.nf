@@ -17,7 +17,12 @@ workflow DADA2_SWF {
             .map{ meta, reads ->
                 [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
              }
-            .join(cmsearch_deoverlap_out, by: [0])
+            .join(
+                cmsearch_deoverlap_out.map { meta, cmsearch_deoverlap_out_ ->
+                    [ meta.subMap('id', 'single_end'), cmsearch_deoverlap_out_ ]
+                },
+                by: [0]
+            )
             .map{meta, var_region, var_regions_size, reads, cmsearch_deoverlap_out_ ->
                 [meta + ["var_region": var_region, "var_regions_size": var_regions_size], reads, cmsearch_deoverlap_out_]
             }

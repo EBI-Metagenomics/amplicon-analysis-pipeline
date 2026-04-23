@@ -512,14 +512,14 @@ nextflow_pipeline {
                     { assert success },
                     {
                         def stable_name = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,yml}'])
-                        assert snapshot(stable_name).match("no_dbs_directory_structure")
+                        assert snapshot(stable_name).match("no_dbs_interleaved_directory_structure")
                     },
                     {
                         def allFiles = getAllFilesFromDir(params.outdir, ignore: ['pipeline_info/*.{html,yml}', 'test_samplesheet_ERR4334351.csv', '**/*.fastp.json', 'bco.json', '*_multiqc_report.html', '**/*_multiqc_report.html'])
                         def fileSizes = allFiles.collect { file ->
                             "${file.name} - ${file.size()} bytes"
                         }.sort()
-                        assert snapshot(fileSizes).match("no_dbs_file_sizes")
+                        assert snapshot(fileSizes).match("no_dbs_interleaved_file_sizes")
                     },
                     {
                         def dataFiles = getAllFilesFromDir(params.outdir, include: ['*.{json,tsv,fasta,fa}', '**/*.{json,tsv,fasta,fa}'], ignore: ['pipeline_info/*.{html,yml}', 'bco.json', 'test_samplesheet_ERR4334351.csv'])
@@ -527,7 +527,7 @@ nextflow_pipeline {
                             def lineCount = file.text.isEmpty() ? 0 : file.readLines().size()
                             "${file.name} - ${lineCount} lines"
                         }.sort()
-                        assert snapshot(lineCounts).match("no_dbs_line_counts")
+                        assert snapshot(lineCounts).match("no_dbs_interleaved_line_counts")
                     }
                 )
             }

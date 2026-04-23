@@ -246,6 +246,7 @@ workflow AMPLICON_PIPELINE {
         }
 
     dada2_input = dada2_input_preparation_function(concat_input, READS_QC.out.reads, cutadapt_channel)
+    
     // Run DADA2 ASV generation //
     DADA2_SWF(
         dada2_input,
@@ -409,16 +410,20 @@ workflow AMPLICON_PIPELINE {
     /****************************/
 
     // Version collating //
-    ch_versions.view{ it -> "ch_versions - ${it}" }
     CUSTOM_DUMPSOFTWAREVERSIONS(
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
     multiqc_input = CONCAT_PRIMER_CUTADAPT.out.cutadapt_json
         .map{ meta, json ->
-            [['id':meta.id, 'single_end':meta.single_end], json]
+            [meta.subMap('id', 'single_end'), json]
         }
-        .join(READS_QC_MERGE.out.fastp_summary_json, remainder:true)
+        .join(
+            READS_QC_MERGE.out.fastp_summary_json.map { meta, json ->
+                [meta.subMap('id', 'single_end'), json]
+            },
+            remainder:true
+        )
         .join(DADA2_SWF.out.dada2_report.map{ meta, tsv ->
             [['id':meta.id, 'single_end':meta.single_end], tsv]}, remainder:true)
         .map{ meta, cutadapt, fastp, dada2 ->

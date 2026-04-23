@@ -15,6 +15,15 @@ workflow MAPSEQ_ASV_KRONA {
     main:
 
         ch_versions = channel.empty()
+        extracted_var_path_by_sample_region = extracted_var_path
+            .map { meta, var_region, extracted_var ->
+                [meta.subMap('id', 'single_end', 'var_regions_size'), var_region, extracted_var]
+            }
+
+        concat_var_regions_by_sample = concat_var_regions
+            .map { meta, concat_str, concat_vars ->
+                [meta.subMap('id', 'single_end'), concat_str, concat_vars]
+            }
 
         mapseq_in = dada2_output
             .map{ meta, maps, asv_seqs, _filt_reads -> [meta, [maps, asv_seqs]] }
@@ -64,7 +73,7 @@ workflow MAPSEQ_ASV_KRONA {
             .map { meta, maps, _asv_seqs, filt_reads -> 
                    [meta.subMap('id', 'single_end', 'var_regions_size'), meta['var_region'], maps, filt_reads] }
             .transpose(by: 1)
-            .join(extracted_var_path, by: [0, 1])
+            .join(extracted_var_path_by_sample_region, by: [0, 1])
             .join(split_mapseq2asvtable, by: [0, 1])
             .transpose(by: 5)
             .map { meta, var_region, maps, filt_reads, extracted_var, asvlabel_asvtaxtable ->
@@ -76,7 +85,7 @@ workflow MAPSEQ_ASV_KRONA {
         multi_region_concats = split_input
             .map { meta, var_region, asv_label, maps, asvtaxtable, filt_reads, extracted_var ->
                    [meta.subMap('id', 'single_end'), var_region, asv_label, meta['var_regions_size'], maps, asvtaxtable, filt_reads, extracted_var] }
-            .combine(concat_var_regions, by: 0)
+            .combine(concat_var_regions_by_sample, by: 0)
             .map { meta, _var_region, asv_label, var_regions_size, maps, asvtaxtable, filt_reads, _extracted_vars, concat_str, concat_vars ->
                    [meta + ['var_regions_size':var_regions_size], concat_str, asv_label, maps, asvtaxtable, filt_reads, concat_vars] }
 

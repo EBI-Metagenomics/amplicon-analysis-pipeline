@@ -15,7 +15,10 @@ def dada2_input_preparation_function( concat_input, reads_qc, cutadapt_channel )
         // cutadapt reads (via mix), then group them together using groupKey of
         // size 2 so we get both read sources per sample.
         // Note: reads[0] = fastp, reads[1] = cutadapt after groupTuple.
-        .join(reads_qc, by: 0)
+        .join(
+            reads_qc.map{ meta, reads -> [meta.subMap('id', 'single_end'), reads] }, 
+            by: 0
+        )
         .mix(cutadapt_channel)
         .map { meta, var_region, var_regions_size, reads ->
             [ groupKey(meta.subMap('id', 'single_end'), 2), var_region, var_regions_size, reads ]
