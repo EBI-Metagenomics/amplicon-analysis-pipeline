@@ -1,0 +1,2 @@
+sample,fastq_1,fastq_2,single_end
+ERR4334351,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/bbmap_preprocess/assets/test-fixtures/test-reads/ERR4334351_test_12.fastq.gz,,false

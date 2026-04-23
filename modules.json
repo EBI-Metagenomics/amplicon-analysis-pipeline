@@ -5,6 +5,11 @@
     "git@github.com:EBI-Metagenomics/nf-modules.git": {
       "modules": {
         "ebi-metagenomics": {
+          "bbmap/reformat_standardise": {
+            "branch": "main",
+            "git_sha": "e8a675213efdfad2881dc0d6ea1fa2e001537033",
+            "installed_by": ["modules"]
+          },
           "cmsearchtbloutdeoverlap": {
             "branch": "main",
             "git_sha": "696324c637a7e0cf06fe331faffee42e36826898",

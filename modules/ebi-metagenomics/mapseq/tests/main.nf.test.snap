@@ -1,0 +1,16 @@
+{
+    "silva ssu [fasta]": {
+        "content": [
+            {
+                "versions": [
+                    "versions.yml:md5,c0b49fb0a689dedf30f3e63fac7ceac5"
+                ]
+            }
+        ],
+        "timestamp": "2026-03-30T09:04:14.614158",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { BBMAP_REFORMAT_STANDARDISE       } from '../modules/ebi-metagenomics/bbmap/reformat_standardise/main'
 include { READS_QC                         } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
 include { READS_QC as READS_QC_MERGE       } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
 include { DETECT_RNA                       } from '../subworkflows/ebi-metagenomics/detect_rna/main'
@@ -104,15 +105,16 @@ workflow AMPLICON_PIPELINE {
     ch_versions = channel.empty()
 
     // Organise input tuple channel //
-    groupReads = { meta, fq1, fq2 ->
-        if (fq2 == []) {
+    def groupReads = { meta, fq1, fq2 ->
+        def single_file = (fq2 == [])
+        meta['interleaved'] = (!meta.single_end) && single_file
+        if (single_file) {
             return tuple(meta, [fq1])
         }
         else {
             return tuple(meta, [fq1, fq2])
         }
     }
-
     ch_input = samplesheet.map(groupReads)
 
     if (params.use_fire_download) {
@@ -127,7 +129,23 @@ workflow AMPLICON_PIPELINE {
         ch_versions = ch_versions.mix(DOWNLOAD_FROM_FIRE.out.versions.first())
         ch_input = DOWNLOAD_FROM_FIRE.out.downloaded_files
     }
-
+    
+    // Standardise headers and de-interleave as needed
+    if (!params.skip_standardise) {
+        standardise_input = ch_input.multiMap{
+            meta, reads ->
+            reads: [meta, reads]
+            interleaved: meta.interleaved
+        }
+        BBMAP_REFORMAT_STANDARDISE(
+            standardise_input.reads, 
+            standardise_input.interleaved, 
+            'fastq.gz'
+        )
+        ch_versions = ch_versions.mix(BBMAP_REFORMAT_STANDARDISE.out.versions_bbmap)
+        ch_input = BBMAP_REFORMAT_STANDARDISE.out.reformated
+    }
+    
     // Sanity checking and quality control of reads //
     READS_QC_MERGE(
         true,       // check if amplicon
