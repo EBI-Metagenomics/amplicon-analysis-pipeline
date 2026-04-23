@@ -142,7 +142,7 @@ workflow AMPLICON_PIPELINE {
             standardise_input.interleaved, 
             'fastq.gz'
         )
-        ch_versions = ch_versions.mix(BBMAP_REFORMAT_STANDARDISE.out.versions_bbmap)
+        ch_versions = ch_versions.mix(BBMAP_REFORMAT_STANDARDISE.out.versions)
         ch_input = BBMAP_REFORMAT_STANDARDISE.out.reformated
     }
     
@@ -409,6 +409,7 @@ workflow AMPLICON_PIPELINE {
     /****************************/
 
     // Version collating //
+    ch_versions.view{ it -> "ch_versions - ${it}" }
     CUSTOM_DUMPSOFTWAREVERSIONS(
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )

@@ -7,7 +7,7 @@
         "ebi-metagenomics": {
           "bbmap/reformat_standardise": {
             "branch": "main",
-            "git_sha": "e8a675213efdfad2881dc0d6ea1fa2e001537033",
+            "git_sha": "945bc3f876117a9034cd3a66bc37b19e42035ede",
             "installed_by": ["modules"]
           },
           "cmsearchtbloutdeoverlap": {
