@@ -2,7 +2,7 @@
 process DADA2 {
     // Run DADA2 pipeline including read-tracking
     tag "$meta.id"
-    label "dada2_resources"
+    label 'process_medium'
     container 'quay.io/microbiome-informatics/dada2:v1'
 
     input:
@@ -20,7 +20,7 @@ process DADA2 {
         """
         output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} $reads 2> \$output_file
+        dada2.R ${meta.id} $reads NA ${params.dada2_merge_mode} 2> \$output_file
 
         stats_fail=false
         if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then
@@ -38,7 +38,7 @@ process DADA2 {
         """
         output_file="${meta.id}_dada2_output.txt"
         error_file="${meta.id}_dada2_errors.txt"
-        dada2.R ${meta.id} ${reads[0]} ${reads[1]} 2> \$output_file
+        dada2.R ${meta.id} ${reads[0]} ${reads[1]} ${params.dada2_merge_mode} 2> \$output_file
 
         stats_fail=false
         if [[ -s \$output_file ]] && grep -q "Caught an error" \$output_file; then

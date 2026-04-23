@@ -20,16 +20,20 @@ box::use(tidyverse[...])
 box::use(data.table[...])
 box::use(dada2[...])
 
-# Custom function for tracking reads to their DADA2-generated ASVs (bin/read_asv_tracking.R) 
+# Custom function for tracking reads to their DADA2-generated ASVs (bin/read_asv_tracking.R)
 box::use(./read_asv_tracking[...])
 # Custom function for automatic truncation of reads based on quality scores (bin/trunc_len_automation.R)
 box::use(./trunc_len_automation[...])
 
-args = commandArgs(trailingOnly=TRUE) # Expects at most three arguments, a prefix, and one fastq for each strand (F and R)
-                                      # If it's a single-end run, then the third argument should not be used
-prefix = args[1] # Prefix
-path_f = args[2] # Forward fastq
-path_r = args[3] # Reverse fastq
+# Expects four arguments: prefix, forward fastq, reverse fastq (or "NA" for SE), merge_mode
+# merge_mode options: "standard" (default), "gap", "separate"
+args       = commandArgs(trailingOnly=TRUE)
+prefix     = args[1] # Prefix
+path_f     = args[2] # Forward fastq
+path_r     = args[3] # Reverse fastq, or "NA" for single-end
+merge_mode = if (length(args) >= 4) args[4] else "standard"
+is_paired  = !is.na(path_r) && path_r != "NA"
+if (!is_paired) merge_mode = "standard"  # gap/separate only meaningful for PE
 
 # different tax ranks for silva/pr2
 silva_tax_vec = c("Superkingdom", "Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
@@ -45,22 +49,22 @@ count_fastq_reads <- function(reads_path){
   return(as.integer(total_lines/4))
 }
 
-# read counts for reads will only be based on the forward strand 
+# read counts for reads will only be based on the forward strand
 # (at this stage we assume numbers should be similar for forward and reverse)
 f_reads_count <- count_fastq_reads(path_f)
 
 # Identify truncLen parameter for filterAndTrim function
 final_where_to_cut_f = trunc_len_automation(path_f)
-if (!is.na(path_r)){
+if (is_paired){
   final_where_to_cut_r = trunc_len_automation(path_r)
 }
 
 # Do some quality filtering
-filt_f =  paste0("./", prefix, "_1", "_filt.fastq.gz")
+filt_f = paste0("./", prefix, "_1_filt.fastq.gz")
 tryCatch(
   {
-    if (!is.na(path_r)){
-      filt_r =  paste0("./", prefix, "_2", "_filt.fastq.gz")
+    if (is_paired){
+      filt_r = paste0("./", prefix, "_2_filt.fastq.gz")
       print(paste0("The forward strand truncation point is: ", final_where_to_cut_f))
       print(paste0("The reverse strand truncation point is: ", final_where_to_cut_r))
       out = filterAndTrim(path_f, filt_f, path_r, filt_r, rm.phix=TRUE, maxEE=c(2,5), truncQ=2, truncLen=c(final_where_to_cut_f,final_where_to_cut_r), compress=TRUE, multithread=TRUE)
@@ -80,7 +84,7 @@ tryCatch(
   {
     # Learn error model
     err_f = learnErrors(filt_f, multithread=TRUE)
-    if (!is.na(path_r)){
+    if (is_paired){
       err_r = learnErrors(filt_r, multithread=TRUE)
     }
   }, error = function(msg){
@@ -93,7 +97,7 @@ tryCatch(
   {
     # Dereplicate sequences
     drp_f = derepFastq(filt_f)
-    if (!is.na(path_r)){
+    if (is_paired){
       drp_r = derepFastq(filt_r)
     }
   }, error = function(msg){
@@ -108,7 +112,7 @@ tryCatch(
   {
     # Generate stranded ASVs
     dada_f = dada(drp_f, err=err_f, multithread=TRUE)
-    if (!is.na(path_r)){
+    if (is_paired){
       dada_r = dada(drp_r, err=err_r, multithread=TRUE)
     }
   }, error = function(msg){
@@ -117,129 +121,176 @@ tryCatch(
   }
 )
 
-tryCatch(
-  {
-    # Merge stranded ASVs
-    if (!is.na(path_r)){
-      merged = mergePairs(dada_f, drp_f, dada_r, drp_r, verbose=TRUE)
-    } else{
-      merged = dada_f
-    }
-  }, error = function(msg){
-    message(paste("Caught an error at the `mergePairs` stage:\n", msg))
+# ---- Mode-specific blocks: each sets a common set of output variables ----
+#
+# Common variables produced by both blocks:
+#   merged_read_count  — unique ASVs before chimera removal (or combined strand total for separate)
+#   seqtab_out         — final nochim sequence table
+#   asv_ids            — ASV names for FASTA (seq_N, or seq_f_N / seq_r_N for separate)
+#   asv_seqs           — getUniques() subsetted to kept ASVs, for FASTA
+#   f_map_out          — per-read ASV index list, for _1_map.txt / _map.txt
+#   r_map_out          — per-read ASV index list for _2_map.txt; NULL for SE
+#   total_dada2_reads  — sum of reads in seqtab_out
+#   proportion_chimeric
+#   final_matched_perc — fraction of reads tracked to an ASV; NA for separate mode
+
+if (merge_mode == "separate") {
+
+  # Helper: run the single-end DADA2 post-processing for one strand
+  make_strand_outputs = function(dada_obj, drp_obj) {
+    tryCatch(
+      { seqtab = makeSequenceTable(dada_obj) },
+      error = function(msg){
+        message(paste("Caught an error at the `makeSequenceTable` stage:\n", msg))
+        quit()
+      }
+    )
+    tryCatch(
+      { seqtab_nc = removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE) },
+      error = function(msg){
+        message(paste("Caught an error at the `removeBimeraDenovo` stage:\n", msg))
+        quit()
+      }
+    )
+    tryCatch(
+      {
+        chimera_ids   = which(colnames(seqtab) %in% colnames(seqtab_nc) == FALSE)
+        dup_ids       = which(duplicated(colnames(seqtab)))
+        ids_to_remove = unique(c(chimera_ids, dup_ids))
+        asv_map       = read_asv_tracking(dada_obj, drp_obj, dada_obj, "single", ids_to_remove)
+      }, error = function(msg){
+        message(paste("Caught an error at the `read_asv_tracking` stage:\n", msg))
+        quit()
+      }
+    )
+    list(seqtab=seqtab, seqtab_nc=seqtab_nc, asv_map=asv_map)
+  }
+
+  out_f = make_strand_outputs(dada_f, drp_f)
+  out_r = make_strand_outputs(dada_r, drp_r)
+
+  asvs_left_f = sort(as.numeric(unique(unlist(lapply(out_f$asv_map, `[`, 1)))))
+  asvs_left_f = asvs_left_f[asvs_left_f > 0]
+  asvs_left_r = sort(as.numeric(unique(unlist(lapply(out_r$asv_map, `[`, 1)))))
+  asvs_left_r = asvs_left_r[asvs_left_r > 0]
+
+  merged_read_count = length(asvs_left_f) + length(asvs_left_r)
+  if (merged_read_count == 0){
+    message("Caught an error - No ASVs in either strand - stopping script early.")
     quit()
   }
-)
 
-merged_read_count <- length(merged$sequence)
-if (merged_read_count == 0){
-  message("Caught an error - No ASVs - stopping script early.")
-  quit()
+  seqtab_out = cbind(out_f$seqtab_nc, out_r$seqtab_nc)
+  asv_seqs   = c(getUniques(out_f$seqtab)[asvs_left_f], getUniques(out_r$seqtab)[asvs_left_r])
+  asv_ids    = c(paste("seq_f", asvs_left_f, sep="_"), paste("seq_r", asvs_left_r, sep="_"))
+
+  f_map_out = lapply(out_f$asv_map, `[`, 1)
+  n_f_asvs  = ncol(out_f$seqtab_nc)
+  r_map_out = lapply(out_r$asv_map, function(x) { v = x[1]; if (!is.na(v) && v > 0) v + n_f_asvs else v })
+
+  total_dada2_reads   = sum(out_f$seqtab_nc) + sum(out_r$seqtab_nc)
+  prop_chim_f         = 1 - sum(out_f$seqtab_nc) / sum(out_f$seqtab)
+  prop_chim_r         = 1 - sum(out_r$seqtab_nc) / sum(out_r$seqtab)
+  proportion_chimeric = (prop_chim_f + prop_chim_r) / 2
+  final_matched_perc  = NA
+
+} else {
+
+  # Standard and gap modes: merge PE pairs (with or without gap-filling), or use dada_f for SE
+  tryCatch(
+    {
+      if (is_paired){
+        merged = mergePairs(dada_f, drp_f, dada_r, drp_r, verbose=TRUE,
+                            justConcatenate=(merge_mode == "gap"))
+      } else{
+        merged = dada_f
+      }
+    }, error = function(msg){
+      message(paste("Caught an error at the `mergePairs` stage:\n", msg))
+      quit()
+    }
+  )
+
+  merged_read_count = length(merged$sequence)
+  if (merged_read_count == 0){
+    message("Caught an error - No ASVs - stopping script early.")
+    quit()
+  }
+
+  tryCatch(
+    { seqtab = makeSequenceTable(merged) },
+    error = function(msg){
+      message(paste("Caught an error at the `makeSequenceTable` stage:\n", msg))
+      quit()
+    }
+  )
+
+  tryCatch(
+    { seqtab_out = removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE) },
+    error = function(msg){
+      message(paste("Caught an error at the `removeBimeraDenovo` stage:\n", msg))
+      quit()
+    }
+  )
+
+  chimera_ids   = which(colnames(seqtab) %in% colnames(seqtab_out) == FALSE)
+  dup_ids       = which(duplicated(merged$sequence))
+  ids_to_remove = unique(c(rbind(chimera_ids, dup_ids)))
+
+  tryCatch(
+    {
+      tracking_strand = if (is_paired) "forward" else "single"
+      final_f_map = read_asv_tracking(dada_f, drp_f, merged, tracking_strand, ids_to_remove)
+      if (is_paired){
+        final_r_map = read_asv_tracking(dada_r, drp_r, merged, "reverse", ids_to_remove)
+      }
+    }, error = function(msg){
+      message(paste("Caught an error at the `read_asv_tracking` stage:\n", msg))
+      quit()
+    }
+  )
+
+  # Count reads where forward and reverse map to different ASVs (quality check; expected to be near zero)
+  unmatched_count = if (is_paired){
+    sum(mapply(function(f, r){
+      ov = intersect(f, r)
+      length(ov) == 0 || ov == 0
+    }, final_f_map, final_r_map))
+  } else 0
+
+  f_map_out = lapply(final_f_map, `[`, 1)
+  r_map_out = if (is_paired) lapply(final_f_map, `[`, 1) else NULL  # both strands carry the same merged ASV index
+
+  asvs_left = sort(as.numeric(unique(unlist(f_map_out))))
+  asvs_left = asvs_left[asvs_left > 0]
+  asv_seqs  = getUniques(seqtab)[asvs_left]
+  asv_ids   = paste("seq", asvs_left, sep="_")
+
+  total_dada2_reads   = sum(seqtab_out)
+  proportion_chimeric = 1 - total_dada2_reads / sum(seqtab)
+  final_matched_perc  = (length(final_f_map) - unmatched_count) / total_dada2_reads
+
 }
 
-tryCatch(
-  {
-    # Make ASV count table
-    seqtab = makeSequenceTable(merged)
-  }, error = function(msg){
-    message(paste("Caught an error at the `makeSequenceTable` stage:\n", msg))
-    quit()
-  }
-)
+# ---- Shared output section ----
 
-tryCatch(
-  {
-    # Remove chimeras
-    seqtab.nochim = removeBimeraDenovo(seqtab, method="consensus", multithread=TRUE, verbose=TRUE)
-  }, error = function(msg){
-    message(paste("Caught an error at the `removeBimeraDenovo` stage:\n", msg))
-    quit()
-  }
-)
-
-chimera_ids = which(colnames(seqtab) %in% colnames(seqtab.nochim) == FALSE)
-duplicated_asvs = which(duplicated(merged$sequence))
-ids_to_remove = unique(c(rbind(chimera_ids, duplicated_asvs)))
-
-tryCatch(
-  {
-    # Track reads to their ASVs
-    if (!is.na(path_r)){
-      final_f_map = read_asv_tracking(dada_f, drp_f, merged, "forward", ids_to_remove)
-      final_r_map = read_asv_tracking(dada_r, drp_r, merged, "reverse", ids_to_remove)
-    } else{
-      final_f_map = read_asv_tracking(dada_f, drp_f, merged, "single", ids_to_remove)
-    }
-  }, error = function(msg){
-    message(paste("Caught an error at the `read_asv_tracking` stage:\n", msg))
-    quit()
-  }
-)
-
-final_f_output = list()
-if (!is.na(path_r)){
-  final_r_output = list()
-}
-
-unmatched_asvs = character()
-
-for (i in 1:length(final_f_map)){
-  f_map_list = final_f_map[[i]]
-  if (!is.na(path_r)){
-    r_map_list = final_r_map[[i]]
-    overlap = intersect(f_map_list, r_map_list)
-    
-    if (length(overlap) == 0){
-      unmatched_asvs = append(unmatched_asvs, i)
-    } else if (overlap == 0){
-      unmatched_asvs = append(unmatched_asvs, i)
-    }
-  }
-
-  final_f_output[[i]] = f_map_list[1]
-  if (!is.na(path_r)){
-    final_r_output[[i]] = f_map_list[1]
-  }
-}
-
-# The extremely vast majority of forwards+reverse pairs should be assigned the same ASV. This checks it
-traced_remainder = length(final_f_map) - length(unmatched_asvs)
-total_dada2_reads = sum(seqtab.nochim)
-final_matched_perc = traced_remainder / total_dada2_reads
-
-# Save map to file, with each line representing an ASV's read
-if (!is.na(path_r)){
-  fwrite(final_f_output, file = paste0("./", prefix, "_1_map.txt"), sep="\n")
-  fwrite(final_r_output, file = paste0("./", prefix, "_2_map.txt"), sep="\n")
+# Save map files (one entry per read → its ASV index)
+if (is_paired){
+  fwrite(f_map_out, file=paste0("./", prefix, "_1_map.txt"), sep="\n")
+  fwrite(r_map_out, file=paste0("./", prefix, "_2_map.txt"), sep="\n")
 } else{
-  fwrite(final_f_output, file = paste0("./", prefix, "_map.txt"), sep="\n")
+  fwrite(f_map_out, file=paste0("./", prefix, "_map.txt"), sep="\n")
 }
+
+# Save ASV sequences to FASTA
+uniquesToFasta(asv_seqs, paste0("./", prefix, "_asvs.fasta"), asv_ids)
 
 # Save ASV count table
-write.table(seqtab.nochim, file = paste0("./", prefix, "_asv_counts.tsv"), sep = "\t", row.names=FALSE)
+write.table(seqtab_out, file=paste0("./", prefix, "_asv_counts.tsv"), sep="\t", row.names=FALSE)
 
-# Write proportion of chimeric reads into a file
-seqtab_read_count = sum(seqtab)
-seqtab.nochim_read_count = sum(seqtab.nochim)
-proportion_chimeric = 1 - (seqtab.nochim_read_count / seqtab_read_count)
-
-# Get count of unique ASVs left after all types of filtering
-asvs_left = sort(as.numeric(unique(unlist(final_f_output))))
-asvs_left = asvs_left[2:length(asvs_left)]
-
-# Save ASV sequences to FASTA file
-seqtab.length = length(seqtab)
-num_list = as.character(1:seqtab.length)
-id_list = paste("seq", asvs_left, sep="_")
-unqs = getUniques(seqtab)[asvs_left]
-uniquesToFasta(unqs, paste0("./", prefix, "_asvs.fasta"), id_list)
-
-report_where_to_cut_f <- if (final_where_to_cut_f==0) -1 else final_where_to_cut_f
-if (!is.na(path_r)){
-    report_where_to_cut_r <- if (final_where_to_cut_r==0) -1 else final_where_to_cut_r
-} else {
-    report_where_to_cut_r <- NA
-}
+# Save stats report
+report_where_to_cut_f = if (final_where_to_cut_f == 0) -1 else final_where_to_cut_f
+report_where_to_cut_r = if (is_paired) { if (final_where_to_cut_r == 0) -1 else final_where_to_cut_r } else NA
 
 output_report_df <- data.frame(
   names = c(
@@ -259,7 +310,7 @@ output_report_df <- data.frame(
     f_trimmed_reads_count,
     drp_reads_count,
     merged_read_count,
-    length(final_f_map),
+    length(f_map_out),
     final_matched_perc,
     proportion_chimeric,
     total_dada2_reads,
@@ -267,4 +318,5 @@ output_report_df <- data.frame(
     report_where_to_cut_r
   )
 )
-write.table(output_report_df, file = paste0("./", prefix, "_dada2_stats.tsv"), sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
+write.table(output_report_df, file=paste0("./", prefix, "_dada2_stats.tsv"),
+            sep="\t", row.names=FALSE, col.names=FALSE, quote=FALSE)
