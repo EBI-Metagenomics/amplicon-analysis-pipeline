@@ -32,9 +32,6 @@ input:
       type: string
       description: "Output file format (e.g., 'fastq.gz', 'fasta.gz')"
       pattern: "^\\w+(\\.\\w+)*$"
-  - pair_header_dot_suffix:
-      type: boolean
-      description: "Optional flag to rewrite paired-end header suffixes from '/1' or ' /1' and '/2' or ' /2' to '.1' and '.2' after reformat.sh completes."
 
 output:
   - meta:

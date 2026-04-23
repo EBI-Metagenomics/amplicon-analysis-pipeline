@@ -13,7 +13,7 @@
           "cmsearchtbloutdeoverlap": {
             "branch": "main",
             "git_sha": "2a57f028ca4c969608800ab3c9478c7248720756",
-            "installed_by": ["modules"]
+            "installed_by": ["detect_rna"]
           },
           "convertcmscantocmsearch": {
             "branch": "main",

@@ -30,14 +30,14 @@
                         "single_end": false
                     },
                     [
-                        "test_1_reformated.fastq.gz:md5,f17017afc5027ae04d55ce8138e67e6d",
-                        "test_2_reformated.fastq.gz:md5,f224591861b3b8a39e9232dea0caa20a"
+                        "test_1_reformated.fastq.gz:md5,73514700b22fc22e430a562e59988eeb",
+                        "test_2_reformated.fastq.gz:md5,44bd1d9bcd8c8c44c17199bed0d78942"
                     ]
                 ]
             ],
             null
         ],
-        "timestamp": "2026-04-23T12:57:01.097558",
+        "timestamp": "2026-04-22T14:38:24.838777",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

@@ -27,7 +27,6 @@ nextflow_process {
                 ]
                 input[1] = false
                 input[2] = "fastq.gz"
-                input[3] = false
                 """
             }
         }
@@ -41,9 +40,11 @@ nextflow_process {
             assertAll(
                 { assert process.success },
                 { assert snapshot(process.out.reformated, process.out.versions_bbmap_reformat_standardise).match() },
-                // trimreaddescription=t removes the original description; spaceslash=t reintroduces a single space before /1 or /2
-                { assert r1_hdrs.every { it ==~ /@ERR4334351\.\d+ \/1/ } },
-                { assert r2_hdrs.every { it ==~ /@ERR4334351\.\d+ \/2/ } }
+                // trimreaddescription=t removes everything after first whitespace; addslash appends /1 or /2
+                { assert r1_hdrs.every { it ==~ /@ERR4334351\.\d+\/1/ } },
+                { assert r2_hdrs.every { it ==~ /@ERR4334351\.\d+\/2/ } },
+                // no spaces survive in any header
+                { assert (r1_hdrs + r2_hdrs).every { !it.contains(" ") } }
             )
         }
     }
@@ -65,7 +66,6 @@ nextflow_process {
                 ]
                 input[1] = false
                 input[2] = "fastq.gz"
-                input[3] = false
                 """
             }
         }
@@ -100,7 +100,6 @@ nextflow_process {
                 ]
                 input[1] = false
                 input[2] = "fastq.gz"
-                input[3] = false
                 """
             }
         }
@@ -116,10 +115,12 @@ nextflow_process {
                 // all 4 reads from each file are preserved — no filtering with positional matching
                 { assert r1_lines.size() == 16 },
                 { assert r2_lines.size() == 16 },
-                // R1 retains its original order; spaceslash=t leaves a space before /1
-                { assert r1_hdrs == ["@READ.1 /1", "@READ.2 /1", "@READ.3 /1", "@READ.4 /1"] },
-                // R2 retains ITS original order (3,4,1,2); spaceslash=t leaves a space before /2
-                { assert r2_hdrs == ["@READ.3 /2", "@READ.4 /2", "@READ.1 /2", "@READ.2 /2"] }
+                // R1 retains its original order; headers trimmed and /1 appended
+                { assert r1_hdrs == ["@READ.1/1", "@READ.2/1", "@READ.3/1", "@READ.4/1"] },
+                // R2 retains ITS original order (3,4,1,2); headers trimmed and /2 appended
+                { assert r2_hdrs == ["@READ.3/2", "@READ.4/2", "@READ.1/2", "@READ.2/2"] },
+                // no spaces in any header
+                { assert (r1_hdrs + r2_hdrs).every { !it.contains(" ") } }
             )
         }
     }
@@ -146,7 +147,6 @@ nextflow_process {
                 ]
                 input[1] = false
                 input[2] = "fastq.gz"
-                input[3] = false
                 """
             }
         }
@@ -164,86 +164,12 @@ nextflow_process {
                 // PAIR.2 R2 (5 bp) is filtered; only PAIR.1 and PAIR.3 pairs appear in main output
                 { assert r1_lines.size() == 8 },
                 { assert r2_lines.size() == 8 },
-                { assert r1_hdrs == ["@PAIR.1 /1", "@PAIR.3 /1"] },
-                { assert r2_hdrs == ["@PAIR.1 /2", "@PAIR.3 /2"] },
+                { assert r1_hdrs == ["@PAIR.1/1", "@PAIR.3/1"] },
+                { assert r2_hdrs == ["@PAIR.1/2", "@PAIR.3/2"] },
                 // PAIR.2's surviving R1 mate goes to the singleton output
                 { assert sing_lines.size() == 4 },
-                { assert sing_hdrs == ["@PAIR.2"] }
-            )
-        }
-    }
-
-    test("paired-end fastq - dot suffix normalisation") {
-
-        config "./nextflow.config"
-
-        when {
-            process {
-                """
-                input[0] = [
-                    [ id: 'test', single_end: false ],
-                    [
-                        file("${moduleDir}/tests/data/test-reads/ERR4334351_test_1.fastq.gz", checkIfExists: true),
-                        file("${moduleDir}/tests/data/test-reads/ERR4334351_test_2.fastq.gz", checkIfExists: true)
-                    ]
-                ]
-                input[1] = false
-                input[2] = "fastq.gz"
-                input[3] = true
-                """
-            }
-        }
-
-        then {
-            def hdrs = { lines -> (0..<(lines.size().intdiv(4))).collect { lines[it * 4] } }
-            def r1_hdrs = hdrs(path(process.out.reformated[0][1][0]).linesGzip)
-            def r2_hdrs = hdrs(path(process.out.reformated[0][1][1]).linesGzip)
-            assertAll(
-                { assert process.success },
-                { assert r1_hdrs.every { it ==~ /@ERR4334351\.\d+\.1/ } },
-                { assert r2_hdrs.every { it ==~ /@ERR4334351\.\d+\.2/ } },
-                { assert (r1_hdrs + r2_hdrs).every { !it.contains(" ") } }
-            )
-        }
-    }
-
-    test("paired-end fastq - short mate singleton with dot suffix normalisation") {
-
-        config "./nextflow_singleton.config"
-
-        when {
-            process {
-                """
-                input[0] = [
-                    [ id: 'test', single_end: false ],
-                    [
-                        file("${moduleDir}/tests/data/short_mate/short_mate_R1.fastq.gz", checkIfExists: true),
-                        file("${moduleDir}/tests/data/short_mate/short_mate_R2.fastq.gz", checkIfExists: true)
-                    ]
-                ]
-                input[1] = false
-                input[2] = "fastq.gz"
-                input[3] = true
-                """
-            }
-        }
-
-        then {
-            def hdrs       = { lines -> (0..<(lines.size().intdiv(4))).collect { lines[it * 4] } }
-            def r1_lines   = path(process.out.reformated[0][1][0]).linesGzip
-            def r2_lines   = path(process.out.reformated[0][1][1]).linesGzip
-            def sing_lines = path(process.out.singleton[0][1]).linesGzip
-            def r1_hdrs    = hdrs(r1_lines)
-            def r2_hdrs    = hdrs(r2_lines)
-            def sing_hdrs  = hdrs(sing_lines)
-            assertAll(
-                { assert process.success },
-                { assert r1_lines.size() == 8 },
-                { assert r2_lines.size() == 8 },
-                { assert r1_hdrs == ["@PAIR.1.1", "@PAIR.3.1"] },
-                { assert r2_hdrs == ["@PAIR.1.2", "@PAIR.3.2"] },
-                { assert sing_lines.size() == 4 },
                 { assert sing_hdrs == ["@PAIR.2"] },
+                // no spaces in any header
                 { assert (r1_hdrs + r2_hdrs + sing_hdrs).every { !it.contains(" ") } }
             )
         }
