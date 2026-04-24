@@ -1,0 +1,177 @@
+nextflow_process {
+
+    name "Test Process BBMAP_REFORMAT_STANDARDISE"
+    script "../main.nf"
+    process "BBMAP_REFORMAT_STANDARDISE"
+
+    tag "modules"
+    tag "modules_ebi_metagenomics"
+    tag "bbmap"
+    tag "bbmap/reformat_standardise"
+
+    // ── standard paired-end ───────────────────────────────────────────────────
+
+    test("paired-end fastq") {
+
+        config "./nextflow.config"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'test', single_end: false ],
+                    [
+                        file("${moduleDir}/tests/data/test-reads/ERR4334351_test_1.fastq.gz", checkIfExists: true),
+                        file("${moduleDir}/tests/data/test-reads/ERR4334351_test_2.fastq.gz", checkIfExists: true)
+                    ]
+                ]
+                input[1] = false
+                input[2] = "fastq.gz"
+                """
+            }
+        }
+
+        then {
+            // Extract headers by position: line 0, 4, 8, … in the FASTQ.
+            // Cannot use startsWith("@") — Phred+33 quality scores can contain '@'.
+            def hdrs = { lines -> (0..<(lines.size().intdiv(4))).collect { lines[it * 4] } }
+            def r1_hdrs = hdrs(path(process.out.reformated[0][1][0]).linesGzip)
+            def r2_hdrs = hdrs(path(process.out.reformated[0][1][1]).linesGzip)
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.reformated, process.out.versions_bbmap_reformat_standardise).match() },
+                // trimreaddescription=t removes everything after first whitespace; addslash appends /1 or /2
+                { assert r1_hdrs.every { it ==~ /@ERR4334351\.\d+\/1/ } },
+                { assert r2_hdrs.every { it ==~ /@ERR4334351\.\d+\/2/ } },
+                // no spaces survive in any header
+                { assert (r1_hdrs + r2_hdrs).every { !it.contains(" ") } }
+            )
+        }
+    }
+
+    test("paired-end fastq - stub") {
+
+        config "./nextflow.config"
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'test', single_end: false ],
+                    [
+                        file("${moduleDir}/tests/data/test-reads/ERR4334351_test_1.fastq.gz", checkIfExists: true),
+                        file("${moduleDir}/tests/data/test-reads/ERR4334351_test_2.fastq.gz", checkIfExists: true)
+                    ]
+                ]
+                input[1] = false
+                input[2] = "fastq.gz"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.reformated, process.out.versions_bbmap_reformat_standardise).match() }
+            )
+        }
+    }
+
+    // ── wrong-order R2 (positional matching, verifypaired=f) ─────────────────
+    // R1 order: READ.1, READ.2, READ.3, READ.4
+    // R2 order: READ.3, READ.4, READ.1, READ.2  (shifted by two)
+    // Expected: all 8 reads preserved in their respective file orders;
+    //           no singletons produced; all headers trimmed.
+
+    test("paired-end fastq - wrong order") {
+
+        config "./nextflow.config"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'test', single_end: false ],
+                    [
+                        file("${moduleDir}/tests/data/wrong_order/wrong_order_R1.fastq.gz", checkIfExists: true),
+                        file("${moduleDir}/tests/data/wrong_order/wrong_order_R2.fastq.gz", checkIfExists: true)
+                    ]
+                ]
+                input[1] = false
+                input[2] = "fastq.gz"
+                """
+            }
+        }
+
+        then {
+            def hdrs     = { lines -> (0..<(lines.size().intdiv(4))).collect { lines[it * 4] } }
+            def r1_lines = path(process.out.reformated[0][1][0]).linesGzip
+            def r2_lines = path(process.out.reformated[0][1][1]).linesGzip
+            def r1_hdrs  = hdrs(r1_lines)
+            def r2_hdrs  = hdrs(r2_lines)
+            assertAll(
+                { assert process.success },
+                // all 4 reads from each file are preserved — no filtering with positional matching
+                { assert r1_lines.size() == 16 },
+                { assert r2_lines.size() == 16 },
+                // R1 retains its original order; headers trimmed and /1 appended
+                { assert r1_hdrs == ["@READ.1/1", "@READ.2/1", "@READ.3/1", "@READ.4/1"] },
+                // R2 retains ITS original order (3,4,1,2); headers trimmed and /2 appended
+                { assert r2_hdrs == ["@READ.3/2", "@READ.4/2", "@READ.1/2", "@READ.2/2"] },
+                // no spaces in any header
+                { assert (r1_hdrs + r2_hdrs).every { !it.contains(" ") } }
+            )
+        }
+    }
+
+    // ── short mate → singleton ────────────────────────────────────────────────
+    // PAIR.2 R2 is 5 bp, below minlength=20, so it is discarded.
+    // Its surviving R1 mate (PAIR.2/1) goes to the singleton output (outs=).
+    // PAIR.1 and PAIR.3 are fully paired and appear in the main outputs.
+    // addslash is not applied to singleton reads, so the singleton has no /1 suffix.
+
+    test("paired-end fastq - short mate singleton") {
+
+        config "./nextflow_singleton.config"
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id: 'test', single_end: false ],
+                    [
+                        file("${moduleDir}/tests/data/short_mate/short_mate_R1.fastq.gz", checkIfExists: true),
+                        file("${moduleDir}/tests/data/short_mate/short_mate_R2.fastq.gz", checkIfExists: true)
+                    ]
+                ]
+                input[1] = false
+                input[2] = "fastq.gz"
+                """
+            }
+        }
+
+        then {
+            def hdrs       = { lines -> (0..<(lines.size().intdiv(4))).collect { lines[it * 4] } }
+            def r1_lines   = path(process.out.reformated[0][1][0]).linesGzip
+            def r2_lines   = path(process.out.reformated[0][1][1]).linesGzip
+            def sing_lines = path(process.out.singleton[0][1]).linesGzip
+            def r1_hdrs    = hdrs(r1_lines)
+            def r2_hdrs    = hdrs(r2_lines)
+            def sing_hdrs  = hdrs(sing_lines)
+            assertAll(
+                { assert process.success },
+                // PAIR.2 R2 (5 bp) is filtered; only PAIR.1 and PAIR.3 pairs appear in main output
+                { assert r1_lines.size() == 8 },
+                { assert r2_lines.size() == 8 },
+                { assert r1_hdrs == ["@PAIR.1/1", "@PAIR.3/1"] },
+                { assert r2_hdrs == ["@PAIR.1/2", "@PAIR.3/2"] },
+                // PAIR.2's surviving R1 mate goes to the singleton output
+                { assert sing_lines.size() == 4 },
+                { assert sing_hdrs == ["@PAIR.2"] },
+                // no spaces in any header
+                { assert (r1_hdrs + r2_hdrs + sing_hdrs).every { !it.contains(" ") } }
+            )
+        }
+    }
+}

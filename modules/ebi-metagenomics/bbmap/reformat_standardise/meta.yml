@@ -1,0 +1,69 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "bbmap_reformat_standardise"
+description: "De-interleave interleaved paired-end reads and standardize FASTQ format using BBMap's reformat.sh tool."
+keywords:
+  - reformat
+  - interleave
+  - paired-end
+  - fastq
+  - standardise
+tools:
+  - "bbmap":
+      description: "BBMap is a fast and memory-efficient aligner and toolkit for various bioinformatics operations, including read reformatting and validation."
+      homepage: "https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide"
+      documentation: "https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide"
+      tool_dev_url: "https://sourceforge.net/projects/bbmap"
+      doi: ""
+      licence: ["https://github.com/bbushnell/BBTools/blob/master/license.txt"]
+      identifier: null
+
+input:
+  - meta:
+      type: map
+      description: Metadata dictionary containing sample identifier, single_end flag, and interleaved flag
+      pattern: "id|single_end|interleaved"
+  - reads:
+      type: file
+      description: "Input FASTQ file(s). Can be single-end or paired-end (as list). Paired-end reads can be interleaved (single file) or de-interleaved (two files)."
+      pattern: "*.{fastq,fq,fastq.gz,fq.gz}"
+      ontologies:
+        - edam: http://edamontology.org/format_1930 # FASTQ
+  - out_fmt:
+      type: string
+      description: "Output file format (e.g., 'fastq.gz', 'fasta.gz')"
+      pattern: "^\\w+(\\.\\w+)*$"
+
+output:
+  - meta:
+      type: map
+      description: Metadata passed through from input
+  - reformated:
+      type: file
+      description: "De-interleaved and standardized reads. For paired-end reads: *_1_reformated and *_2_reformated files. For single-end: *_reformated file."
+      pattern: "*_reformated.{fastq,fq,fastq.gz,fq.gz,fasta,fa,fasta.gz,fa.gz}"
+      ontologies:
+        - edam: http://edamontology.org/format_1930 # FASTQ
+        - edam: http://edamontology.org/format_1929 # FASTA
+  - singleton:
+      type: file
+      description: "Optional singleton reads from paired-end processing (reads where mate is missing). Only emitted for paired-end inputs."
+      pattern: "*_singleton.{fastq,fq,fastq.gz,fq.gz,fasta,fa,fasta.gz,fa.gz}"
+      optional: true
+      ontologies:
+        - edam: http://edamontology.org/format_1930 # FASTQ
+        - edam: http://edamontology.org/format_1929 # FASTA
+  - log:
+      type: file
+      description: "BBMap reformat.sh log file"
+      pattern: "*.log"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: versions.yml
+      ontologies:
+        - edam: http://edamontology.org/format_3750 # YAML
+
+authors:
+  - "@timrozday-mgnify"
+maintainers:
+  - "@timrozday-mgnify"

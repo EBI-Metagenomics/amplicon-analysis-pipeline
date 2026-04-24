@@ -1,0 +1,2 @@
+bbmap/reformat_standardise:
+  - "modules/ebi-metagenomics/bbmap/reformat_standardise/**"

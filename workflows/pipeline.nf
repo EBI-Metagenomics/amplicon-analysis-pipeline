@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { BBMAP_REFORMAT_STANDARDISE       } from '../modules/ebi-metagenomics/bbmap/reformat_standardise/main'
 include { READS_QC                         } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
 include { READS_QC as READS_QC_MERGE       } from '../subworkflows/ebi-metagenomics/reads_qc/main.nf'
 include { DETECT_RNA                       } from '../subworkflows/ebi-metagenomics/detect_rna/main'
@@ -104,15 +105,16 @@ workflow AMPLICON_PIPELINE {
     ch_versions = channel.empty()
 
     // Organise input tuple channel //
-    groupReads = { meta, fq1, fq2 ->
-        if (fq2 == []) {
+    def groupReads = { meta, fq1, fq2 ->
+        def single_file = (fq2 == [])
+        meta['interleaved'] = (!meta.single_end) && single_file
+        if (single_file) {
             return tuple(meta, [fq1])
         }
         else {
             return tuple(meta, [fq1, fq2])
         }
     }
-
     ch_input = samplesheet.map(groupReads)
 
     if (params.use_fire_download) {
@@ -127,7 +129,23 @@ workflow AMPLICON_PIPELINE {
         ch_versions = ch_versions.mix(DOWNLOAD_FROM_FIRE.out.versions.first())
         ch_input = DOWNLOAD_FROM_FIRE.out.downloaded_files
     }
-
+    
+    // Standardise headers and de-interleave as needed
+    if (!params.skip_standardise) {
+        standardise_input = ch_input.multiMap{
+            meta, reads ->
+            reads: [meta, reads]
+            interleaved: meta.interleaved
+        }
+        BBMAP_REFORMAT_STANDARDISE(
+            standardise_input.reads, 
+            standardise_input.interleaved, 
+            'fastq.gz'
+        )
+        ch_versions = ch_versions.mix(BBMAP_REFORMAT_STANDARDISE.out.versions)
+        ch_input = BBMAP_REFORMAT_STANDARDISE.out.reformated
+    }
+    
     // Sanity checking and quality control of reads //
     READS_QC_MERGE(
         true,       // check if amplicon
@@ -228,6 +246,7 @@ workflow AMPLICON_PIPELINE {
         }
 
     dada2_input = dada2_input_preparation_function(concat_input, READS_QC.out.reads, cutadapt_channel)
+    
     // Run DADA2 ASV generation //
     DADA2_SWF(
         dada2_input,
@@ -397,9 +416,14 @@ workflow AMPLICON_PIPELINE {
 
     multiqc_input = CONCAT_PRIMER_CUTADAPT.out.cutadapt_json
         .map{ meta, json ->
-            [['id':meta.id, 'single_end':meta.single_end], json]
+            [meta.subMap('id', 'single_end'), json]
         }
-        .join(READS_QC_MERGE.out.fastp_summary_json, remainder:true)
+        .join(
+            READS_QC_MERGE.out.fastp_summary_json.map { meta, json ->
+                [meta.subMap('id', 'single_end'), json]
+            },
+            remainder:true
+        )
         .join(DADA2_SWF.out.dada2_report.map{ meta, tsv ->
             [['id':meta.id, 'single_end':meta.single_end], tsv]}, remainder:true)
         .map{ meta, cutadapt, fastp, dada2 ->

@@ -1,0 +1,45 @@
+
+nextflow_process {
+
+    name "Test Process MAPSEQ"
+    script "../main.nf"
+    process "MAPSEQ"
+    config "./nextflow.config"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "modules_ebimetagenomics"
+    tag "mapseq"
+
+    test("silva ssu [fasta]") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false ],
+                    file("${baseDir}/subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/subunit_silva_SSU.fasta", checkIfExists: true)
+                ]
+                input[1] = [
+                    file("${baseDir}/subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta",           checkIfExists: true),
+                    file("${baseDir}/subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_filtered2.txt",           checkIfExists: true),
+                    file("${baseDir}/subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta.mscluster", checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        then {
+            // MAPseq is not fully deterministic so we check content rather than md5
+            assertAll(
+                { assert process.success },
+                { assert process.out.mseq.size() == 1 },
+                { assert path(process.out.mseq[0][1]).readLines()[0].startsWith("#query") },
+                { assert path(process.out.mseq[0][1]).readLines()[1].contains("AF350223.1.1756") },
+                { assert snapshot(
+                    process.out.findAll { key, val -> key.startsWith("versions") }
+                ).match() }
+            )
+        }
+    }
+}

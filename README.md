@@ -1,6 +1,6 @@
 # MGnify amplicon analysis pipeline
 
-This repository contains the v6.0 [MGnify](https://www.ebi.ac.uk/metagenomics) amplicon analysis pipeline. It is, first and foremost, a refactor of the existing [v5.0 amplicon analysis pipeline](https://github.com/EBI-Metagenomics/pipeline-v5), replacing CWL with [Nextflow](https://www.nextflow.io/) as its workflow management system. This pipeline re-implements all [existing closed-reference v5.0 features](https://docs.mgnify.org/src/docs/analysis.html#amplicon-analysis-pipeline), and makes multiple significant changes and additions.
+This repository contains the 1111 [MGnify](https://www.ebi.ac.uk/metagenomics) amplicon analysis pipeline. It is, first and foremost, a refactor of the existing [v5.0 amplicon analysis pipeline](https://github.com/EBI-Metagenomics/pipeline-v5), replacing CWL with [Nextflow](https://www.nextflow.io/) as its workflow management system. This pipeline re-implements all [existing closed-reference v5.0 features](https://docs.mgnify.org/src/docs/analysis.html#amplicon-analysis-pipeline), and makes multiple significant changes and additions.
 
 ![V6 Schema](assets/v6_amplicon_schema.png)
 
@@ -8,13 +8,13 @@ This repository contains the v6.0 [MGnify](https://www.ebi.ac.uk/metagenomics) a
 
 ### Features
 
-The amplicon analysis pipeline v6.0 re-implements all of the existing features from v5.0:
+The amplicon analysis pipeline v6.1 re-implements all of the existing features from v5.0:
 
 - Reads quality control
 - rRNA sequence extraction using [Infernal/cmsearch](https://github.com/EddyRivasLab/infernal/tree/master)
 - Closed-reference-based taxonomic classification and visualiation of rRNA using [MAPseq](https://github.com/meringlab/MAPseq) and [Krona](https://github.com/marbl/Krona)
 
-The amplicon analysis pipeline v6.0 also contains multiple significant changes:
+The amplicon analysis pipeline v6.1 also contains multiple significant changes:
 
 - Refactoring from CWL to [Nextflow](https://www.nextflow.io/) for pipeline definition
 - Simplification of reads quality control using [fastp](https://github.com/OpenGene/fastp)
@@ -40,6 +40,7 @@ At this stage, the only sequence amplicons that this pipeline is built for are:
 
 | Tool                                                                                            | Version | Purpose                                                |
 | ----------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------ |
+| [bbmap](https://sourceforge.net/projects/bbmap)                                                 | 39.18   | Standardise reads FASTQ files                          |
 | [fastp](https://github.com/OpenGene/fastp)                                                      | 1.0.1   | Read quality control                                   |
 | [SeqFu](https://github.com/telatin/seqfu2)                                                      | 1.20.3  | FASTQ sanity checking                                  |
 | [seqtk](https://github.com/lh3/seqtk)                                                           | 1.4     | FASTQ file manipulation                                |
