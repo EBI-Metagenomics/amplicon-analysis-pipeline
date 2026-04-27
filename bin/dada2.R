@@ -296,26 +296,26 @@ output_report_df <- data.frame(
   names = c(
     "initial_read_count",
     "filtered_trimmed_read_count",
+    "truncation_point_forward",
+    "truncation_point_reverse",
     "dereplicated_read_count",
     "merged_read_count",
-    "with_asv_read_count",
-    "proportion_reads_matched",
-    "proportion_reads_chimeric",
     "final_read_count",
-    "truncation_point_forward",
-    "truncation_point_reverse"
+    "reads_with_asv_read_count",
+    "proportion_reads_matched",
+    "proportion_reads_chimeric"
   ),
   values = c(
     f_reads_count,
     f_trimmed_reads_count,
+    report_where_to_cut_f,
+    report_where_to_cut_r,
     drp_reads_count,
     merged_read_count,
+    total_dada2_reads,
     length(f_map_out),
     final_matched_perc,
-    proportion_chimeric,
-    total_dada2_reads,
-    report_where_to_cut_f,
-    report_where_to_cut_r
+    proportion_chimeric
   )
 )
 write.table(output_report_df, file=paste0("./", prefix, "_dada2_stats.tsv"),
