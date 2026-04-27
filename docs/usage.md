@@ -67,15 +67,6 @@ nextflow run ebi-metagenomics/amplicon-analysis-pipeline \
     -params-file params.yaml
 ```
 
-> [!WARNING]
-> Do not use `-c <file>` to specify pipeline parameters. Use `-params-file` for parameters and `-c` only for Nextflow configuration.
-
-```yaml title="params.yaml"
-input: './samplesheet.csv'
-outdir: './results/'
-<...>
-```
-
 ## Reproducibility
 
 It is a good idea to pin the pipeline version when running analysis on important data. Use `-r` with a release tag so Nextflow runs a fixed version of the pipeline code.
@@ -90,26 +81,26 @@ You can refresh the locally cached pipeline code with:
 nextflow pull ebi-metagenomics/amplicon-analysis-pipeline
 ```
 
-## Core Nextflow Arguments
+### Core Nextflow Arguments
 
 > [!NOTE]
 > These options are part of Nextflow and use a single hyphen. Pipeline parameters use `--`.
 
-### `-profile`
+#### `-profile`
 
 Use `-profile` to choose a configuration profile for your environment. Common examples include `docker`, `singularity`, `podman`, and `apptainer`. Profiles can be combined, for example `-profile test,docker`.
 
 If `-profile` is omitted, Nextflow will run locally and expect dependencies on the `PATH`, which is not recommended.
 
-### `-resume`
+#### `-resume`
 
 Use `-resume` to continue a previous run from cached results when the inputs have not changed.
 
-### `-c`
+#### `-c`
 
 Use `-c` to load a Nextflow config file when you need to tune execution settings such as resource requests or module arguments.
 
-## Pipeline-Specific Configuration
+### Pipeline-Specific Configuration
 
 Some pipeline behavior is controlled through configuration rather than the command line:
 

@@ -29,7 +29,6 @@ The `qc` directory contains output files related to the quality control steps of
     ├── ERR4334351.merged.fastq.gz
     ├── ERR4334351_dada2_errors.txt
     ├── ERR4334351_dada2_stats.tsv
-    ├── ERR4334351_dada2_truncation_points.tsv
     ├── ERR4334351_multiqc_report.html
     ├── ERR4334351_seqfu.tsv
     └── ERR4334351_suffix_header_err.json
@@ -46,8 +45,10 @@ The `qc` directory contains output files related to the quality control steps of
 - **ERR4334351.merged.fastq.gz**: This compressed `fastq` file contains the cleaned and merged reads from the `fastp` run. _Note: if the run is single-end, this file won't exist._
 - **ERR1718805.fastp.fastq.gz**: This compressed `fastq` file contains the cleaned reads from the `fastp` run. This file can be seen as the equivalent of the previous merged file for single-end runs.
 - **ERR4334351_dada2_errors.txt**: This `txt` file contains the DADA2 error log, generated if the process fails. This can be used to help diagnose issues with your data (e.g. lack of valid ASV sequences) and causes of failure in the script. _Note: if the process succeeded, this file won't exist._
-- **ERR4334351_dada2_stats.tsv**: This `tsv` file contains ASV-specific QC stats, such as the proportion of reads that were removed after filtering out chimeric ASVs. This `tsv` file is also used later by `MultiQC` to generate its report files.
-- **ERR4334351_dada2_truncation_points.tsv**: This `tsv` file contains the DADA2 truncation points for forward and reverse paired-ends (if appropriate), extracted from the output log.
+- **ERR4334351_dada2_stats.tsv**: This `tsv` file is used by `MultiQC` to generate its report files. It provides multiple data points to help determine the reliability of the analysis (usually limited by the quality of input data), in particular:
+    - _read counts_ are reported at multiple stages, in particular after the filter, trim, de-replication, merge, and ASV computation steps. We recommend reconsidering the reliability of this analysis if less than 90% of the initial reads contain ASV sequences, as these spurious results may indicate low quality input raw reads.
+    - _truncation points_ for forward and reverse paired-ends (if appropriate). DADA2 truncates all reads to the same length to keep error modeling consistent across positions and ensure sequences are directly comparable during variant inference. This avoids biases from variable read quality and prevents shorter reads from being misinterpreted as biological variants rather than sequencing artifacts. A detected truncation point too far ahead in the read may explain a lack of ASVs in the analysis. 
+    - _chimeric reads_ are likely artifacts that do not mirror real biological sequences. We recommend reconsidering the reliability of this analysis if dada2_stats reports more than 25% of chimeric reads.
 - **ERR4334351_multiqc_report.html**: This `html` file contains the `MultiQC` report for that run. It will combine outputs from three different tools into the report; `fastp`, `cutadapt`, and `DADA2`.
 - **ERR4334351_seqfu.tsv**: This `tsv` file contains the output from the sanity checking performed by `SeqFu`. `SeqFu` makes a few checks of whether the given fastq files are correctly structured, and if this QC step fails, the contents of this file will indicate the reasons why. The contents of the tsv file are described in [seqfu's documentation](https://telatin.github.io/seqfu2/tools/check.html#output).
 - **ERR4334351_suffix_header_err.json**: This `json` file contains the output from the sanity checking performed on the suffixes and headers of fastq files. It is expected that the fastq files ending with the suffix `_1` should contain the `/1` tag in the headers inside the file, and vice versa for the suffix `_2` and tag `/2`. _Note: if the run is single-end, the header check should be to have no suffix, but still contain the `/1` tag as is standard._
@@ -164,7 +165,6 @@ The subdirectories are dynamic based on the inferred amplified region. As the pi
 - **ERR4334351_asv_seqs.fasta**: This `fasta` file contains the sequences of the ASVs found by `DADA2`.
 - **ERR4334351_DADA2-SILVA_asv_tax.tsv**: This `tsv` file contains the assigned taxonomy of every ASV, performed by `MAPseq`, using the SILVA reference database.
 - **ERR4334351_DADA2-PR2_asv_tax.tsv**: This `tsv` file contains the assigned taxonomy of every ASV, performed by `MAPseq`, using the PR2 reference database.
-- **ERR4334351_dada2_stats.tsv**: This `tsv` file contains some ASV-specific QC stats, such as the proportion of reads that were removed after filtering out chimeric ASVs. This `tsv` file is also used later by `MultiQC` to generate its report files.
 - **16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv**: This `tsv` file contains the read counts for each ASV, and is specific to the inferred amplified region. As described previously, the naming of this output is dynamic based on the amount and identity of the inferred amplified region(s).
 
 ### taxonomy-summary
