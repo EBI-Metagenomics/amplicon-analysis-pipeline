@@ -67,7 +67,7 @@ nextflow run ebi-metagenomics/amplicon-analysis-pipeline \
     -params-file params.yaml
 ```
 
-## Reproducibility
+### Reproducibility
 
 It is a good idea to pin the pipeline version when running analysis on important data. Use `-r` with a release tag so Nextflow runs a fixed version of the pipeline code.
 
