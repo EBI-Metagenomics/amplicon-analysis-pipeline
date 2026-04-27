@@ -143,7 +143,6 @@ Example output directory structure for one run (`ERR4334351`):
 │   │   ├── ERR4334351_asv_seqs.fasta
 │   │   ├── ERR4334351_DADA2-PR2_asv_tax.tsv
 │   │   ├── ERR4334351_DADA2-SILVA_asv_tax.tsv
-│   │   └── ERR4334351_dada2_stats.tsv
 │   ├── primer-identification
 │   │   ├── ERR4334351.cutadapt.json
 │   │   ├── fwd_primers.fasta
@@ -153,6 +152,7 @@ Example output directory structure for one run (`ERR4334351`):
 │   │   ├── ERR4334351.fastp.json
 │   │   ├── ERR4334351.merged.fastq.gz
 │   │   ├── ERR4334351_dada2_errors.txt
+│   │   ├── ERR4334351_dada2_stats.tsv
 │   │   ├── ERR4334351_multiqc_report.html
 │   │   ├── ERR4334351_seqfu.tsv
 │   │   └── ERR4334351_suffix_header_err.json
@@ -193,7 +193,7 @@ Example output directory structure for one run (`ERR4334351`):
 └── primer_validation_summary.json
 ```
 
-For a more detailed description of the different output files, see the [OUTPUTS_DESCRIPTION.md](https://github.com/EBI-Metagenomics/amplicon-pipeline/blob/main/OUTPUTS_DESCRIPTION.md) file.
+For a more detailed description of the different output files, see the [Output](docs/output.md) file.
 
 ### DADA2 merge mode
 
