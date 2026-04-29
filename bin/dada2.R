@@ -121,6 +121,8 @@ tryCatch(
   }
 )
 
+forward_denoised_sequence_variant_count = length(getSequences(dada_f))
+reverse_denoised_sequence_variant_count = if (is_paired) length(getSequences(dada_r)) else NA
 # ---- Mode-specific blocks: each sets a common set of output variables ----
 #
 # Common variables produced by both blocks:
