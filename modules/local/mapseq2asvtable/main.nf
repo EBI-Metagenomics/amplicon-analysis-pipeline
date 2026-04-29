@@ -7,7 +7,7 @@ process MAPSEQ2ASVTABLE {
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"
 
     input:
-    tuple val(meta), path(mapseq_out), val(db_label)
+    tuple val(meta), path(mapseq_out), val(tax_ranks)
 
     output:
     tuple val(meta), path("*.tsv"), emit: asvtaxtable
@@ -15,7 +15,7 @@ process MAPSEQ2ASVTABLE {
 
     script:
     """
-    mapseq_to_asv_table -i $mapseq_out -l $db_label -s ${meta.id}
+    mapseq_to_asv_table -i $mapseq_out -l $tax_ranks -s ${meta.id}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -109,6 +109,7 @@ The structure is as follows:
     - `run_asv`: true/false for whether this database is used to run ASV analysis
     - `label`: label to be used for naming OTU analysis outputs
     - `asv_label`: label to be used for naming ASV analysis outputs (Required only if `run_asv = true`)
+    - `tax_ranks`: taxonomy rank mode to use for ASV MAPseq output (`DADA2-SILVA` or `DADA2-PR2`; required only if `run_asv = true`)
 
 Examples can be found in `conf/test_dbs.config`.
 
