@@ -126,15 +126,16 @@ reverse_denoised_sequence_variant_count = if (is_paired) length(getSequences(dad
 # ---- Mode-specific blocks: each sets a common set of output variables ----
 #
 # Common variables produced by both blocks:
-#   merged_read_count  — unique ASVs before chimera removal (or combined strand total for separate)
-#   seqtab_out         — final nochim sequence table
-#   asv_ids            — ASV names for FASTA (seq_N, or seq_f_N / seq_r_N for separate)
-#   asv_seqs           — getUniques() subsetted to kept ASVs, for FASTA
-#   f_map_out          — per-read ASV index list, for _1_map.txt / _map.txt
-#   r_map_out          — per-read ASV index list for _2_map.txt; NULL for SE
-#   total_dada2_reads  — sum of reads in seqtab_out
-#   proportion_chimeric
-#   final_matched_perc — fraction of reads tracked to an ASV; NA for separate mode
+#   merged_sequence_variant_count - unique merged ASVs before chimera removal; NA for separate mode
+#   merged_read_pair_count        - read pairs supporting accepted merged ASVs; NA for separate mode
+#   seqtab_out                    - final nochim sequence table
+#   asv_ids                       - ASV names for FASTA (seq_N, or seq_f_N / seq_r_N for separate)
+#   asv_seqs                      - getUniques() subsetted to kept ASVs, for FASTA
+#   f_map_out                     - per-read ASV index list, for _1_map.txt / _map.txt
+#   r_map_out                     - per-read ASV index list for _2_map.txt; NULL for SE
+#   total_dada2_reads             - sum of reads in seqtab_out
+#   proportion_chimeric           - proportion of chimeric reads
+#   final_matched_perc            - fraction of reads tracked to an ASV; NA for separate mode
 
 if (merge_mode == "separate") {
 
@@ -191,10 +192,13 @@ if (merge_mode == "separate") {
   r_map_out = lapply(out_r$asv_map, function(x) { v = x[1]; if (!is.na(v) && v > 0) v + n_f_asvs else v })
 
   total_dada2_reads   = sum(out_f$seqtab_nc) + sum(out_r$seqtab_nc)
+  final_nonchimeric_sequence_variant_count = ncol(seqtab_out)
   prop_chim_f         = 1 - sum(out_f$seqtab_nc) / sum(out_f$seqtab)
   prop_chim_r         = 1 - sum(out_r$seqtab_nc) / sum(out_r$seqtab)
   proportion_chimeric = (prop_chim_f + prop_chim_r) / 2
   final_matched_perc  = NA
+  merged_sequence_variant_count = NA
+  merged_read_pair_count = NA
 
 } else {
 
@@ -212,9 +216,10 @@ if (merge_mode == "separate") {
       quit()
     }
   )
-
-  merged_read_count = length(merged$sequence)
-  if (merged_read_count == 0){
+  
+  merged_sequence_variant_count = length(merged$sequence)
+  merged_read_pair_count = if (is_paired) sum(merged$abundance) else NA
+  if (merged_sequence_variant_count == 0){
     message("Caught an error - No ASVs - stopping script early.")
     quit()
   }
@@ -271,6 +276,7 @@ if (merge_mode == "separate") {
   total_dada2_reads   = sum(seqtab_out)
   proportion_chimeric = 1 - total_dada2_reads / sum(seqtab)
   final_matched_perc  = (length(final_f_map) - unmatched_count) / total_dada2_reads
+  final_nonchimeric_sequence_variant_count = NA
 
 }
 
@@ -301,8 +307,12 @@ output_report_df <- data.frame(
     "truncation_point_forward",
     "truncation_point_reverse",
     "dereplicated_read_count",
-    "merged_read_count",
-    "final_read_count",
+    "forward_denoised_sequence_variant_count",
+    "reverse_denoised_sequence_variant_count",
+    "merged_sequence_variant_count",
+    "merged_read_pair_count",
+    "final_nonchimeric_sequence_variant_count",
+    "final_nonchimeric_read_count",
     "reads_with_asv_read_count",
     "proportion_reads_matched",
     "proportion_reads_chimeric"
@@ -313,7 +323,11 @@ output_report_df <- data.frame(
     report_where_to_cut_f,
     report_where_to_cut_r,
     drp_reads_count,
-    merged_read_count,
+    forward_denoised_sequence_variant_count,
+    reverse_denoised_sequence_variant_count,
+    merged_sequence_variant_count,
+    merged_read_pair_count,
+    final_nonchimeric_sequence_variant_count,
     total_dada2_reads,
     length(f_map_out),
     final_matched_perc,

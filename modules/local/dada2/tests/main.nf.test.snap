@@ -7,11 +7,11 @@
                         "id": "test_gap",
                         "single_end": false
                     },
-                    "test_gap_dada2_stats.tsv:md5,7347d784cb183c586cfbe8f56e649f5a"
+                    "test_gap_dada2_stats.tsv:md5,83769b3a198be9366c6dcb3e7038b858"
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T10:00:49.025625465",
+        "timestamp": "2026-04-29T15:00:45.969445078",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -37,7 +37,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T10:00:48.979610975",
+        "timestamp": "2026-04-29T15:00:45.906707943",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -63,7 +63,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T10:01:18.051134681",
+        "timestamp": "2026-04-29T15:01:29.985011447",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -89,7 +89,7 @@
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T10:00:20.128425043",
+        "timestamp": "2026-04-29T15:00:04.845886381",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -103,11 +103,11 @@
                         "id": "test",
                         "single_end": false
                     },
-                    "test_dada2_stats.tsv:md5,faab1005a48e9b2469980d78c49b95e3"
+                    "test_dada2_stats.tsv:md5,fbb56fd2f33fa9cd79a7b7c169adec81"
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T10:00:20.161529109",
+        "timestamp": "2026-04-29T15:00:04.910369116",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -121,11 +121,11 @@
                         "id": "test_separate",
                         "single_end": false
                     },
-                    "test_separate_dada2_stats.tsv:md5,8d5178f74e50b78f2a86c29fc4203b34"
+                    "test_separate_dada2_stats.tsv:md5,80a858a237cf0ca292697ad555a394b7"
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T10:01:18.111378745",
+        "timestamp": "2026-04-29T15:01:30.088297377",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
