@@ -7,13 +7,13 @@
                         "id": "test_gap",
                         "single_end": false
                     },
-                    "test_gap_dada2_stats.tsv:md5,83769b3a198be9366c6dcb3e7038b858"
+                    "test_gap_dada2_stats.tsv:md5,2ed5cb01be442732e4f0ce9b273378cb"
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T15:00:45.969445078",
+        "timestamp": "2026-04-30T08:13:01.452131",
         "meta": {
-            "nf-test": "0.9.5",
+            "nf-test": "0.9.4",
             "nextflow": "25.10.4"
         }
     },
@@ -103,13 +103,13 @@
                         "id": "test",
                         "single_end": false
                     },
-                    "test_dada2_stats.tsv:md5,fbb56fd2f33fa9cd79a7b7c169adec81"
+                    "test_dada2_stats.tsv:md5,aefcfef42d7212c369376daf393a0dc3"
                 ]
             ]
         ],
-        "timestamp": "2026-04-29T15:00:04.910369116",
+        "timestamp": "2026-04-30T08:12:42.402233",
         "meta": {
-            "nf-test": "0.9.5",
+            "nf-test": "0.9.4",
             "nextflow": "25.10.4"
         }
     },

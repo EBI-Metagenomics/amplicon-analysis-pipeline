@@ -276,7 +276,7 @@ if (merge_mode == "separate") {
   total_dada2_reads   = sum(seqtab_out)
   proportion_chimeric = 1 - total_dada2_reads / sum(seqtab)
   final_matched_perc  = (length(final_f_map) - unmatched_count) / total_dada2_reads
-  final_nonchimeric_sequence_variant_count = NA
+  final_nonchimeric_sequence_variant_count = ncol(seqtab_out)
 
 }
 
