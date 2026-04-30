@@ -1,0 +1,35 @@
+nextflow_process {
+
+    name "Test Process MAPSEQ2ASVTABLE"
+    script "../main.nf"
+    process "MAPSEQ2ASVTABLE"
+    tag "modules"
+    tag "mapseq2asvtable"
+
+    test("mapseq2asvtable uses tax_ranks independently of asv_label") {
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [ id:'test', asv_label:'DADA2-CUSTOM' ],
+                    file('${projectDir}/modules/ebi-metagenomics/mapseq2biom/tests/test.mseq', checkIfExists: true),
+                    "DADA2-PR2"
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.asvtaxtable.get(0).get(0).asv_label == "DADA2-CUSTOM" },
+                { assert path(process.out.asvtaxtable.get(0).get(1)).getFileName().toString() == "test_DADA2-PR2_asv_taxa.tsv" },
+                { assert path(process.out.asvtaxtable.get(0).get(1)).text.contains("Domain") },
+                { assert path(process.out.asvtaxtable.get(0).get(1)).text.contains("Supergroup") }
+            )
+        }
+
+    }
+
+}

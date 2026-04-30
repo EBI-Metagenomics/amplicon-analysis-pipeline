@@ -1,6 +1,6 @@
 # MGnify amplicon analysis pipeline
 
-This repository contains the 1111 [MGnify](https://www.ebi.ac.uk/metagenomics) amplicon analysis pipeline. It is, first and foremost, a refactor of the existing [v5.0 amplicon analysis pipeline](https://github.com/EBI-Metagenomics/pipeline-v5), replacing CWL with [Nextflow](https://www.nextflow.io/) as its workflow management system. This pipeline re-implements all [existing closed-reference v5.0 features](https://docs.mgnify.org/src/docs/analysis.html#amplicon-analysis-pipeline), and makes multiple significant changes and additions.
+This repository contains the v6.1 [MGnify](https://www.ebi.ac.uk/metagenomics) amplicon analysis pipeline. It is, first and foremost, a refactor of the existing [v5.0 amplicon analysis pipeline](https://github.com/EBI-Metagenomics/pipeline-v5), replacing CWL with [Nextflow](https://www.nextflow.io/) as its workflow management system. This pipeline re-implements all [existing closed-reference v5.0 features](https://docs.mgnify.org/src/docs/analysis.html#amplicon-analysis-pipeline), and makes multiple significant changes and additions.
 
 ![V6 Schema](assets/v6_amplicon_schema.png)
 
@@ -109,6 +109,7 @@ The structure is as follows:
     - `run_asv`: true/false for whether this database is used to run ASV analysis
     - `label`: label to be used for naming OTU analysis outputs
     - `asv_label`: label to be used for naming ASV analysis outputs (Required only if `run_asv = true`)
+    - `tax_ranks`: taxonomy rank mode to use for ASV MAPseq output (`DADA2-SILVA` or `DADA2-PR2`; required only if `run_asv = true`)
 
 Examples can be found in `conf/test_dbs.config`.
 

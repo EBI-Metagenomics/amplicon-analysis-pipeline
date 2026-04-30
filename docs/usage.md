@@ -107,7 +107,7 @@ Some pipeline behavior is controlled through configuration rather than the comma
 - `params.mapseq_databases`
   - Database definitions used for taxonomy assignment.
   - Each entry should define `fasta`, `tax`, `otu`, `mscluster`, `run_otu`, `run_asv`, and `label`.
-  - If `run_asv` is `true`, the entry also needs `asv_label`.
+  - If `run_asv` is `true`, the entry also needs `asv_label` for output naming and `tax_ranks` for ASV taxonomy table formatting. `tax_ranks` must be `DADA2-SILVA` or `DADA2-PR2`.
 - `params.rrnas_rfam_covariance_model`
   - Path to the Rfam covariance model directory used for rRNA detection.
 - `params.rrnas_rfam_claninfo`

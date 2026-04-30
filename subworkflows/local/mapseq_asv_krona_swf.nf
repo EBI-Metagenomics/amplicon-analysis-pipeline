@@ -29,7 +29,7 @@ workflow MAPSEQ_ASV_KRONA {
             .map{ meta, maps, asv_seqs, _filt_reads -> [meta, [maps, asv_seqs]] }
             .combine(dbs_in)
             .map { asv_meta, asv_files, db_meta, db_files ->
-                def meta = asv_meta + ['db_id': db_meta.id, 'asv_label': db_meta.asv_label]
+                def meta = asv_meta + ['db_id': db_meta.id, 'asv_label': db_meta.asv_label, 'tax_ranks': db_meta.tax_ranks]
                 def (fasta, tax, _otu, mscluster, _label) = db_files
                 def (_maps, asv_seqs) = asv_files
                 return [meta.subMap('id', 'single_end', 'var_region', 'var_regions_size'), [meta, asv_seqs, fasta, tax, mscluster, meta.asv_label]]
@@ -55,7 +55,7 @@ workflow MAPSEQ_ASV_KRONA {
         ch_versions = ch_versions.mix(MAPSEQ.out.versions.first())
 
         mapseq2asvtable_in = MAPSEQ.out.mseq
-            .map { meta, mapseq_out -> [meta, mapseq_out, meta.asv_label] }
+            .map { meta, mapseq_out -> [meta, mapseq_out, meta.tax_ranks] }
         MAPSEQ2ASVTABLE(mapseq2asvtable_in)
         ch_versions = ch_versions.mix(MAPSEQ2ASVTABLE.out.versions.first())
 

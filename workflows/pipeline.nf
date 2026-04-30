@@ -72,7 +72,18 @@ workflow AMPLICON_PIPELINE {
         )
         .filter { it -> it }
         .map { meta, fields -> 
-            def asv_label = fields.run_asv ? ['asv_label': fields.asv_label] : []
+            if (fields.run_asv) {
+                if (!fields.containsKey('asv_label')) {
+                    throw new IllegalArgumentException("ASV database '${meta.id}' has run_asv=true but no asv_label")
+                }
+                if (!fields.containsKey('tax_ranks')) {
+                    throw new IllegalArgumentException("ASV database '${meta.id}' has run_asv=true but no tax_ranks")
+                }
+                if (!(fields.tax_ranks in ['DADA2-SILVA', 'DADA2-PR2'])) {
+                    throw new IllegalArgumentException("ASV database '${meta.id}' has unsupported tax_ranks '${fields.tax_ranks}'. Expected DADA2-SILVA or DADA2-PR2")
+                }
+            }
+            def asv_meta = fields.run_asv ? ['asv_label': fields.asv_label, 'tax_ranks': fields.tax_ranks] : []
             def extra_meta = [
                 'db_label': fields.label,
                 'run_asv': fields.run_asv,
@@ -80,7 +91,7 @@ workflow AMPLICON_PIPELINE {
             ]
 
             [
-                meta + extra_meta + asv_label, 
+                meta + extra_meta + asv_meta, 
                 tuple(
                     file(fields.fasta), 
                     file(fields.tax), 
