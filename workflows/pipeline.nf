@@ -293,7 +293,23 @@ workflow AMPLICON_PIPELINE {
             [meta + [var_region: var_region], maps, filt_reads, filter_list]
         }
 
-    MAKE_ASV_COUNT_TABLES(asv_read_counts_input)
+    // Also count across all var regions combined for multi-region samples //
+    concat_asv_read_counts_input = DADA2_SWF.out.dada2_out
+        .map { meta, maps, _asvs, filt_reads ->
+            [meta.subMap('id', 'single_end'), maps, filt_reads]
+        }
+        .join(
+            AMP_REGION_INFERENCE.out.concat_var_regions
+                .map { meta, concat_str, concat_vars ->
+                    [meta.subMap('id', 'single_end'), concat_str, concat_vars]
+                },
+            by: [0]
+        )
+        .map { meta, maps, filt_reads, concat_str, concat_vars ->
+            [meta + [var_region: concat_str], maps, filt_reads, concat_vars]
+        }
+
+    MAKE_ASV_COUNT_TABLES(asv_read_counts_input.mix(concat_asv_read_counts_input))
     ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions)
 
     // Summarise primer validation information into study-wide JSON file //
