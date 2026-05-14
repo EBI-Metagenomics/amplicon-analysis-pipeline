@@ -103,7 +103,6 @@ workflow MAPSEQ_ASV_KRONA {
 
     emit:
         asv_krona_counts = MAKE_ASV_TAX_COUNT_TABLES.out.asv_krona_counts
-        asv_read_counts = MAKE_ASV_TAX_COUNT_TABLES.out.asv_read_counts
         asvtaxtable = MAPSEQ2ASVTABLE.out.asvtaxtable
         krona_out = KRONA_KTIMPORTTEXT.out.html
         versions = ch_versions
