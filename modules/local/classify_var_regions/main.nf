@@ -2,7 +2,7 @@
 process CLASSIFY_VAR_REGIONS {
     tag "$meta.id"
     label 'light'
-    conda "${projectDir}/conf/environment.yml"
+    conda "${moduleDir}/../../../conf/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         "https://depot.galaxyproject.org/singularity/mgnify-pipelines-toolkit:${params.mpt_version}":
         "biocontainers/mgnify-pipelines-toolkit:${params.mpt_version}" }"

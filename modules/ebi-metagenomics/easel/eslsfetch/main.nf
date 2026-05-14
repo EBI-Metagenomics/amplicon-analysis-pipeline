@@ -20,7 +20,6 @@ process EASEL_ESLSFETCH {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     def is_compressed = fasta.getExtension() == "gz"
@@ -54,7 +53,6 @@ process EASEL_ESLSFETCH {
     """
 
     stub:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.matched_seqs_with_coords.txt

@@ -19,7 +19,6 @@ process FASTQSUFFIXHEADERCHECK {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def fastq_input = meta.single_end ? "-f ${fastq}" : "-f ${fastq[0]} -r ${fastq[1]}"
 
@@ -36,7 +35,6 @@ process FASTQSUFFIXHEADERCHECK {
     """
 
     stub:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     """
