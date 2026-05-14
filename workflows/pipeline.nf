@@ -23,7 +23,7 @@ include { AUTOMATIC_PRIMER_PREDICTION      } from '../subworkflows/local/automat
 include { CONCAT_PRIMER_CUTADAPT           } from '../subworkflows/local/concat_primer_cutadapt.nf'
 include { DADA2_SWF                        } from '../subworkflows/local/dada2_swf.nf'
 include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
-include { MERGE_ASV_READ_COUNTS            } from '../modules/local/merge_asv_read_counts/main'
+include { MAKE_ASV_COUNT_TABLES            } from '../modules/local/make_asv_count_tables/main'
 include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
 include { PUBLISH_OTU_RESULTS              } from '../modules/local/publish_otu_results/main'
 
@@ -276,13 +276,41 @@ workflow AMPLICON_PIPELINE {
     )
     ch_versions = ch_versions.mix(MAPSEQ_ASV_KRONA.out.versions)
 
-    // Merge per-DB ASV read count files into one non-DB-specific file per sample+var_region //
-    merge_asv_read_counts_input = MAPSEQ_ASV_KRONA.out.asv_read_counts
-        .map { meta, counts -> [meta.subMap('id', 'var_region'), counts] }
-        .groupTuple()
+    // Count reads per ASV per var_region directly from DADA2 map files, without taxonomy //
+    asv_read_counts_input = DADA2_SWF.out.dada2_out
+        .map { meta, maps, _asvs, filt_reads ->
+            [meta.subMap('id', 'single_end', 'var_regions_size'), meta.var_region, maps, filt_reads]
+        }
+        .transpose(by: 1)
+        .join(
+            AMP_REGION_INFERENCE.out.extracted_var_path
+                .map { meta, var_region, filter_list ->
+                    [meta.subMap('id', 'single_end', 'var_regions_size'), var_region, filter_list]
+                },
+            by: [0, 1]
+        )
+        .map { meta, var_region, maps, filt_reads, filter_list ->
+            [meta + [var_region: var_region], maps, filt_reads, filter_list]
+        }
 
-    MERGE_ASV_READ_COUNTS(merge_asv_read_counts_input)
-    ch_versions = ch_versions.mix(MERGE_ASV_READ_COUNTS.out.versions)
+    // Also count across all var regions combined for multi-region samples //
+    concat_asv_read_counts_input = DADA2_SWF.out.dada2_out
+        .map { meta, maps, _asvs, filt_reads ->
+            [meta.subMap('id', 'single_end'), maps, filt_reads]
+        }
+        .join(
+            AMP_REGION_INFERENCE.out.concat_var_regions
+                .map { meta, concat_str, concat_vars ->
+                    [meta.subMap('id', 'single_end'), concat_str, concat_vars]
+                },
+            by: [0]
+        )
+        .map { meta, maps, filt_reads, concat_str, concat_vars ->
+            [meta + [var_region: concat_str], maps, filt_reads, concat_vars]
+        }
+
+    MAKE_ASV_COUNT_TABLES(asv_read_counts_input.mix(concat_asv_read_counts_input))
+    ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions)
 
     // Summarise primer validation information into study-wide JSON file //
     CONCAT_PRIMER_CUTADAPT.out.primer_validation_out

@@ -48,7 +48,6 @@ process INFERNAL_CMSEARCH {
     """
 
     stub:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     touch ${prefix}.cmsearch_matches.tbl

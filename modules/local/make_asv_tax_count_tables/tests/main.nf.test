@@ -1,0 +1,45 @@
+nextflow_process {
+
+    name "Test Process MAKE_ASV_TAX_COUNT_TABLES"
+    script "../main.nf"
+    process "MAKE_ASV_TAX_COUNT_TABLES"
+    tag "modules"
+    tag "make_asv_tax_count_tables"
+
+    test("make_asv_tax_count_tables test") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false, var_region:'16S-V3-V4' ], // meta map
+                    [
+                        file('${projectDir}/modules/local/make_asv_tax_count_tables/tests/data/test_1_map.txt', checkIfExists: true),
+                        file('${projectDir}/modules/local/make_asv_tax_count_tables/tests/data/test_2_map.txt', checkIfExists: true)
+                    ],
+                    file('${projectDir}/modules/local/make_asv_tax_count_tables/tests/data/test_taxa.tsv', checkIfExists: true),
+                    [
+                        file('${projectDir}/modules/local/make_asv_tax_count_tables/tests/data/test_1.fastp.fastq.gz', checkIfExists: true),
+                        file('${projectDir}/modules/local/make_asv_tax_count_tables/tests/data/test_2.fastp.fastq.gz', checkIfExists: true)
+                    ],
+                    file('${projectDir}/modules/local/make_asv_tax_count_tables/tests/data/test.16S.V3-V4.txt', checkIfExists: true),
+                    "DADA2-PR2"
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot{process.out.asv_krona_counts.readLines().any { it.contains('unclassified') }}},
+                { assert snapshot{process.out.asv_krona_counts.lines.match(6)} },
+            )
+        }
+
+    }
+
+}

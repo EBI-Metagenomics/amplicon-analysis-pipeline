@@ -13,7 +13,7 @@ process PARSE_CONDUCTOR {
     tuple val(meta), path(trimming_conductor_out)
 
     output:
-    tuple val(meta), env(fwd_flag), env(rev_flag), emit: conductor_out
+    tuple val(meta), env('fwd_flag'), env('rev_flag'), emit: conductor_out
     path "versions.yml"                          , emit: versions
 
     script:

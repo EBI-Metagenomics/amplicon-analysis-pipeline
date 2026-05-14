@@ -67,6 +67,7 @@
                 "ERR4334351.cutadapt.json - 119 lines",
                 "ERR4334351.fastp.json - 326 lines",
                 "ERR4334351.tsv - 2 lines",
+                "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 117 lines",
                 "ERR4334351_PR2.tsv - 7 lines",
                 "ERR4334351_SILVA-SSU.tsv - 7 lines",
                 "ERR4334351_SSU.fasta - 48925 lines",
@@ -82,9 +83,9 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-04-29T16:52:10.568502141",
+        "timestamp": "2026-05-11T14:15:22.61735",
         "meta": {
-            "nf-test": "0.9.5",
+            "nf-test": "0.9.4",
             "nextflow": "25.10.4"
         }
     },
@@ -153,6 +154,8 @@
                 "ERR4334351/amplified-region-inference/ERR4334351.16S.V3-V4.txt",
                 "ERR4334351/amplified-region-inference/ERR4334351.tsv",
                 "ERR4334351/asv",
+                "ERR4334351/asv/16S-V3-V4",
+                "ERR4334351/asv/16S-V3-V4/ERR4334351_16S-V3-V4_asv_read_counts.tsv",
                 "ERR4334351/asv/ERR4334351_asv_seqs.fasta",
                 "ERR4334351/primer-identification",
                 "ERR4334351/primer-identification/ERR4334351.cutadapt.json",
@@ -189,9 +192,9 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-29T16:52:10.499626908",
+        "timestamp": "2026-05-11T14:15:22.530125",
         "meta": {
-            "nf-test": "0.9.5",
+            "nf-test": "0.9.4",
             "nextflow": "25.10.4"
         }
     },
@@ -498,6 +501,7 @@
                 "ERR4334351.merged.fastq.gz - 907300 bytes",
                 "ERR4334351.tblout.deoverlapped - 841605 bytes",
                 "ERR4334351.tsv - 139 bytes",
+                "ERR4334351_16S-V3-V4_asv_read_counts.tsv - 1150 bytes",
                 "ERR4334351_PR2.mseq - 773551 bytes",
                 "ERR4334351_PR2.tsv - 693 bytes",
                 "ERR4334351_PR2.txt - 611 bytes",
@@ -518,7 +522,7 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-04-30T08:22:32.825952",
+        "timestamp": "2026-05-11T14:15:22.558686",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

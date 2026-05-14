@@ -30,8 +30,8 @@ workflow DETECT_RNA {
 
     main:
 
-    ch_versions = Channel.empty()
-    cmsearch_ch = Channel.empty()
+    ch_versions = channel.empty()
+    cmsearch_ch = channel.empty()
 
     ch_sequences = ch_fasta
     if (chunk_flag){
@@ -120,4 +120,3 @@ workflow DETECT_RNA {
     concat_ssu_lsu_coords     = EXTRACTCOORDS.out.concat_ssu_lsu_coords  // channel: [ val(meta), [ txt ] ]
     versions                  = ch_versions                              // channel: [ versions.yml ]
 }
-

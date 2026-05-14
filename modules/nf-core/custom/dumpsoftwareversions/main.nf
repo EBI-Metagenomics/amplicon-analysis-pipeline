@@ -19,6 +19,5 @@ process CUSTOM_DUMPSOFTWAREVERSIONS {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     template 'dumpsoftwareversions.py'
 }

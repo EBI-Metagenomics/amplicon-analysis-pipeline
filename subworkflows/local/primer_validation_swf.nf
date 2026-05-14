@@ -30,9 +30,8 @@ workflow PRIMER_VALIDATION {
 
         primer_validation_classify_var_regions_input = PRIMER_VALIDATION_DEOVERLAP.out.cmsearch_tblout_deoverlapped
                                                        .map{ it -> tuple(["id":it[0].id, "single_end":it[0].single_end], it[0].var_region, it[1]) }
-                                                       .join(PERMUTE_PRIMERS.out.permuted_primers.map { meta, permuted_primers -> {
+                                                       .join(PERMUTE_PRIMERS.out.permuted_primers.map { meta, permuted_primers ->
                                                             tuple(["id": meta.id, "single_end": meta.single_end], meta.var_region, permuted_primers)
-                                                            }
                                                         }, by: 0)
                                                        .map{ it -> tuple( it[0] + ["var_region":it[1]], it[2], it[4]) }
         

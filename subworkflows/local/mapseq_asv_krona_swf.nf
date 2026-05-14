@@ -1,7 +1,7 @@
 
 include { MAPSEQ                } from '../../modules/ebi-metagenomics/mapseq/main'
 include { MAPSEQ2ASVTABLE       } from '../../modules/local/mapseq2asvtable/main.nf'
-include { MAKE_ASV_COUNT_TABLES } from '../../modules/local/make_asv_count_tables/main.nf'
+include { MAKE_ASV_TAX_COUNT_TABLES } from '../../modules/local/make_asv_tax_count_tables/main.nf'
 include { KRONA_KTIMPORTTEXT    } from '../../modules/ebi-metagenomics/krona/ktimporttext/main'
 
 workflow MAPSEQ_ASV_KRONA {
@@ -95,15 +95,14 @@ workflow MAPSEQ_ASV_KRONA {
             .map { meta, var_region, asv_label, maps, asvtaxtable, filt_reads, extracted_var ->
                    [meta + ['var_region': var_region, 'asv_label': asv_label], maps, asvtaxtable, filt_reads, extracted_var, asv_label] }
 
-        MAKE_ASV_COUNT_TABLES(final_asv_count_table_input)
-        ch_versions = ch_versions.mix(MAKE_ASV_COUNT_TABLES.out.versions.first())
+        MAKE_ASV_TAX_COUNT_TABLES(final_asv_count_table_input)
+        ch_versions = ch_versions.mix(MAKE_ASV_TAX_COUNT_TABLES.out.versions.first())
 
-        KRONA_KTIMPORTTEXT(MAKE_ASV_COUNT_TABLES.out.asv_krona_counts)
+        KRONA_KTIMPORTTEXT(MAKE_ASV_TAX_COUNT_TABLES.out.asv_krona_counts)
         ch_versions = ch_versions.mix(KRONA_KTIMPORTTEXT.out.versions.first())
 
     emit:
-        asv_krona_counts = MAKE_ASV_COUNT_TABLES.out.asv_krona_counts
-        asv_read_counts = MAKE_ASV_COUNT_TABLES.out.asv_read_counts
+        asv_krona_counts = MAKE_ASV_TAX_COUNT_TABLES.out.asv_krona_counts
         asvtaxtable = MAPSEQ2ASVTABLE.out.asvtaxtable
         krona_out = KRONA_KTIMPORTTEXT.out.html
         versions = ch_versions

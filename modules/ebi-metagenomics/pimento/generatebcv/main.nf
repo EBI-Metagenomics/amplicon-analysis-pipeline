@@ -19,7 +19,6 @@ process PIMENTO_GENERATEBCV {
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def var_region = "${meta.var_region}" ?: ""
     def assess_mcp_prop_prefix = "${prefix}_${var_region}"
@@ -58,7 +57,6 @@ process PIMENTO_GENERATEBCV {
     }
 
     stub:
-    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def var_region = "${meta.var_region}"
     def assess_mcp_prop_prefix = "${prefix}_${var_region}"
