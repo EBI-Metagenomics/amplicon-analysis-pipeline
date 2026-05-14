@@ -12,7 +12,6 @@ process MAKE_ASV_TAX_COUNT_TABLES {
 
     output:
     tuple val(meta), path("*asv_krona_counts.txt"), optional: true, emit: asv_krona_counts
-    tuple val(meta), path("*asv_read_counts.tsv") , optional: true, emit: asv_read_counts
     path "versions.yml"                           , emit: versions
 
     script:

@@ -37,7 +37,6 @@ nextflow_process {
                 { assert process.success },
                 { assert snapshot{process.out.asv_krona_counts.readLines().any { it.contains('unclassified') }}},
                 { assert snapshot{process.out.asv_krona_counts.lines.match(6)} },
-                { assert snapshot{process.out.asv_read_counts.lines.match(12)} }
             )
         }
 

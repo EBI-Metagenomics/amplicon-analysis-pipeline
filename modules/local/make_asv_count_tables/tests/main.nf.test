@@ -1,0 +1,46 @@
+nextflow_process {
+
+    name "Test Process MAKE_ASV_COUNT_TABLES"
+    script "../main.nf"
+    process "MAKE_ASV_COUNT_TABLES"
+    tag "modules"
+    tag "make_asv_count_tables"
+
+    test("make_asv_count_tables test") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:false, var_region:'16S-V3-V4' ], // meta map
+                    [
+                        file('${projectDir}/modules/local/make_asv_count_tables/tests/data/test_1_map.txt', checkIfExists: true),
+                        file('${projectDir}/modules/local/make_asv_count_tables/tests/data/test_2_map.txt', checkIfExists: true)
+                    ],
+                    [
+                        file('${projectDir}/modules/local/make_asv_count_tables/tests/data/test_1.fastp.fastq.gz', checkIfExists: true),
+                        file('${projectDir}/modules/local/make_asv_count_tables/tests/data/test_2.fastp.fastq.gz', checkIfExists: true)
+                    ],
+                    file('${projectDir}/modules/local/make_asv_count_tables/tests/data/test.16S.V3-V4.txt', checkIfExists: true)
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.asv_read_counts.size() == 1 },
+                { assert process.out.asv_read_counts.get(0).get(0).id == "test" },
+                { assert path(process.out.asv_read_counts.get(0).get(1)).getFileName().toString() == "test_16S-V3-V4_16S.V3-V4_asv_read_counts.tsv" },
+                { assert path(process.out.asv_read_counts.get(0).get(1)).readLines().first() == "asv\tcount" },
+                { assert path(process.out.asv_read_counts.get(0).get(1)).readLines().size() == 12 }
+            )
+        }
+
+    }
+
+}

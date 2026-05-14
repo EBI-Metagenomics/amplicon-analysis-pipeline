@@ -16,6 +16,7 @@ process MAKE_ASV_COUNT_TABLES {
 
     script:
     """
+    # Passing an empty taxonomy table to make_asv_count_table means that it does not filter by taxonomy
     printf 'ASV\\tSuperkingdom\\tKingdom\\tPhylum\\tClass\\tOrder\\tFamily\\tGenus\\tSpecies\\n' > empty_tax.tsv
 
     if [[ ${meta.single_end} = true ]]; then
