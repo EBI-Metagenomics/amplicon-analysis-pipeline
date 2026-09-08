@@ -12,7 +12,6 @@ workflow MAPSEQ_OTU_KRONA {
     main:
 
     ch_versions = channel.empty()
-    ch_fasta.view()
 
     input = ch_fasta
         .combine(ch_dbs)
@@ -36,8 +35,6 @@ workflow MAPSEQ_OTU_KRONA {
             return [meta, reads, fasta, tax, otu, mscluster, label]
         }
 
-    input.view()
-
     mapseq_in = input
         .multiMap { meta, reads, fasta, tax, _otu, mscluster, _label ->
             reads_ch: [meta, reads]
@@ -46,8 +43,6 @@ workflow MAPSEQ_OTU_KRONA {
 
     MAPSEQ(mapseq_in.reads_ch, mapseq_in.db_ch)
     ch_versions = ch_versions.mix(MAPSEQ.out.versions.first())
-
-    MAPSEQ.out.mseq.view()
 
     mapseq2biom_in = MAPSEQ.out.mseq
         .join(input)

@@ -398,7 +398,7 @@ workflow AMPLICON_PIPELINE {
             [meta, results]
         }
         .filter { _meta, results -> results.containsKey('Rfam_SSU_LSU_5_8S') }
-    read_assignments.view()
+
     ITS_SANITY_CHECKER(read_assignments)
 
     // Only keep runs that pass ITS sanity checking
@@ -413,7 +413,6 @@ workflow AMPLICON_PIPELINE {
             )
         }
         .map { meta, _test_results -> meta  }
-    print(real_its_runs)
 
     // Identify potential ITS runs that don't pass ITS sanity checking
     its_sanity_check_fails = ITS_SANITY_CHECKER.out.its_sanity_check_out
@@ -426,7 +425,6 @@ workflow AMPLICON_PIPELINE {
             )
         }
         .map { meta, _test_results -> ["${meta.id}", "failed"] }
-    print(its_sanity_check_fails)
 
     /*****************************/
     /* Publish OTU results */
