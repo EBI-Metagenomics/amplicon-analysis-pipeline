@@ -204,11 +204,10 @@ workflow AMPLICON_PIPELINE {
     
     // The next subworkflow is MAPseq annotation + Krona generation for SSU+LSU+ITS //
 
-    // We launch it on different fasta files to which we associate one or two target databases:
+    // We launch it on all generated fasta files to which we associate one or two target databases:
     // ssu_fasta for SSU and potential ITS (as 16S and 18S are followed by ITS)
     // lsu_fasta for LSU and potential ITS (as 23S and 25S/28S are preceded by ITS)
     // five_eightS_fasta for potential ITS (as it's inbetween ITS1 and ITS2)
-    // fasta filtered after masking for potential ITS
 
     ch_ssu_fasta = DETECT_RNA.out.ssu_fasta
         .map { meta, fasta ->
@@ -226,8 +225,7 @@ workflow AMPLICON_PIPELINE {
         }
 
     def all_fasta = ch_ssu_fasta.mix(ch_lsu_fasta,
-                                     ch_five_eightS_fasta,
-                                     MASK_FASTA_SWF.out.masked_out)
+                                     ch_five_eightS_fasta)
 
     mapseq_otu_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.run_otu }
     MAPSEQ_OTU_KRONA(
@@ -388,18 +386,18 @@ workflow AMPLICON_PIPELINE {
         .mix(
             rfam_masked_reads_mseq
                 .map { meta, masked_reads ->
-                    [meta.subMap('id'), [('Rfam_SSU_LSU'): masked_reads]]
+                    [meta.subMap('id'), [('Rfam_SSU_LSU_5_8S'): masked_reads]]
                 }
         )
         // Merge all mseq and rfam results for the same sample into a single map
-        // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU': masked_reads })
+        // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU_5_8S': masked_reads })
         .groupTuple()
         .map { meta, results_list ->
             def results = [:]
             results_list.each { it -> results.putAll(it) }
             [meta, results]
         }
-        .filter { _meta, results -> results.containsKey('Rfam_SSU_LSU') }
+        .filter { _meta, results -> results.containsKey('Rfam_SSU_LSU_5_8S') }
     read_assignments.view()
     ITS_SANITY_CHECKER(read_assignments)
 

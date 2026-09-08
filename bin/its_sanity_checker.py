@@ -170,7 +170,7 @@ def _run_sanity_tests(filepaths: dict[str, str]) -> dict:
     logging.info("UNITE assignment count: %d", unite_linecount)
 
     try:
-        rrna_readcount = count_sequences_in_file(filepaths["Rfam_SSU_LSU"])
+        rrna_readcount = count_sequences_in_file(filepaths["Rfam_SSU_LSU_5_8S"])
         logging.info("Potential ITS reads count: %d", rrna_readcount)
     except Exception as e:
         logging.error("Failed to count Rfam SSU+LSU sequences: %s", e)
@@ -248,7 +248,7 @@ def its_sanity_checker(
         - A JSON file containing file paths to:
           - ITSone: MAPseq output file for ITSoneDB
           - UNITE: MAPseq output file for UNITE
-          - Rfam_SSU_LSU: FASTA or FASTQ file containing Rfam-classified SSU+LSU reads
+          - Rfam_SSU_LSU_5_8S: FASTA or FASTQ file containing Rfam-classified SSU+LSU+5.8S reads
 
     The tests are:
         - **Tax Assignment Count Test**: Check whether the number of reads with assignments
