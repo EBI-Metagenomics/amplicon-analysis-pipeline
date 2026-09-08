@@ -444,7 +444,7 @@ workflow AMPLICON_PIPELINE {
     // Branch into ITS and non-ITS databases
     otu_branched = otu_all_results
         .branch { meta, _mseq, _krona_input, _biom_out, _html ->
-            its: meta.db_label in ["ITSone", "UNITE"]
+            its: meta.db_label in ["ITSoneDB", "UNITE"]
             non_its: true
         }
 
