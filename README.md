@@ -56,7 +56,7 @@ At this stage, the only sequence amplicons that this pipeline is built for are:
 | [DADA2](https://benjjneb.github.io/dada2/index.html)                                            | 1.30.0  | ASV calling                                            |
 | [MultiQC](https://github.com/MultiQC/MultiQC)                                                   | 1.24.1  | Result aggregation into HTML reports                   |
 | [mgnify-pipelines-toolkit](https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit)        | 0.1.8   | Toolkit containing various in-house processing scripts |
-| [PIMENTO](https://github.com/EBI-Metagenomics/PIMENTO)                                          | 1.0.2   | Primer inference toolkit used in the pipeline          |
+| [PIMENTO](https://github.com/EBI-Metagenomics/PIMENTO)                                          | 1.3.2   | Primer inference toolkit used in the pipeline          |
 
 ### Reference databases
 
