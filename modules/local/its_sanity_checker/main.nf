@@ -18,9 +18,17 @@ process ITS_SANITY_CHECKER {
     script:
     def serializable = read_assignments.collectEntries { k, v -> [k, v.toString()] }
     def read_assignments_json = new groovy.json.JsonBuilder(serializable).toString()
+    def tax_assignment_count_test_threshold = params.tax_assignment_count_test_threshold
+    def mapping_proportion_test_threshold = params.mapping_proportion_test_threshold
+    def rank_proportion_test_threshold = params.rank_proportion_test_threshold
     """
     echo '${read_assignments_json}' > read_assignments.json
-    its_sanity_checker.py --read_assignments read_assignments.json -p ${meta.id}
+    its_sanity_checker.py \\
+        --read_assignments read_assignments.json \\
+        --tax_assignment_count_test_threshold ${tax_assignment_count_test_threshold} \\
+        --mapping_proportion_test_threshold ${mapping_proportion_test_threshold} \\
+        --rank_proportion_test_threshold ${rank_proportion_test_threshold} \\
+        -p ${meta.id}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

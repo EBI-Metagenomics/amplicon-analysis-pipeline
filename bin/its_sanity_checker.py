@@ -70,7 +70,7 @@ def read_mseq_file(filepath: str) -> pd.DataFrame:
         return pd.DataFrame(columns=["taxon"])
 
 
-def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> bool:
+def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int, TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD: int) -> bool:
     """
     Tax Assignment Count test will check whether the number of reads with assignments
     is above the `TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD` threshold
@@ -82,7 +82,7 @@ def tax_assignment_count_test(itsonedb_linecount: int, unite_linecount: int) -> 
 
 
 def mapping_proportion_test(
-    itsonedb_linecount: int, unite_linecount: int, rrna_readcount: int
+    itsonedb_linecount: int, unite_linecount: int, rrna_readcount: int, MAPPING_PROPORTION_TEST_THRESHOLD: float
 ) -> tuple[bool, float, float]:
     """
     Proportion test will check whether the proportion of reads with assignments
@@ -117,6 +117,8 @@ def rank_proportion_test(
     unite_df: pd.DataFrame,
     itsonedb_linecount: int,
     unite_linecount: int,
+    RANK_PROPORTION_TEST_THRESHOLD: float,
+    TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD: float
 ) -> tuple[bool, float, float]:
     """
     Proportion test will check whether the proportion of reads with assignments
@@ -157,7 +159,10 @@ def rank_proportion_test(
     )
 
 
-def _run_sanity_tests(filepaths: dict[str, str]) -> dict:
+def _run_sanity_tests(filepaths: dict[str, str], 
+                      TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD: int,
+                      MAPPING_PROPORTION_TEST_THRESHOLD: float,
+                      RANK_PROPORTION_TEST_THRESHOLD : float) -> dict:
     """Run all three sanity tests and return the results dictionary."""
     # Read MAPseq output files
     logging.info("Reading MAPseq assignment files...")
@@ -181,14 +186,16 @@ def _run_sanity_tests(filepaths: dict[str, str]) -> dict:
     # Tax Assignment Count Test
     logging.info("Running Tax Assignment Count Test")
     tax_assignment_count_pass = tax_assignment_count_test(
-        itsonedb_linecount, unite_linecount
+        itsonedb_linecount, unite_linecount, TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
     )
     results_dict["tax_assignment_count_test"] = tax_assignment_count_pass
 
     # Mapping Proportion Test
     logging.info("Running Mapping Proportion Test")
     mapping_proportion_pass, itsonedb_reads_mapping, unite_reads_mapping = (
-        mapping_proportion_test(itsonedb_linecount, unite_linecount, rrna_readcount)
+        mapping_proportion_test(
+            itsonedb_linecount, unite_linecount, rrna_readcount, MAPPING_PROPORTION_TEST_THRESHOLD
+        )
     )
     results_dict["mapping_proportion_test"] = mapping_proportion_pass
 
@@ -196,7 +203,7 @@ def _run_sanity_tests(filepaths: dict[str, str]) -> dict:
     logging.info("Running Rank Proportion Test")
     rank_proportion_pass, itsone_ranks_below_kingdom, unite_ranks_below_kingdom = (
         rank_proportion_test(
-            itsonedb_df, unite_df, itsonedb_linecount, unite_linecount
+            itsonedb_df, unite_df, itsonedb_linecount, unite_linecount, RANK_PROPORTION_TEST_THRESHOLD, TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD
         )
     )
     results_dict["rank_proportion_test"] = rank_proportion_pass
@@ -238,9 +245,33 @@ def _run_sanity_tests(filepaths: dict[str, str]) -> dict:
     help="Prefix to sanity checker output",
     type=str,
 )
+@click.option(
+    "-t",
+    "--tax_assignment_count_test_threshold",
+    required=True,
+    help="Threshold for sanity checker tax assignment test",
+    type=str,
+)
+@click.option(
+    "-m",
+    "--mapping_proportion_test_threshold",
+    required=True,
+    help="Threshold for sanity checker mapping proportion test",
+    type=str,
+)
+@click.option(
+    "-r",
+    "--rank_proportion_test_threshold",
+    required=True,
+    help="Threshold for sanity checker rank proportion test",
+    type=str,
+)
 def its_sanity_checker(
     read_assignments: str,
     output_prefix: str,
+    tax_assignment_count_test_threshold: int,
+    mapping_proportion_test_threshold: float,
+    rank_proportion_test_threshold: float,
 ) -> None:
     """
     Runs three sanity tests to verify whether reads are actually from ITS or from a different marker gene.
@@ -263,10 +294,18 @@ def its_sanity_checker(
         - A `tsv` file containing the result for each test for the input. Mainly used for multiqc in the amplicon analysis pipeline
     """
     logging.info("Running ITS sanity checker on these inputs:")
-    logging.info(f"{read_assignments=}, {output_prefix=}")
+    logging.info(f"{read_assignments=}, {output_prefix=}, {tax_assignment_count_test_threshold=}, {mapping_proportion_test_threshold=}, {rank_proportion_test_threshold=}")
 
     with open(read_assignments) as f:
         filepaths = json.load(f)
+
+    # Override thresholds, if given through parameters
+    if tax_assignment_count_test_threshold:
+        TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD = int(tax_assignment_count_test_threshold)
+    if mapping_proportion_test_threshold:
+        MAPPING_PROPORTION_TEST_THRESHOLD = float(mapping_proportion_test_threshold)
+    if rank_proportion_test_threshold:
+        RANK_PROPORTION_TEST_THRESHOLD = float(rank_proportion_test_threshold)
 
     # Check for required database keys
     db_keys = ["ITSoneDB", "UNITE"]
@@ -290,7 +329,10 @@ def its_sanity_checker(
             "unite_ranks_below_kingdom": 0.0,
         }
     else:
-        results_dict = _run_sanity_tests(filepaths)
+        results_dict = _run_sanity_tests(filepaths, 
+                                         TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD,
+                                         MAPPING_PROPORTION_TEST_THRESHOLD,
+                                         RANK_PROPORTION_TEST_THRESHOLD)
 
     # set the prefix as the index, implied that it's the run ID for our purposes
     results_dict["run"] = output_prefix
