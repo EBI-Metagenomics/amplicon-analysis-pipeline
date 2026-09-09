@@ -102,7 +102,7 @@ nextflow_pipeline {
                         assert amp_region.contains("18S") && amp_region.contains("V9")
                     },
 
-                    // Verify ERR4334351 OTU taxonomy outputs have content and proper structure
+                    // Verify ERR4334351 OTU taxonomy outputs have content, proper structure, and only publishes SSU tax files
                     {
                         def silva_ssu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
@@ -117,7 +117,7 @@ nextflow_pipeline {
                         assert pr2.contains("PR2")
                     },
 
-                    // Verify MOCKDOUBLEAMP OTU taxonomy outputs have content and proper structure
+                    // Verify MOCKDOUBLEAMP OTU taxonomy outputs have content, proper structure, and only publishes SSU tax files
                     {
                         def silva_ssu = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
@@ -528,6 +528,51 @@ nextflow_pipeline {
                             "${file.name} - ${lineCount} lines"
                         }.sort()
                         assert snapshot(lineCounts).match("no_dbs_interleaved_line_counts")
+                    }
+                )
+            }
+        }
+    }
+
+    test("End-to-end ITS pipeline") {
+
+        tag "its"
+
+        when {
+            params {
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_ITS.csv"
+                outdir = "$outputDir"
+                tax_assignment_count_test_threshold = 5
+                mapping_proportion_test_threshold   = 0.5
+                rank_proportion_test_threshold      = 0.1
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    {
+                        def unite_taxonomy = path("${params.outdir}/test_ITS/taxonomy-summary/UNITE/test_ITS_UNITE.tsv").readLines()
+                            .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
+                        def itsone_taxonomy = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.tsv").readLines()
+                            .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
+
+                        assert unite_taxonomy.size() == 2 : "Expected 7 UNITE annotations"
+                        assert itsone_taxonomy.size() == 2 : "Expected 7 ITSoneDB annotations"
+                    },
+                    {
+                        def itsone_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.mseq").readLines()
+                        def missing_mseq_annotations = itsone_mseq.drop(1).count { line ->
+                            def fields = line.split('\t', -1)
+                            fields.size() < 14 || fields[-1].trim().isEmpty()
+                        }
+
+                        assert missing_mseq_annotations == 0 : "Expected no missing ITSoneDB mseq annotations"
+                    },
+                    {
+                        def amplified_region = path("${params.outdir}/ERR17721081/amplified-region-inference/test_ITS.tsv").readLines()
+                        assert amplified_region.size() == 1 : "Expected only the amplified-region-inference header"
                     }
                 )
             }
