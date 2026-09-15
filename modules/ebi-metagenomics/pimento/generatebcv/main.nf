@@ -5,8 +5,8 @@ process PIMENTO_GENERATEBCV {
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        "https://depot.galaxyproject.org/singularity/mi-pimento:${params.pimento_version}":
-        "biocontainers/mi-pimento:${params.pimento_version}"}"
+        'https://depot.galaxyproject.org/singularity/mi-pimento:1.0.2--pyhdfd78af_0':
+        'biocontainers/mi-pimento:1.0.2--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), val(fwd_flag), val(rev_flag), path(fastq)
