@@ -55,7 +55,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-29T17:11:59.827932895",
+        "timestamp": "2026-09-15T17:35:12.064928389",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -83,9 +83,9 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-05-11T14:15:22.61735",
+        "timestamp": "2026-09-15T17:09:38.633757792",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -117,8 +117,8 @@
                 "MOCKDOUBLEAMP.cutadapt.json - 173 lines",
                 "MOCKDOUBLEAMP.fastp.json - 326 lines",
                 "MOCKDOUBLEAMP.tsv - 3 lines",
-                "MOCKDOUBLEAMP_16S-V3-V4_asv_read_counts.tsv - 115 lines",
-                "MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv - 168 lines",
+                "MOCKDOUBLEAMP_16S-V3-V4_asv_read_counts.tsv - 116 lines",
+                "MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv - 159 lines",
                 "MOCKDOUBLEAMP_DADA2-PR2_asv_tax.tsv - 94 lines",
                 "MOCKDOUBLEAMP_DADA2-SILVA_asv_tax.tsv - 106 lines",
                 "MOCKDOUBLEAMP_PR2.tsv - 6 lines",
@@ -127,8 +127,8 @@
                 "MOCKDOUBLEAMP_SSU_rRNA_archaea.RF01959.fasta - 88 lines",
                 "MOCKDOUBLEAMP_SSU_rRNA_bacteria.RF00177.fasta - 47619 lines",
                 "MOCKDOUBLEAMP_SSU_rRNA_eukarya.RF01960.fasta - 22825 lines",
-                "MOCKDOUBLEAMP_asv_seqs.fasta - 562 lines",
-                "MOCKDOUBLEAMP_concat_asv_read_counts.tsv - 282 lines",
+                "MOCKDOUBLEAMP_asv_seqs.fasta - 546 lines",
+                "MOCKDOUBLEAMP_concat_asv_read_counts.tsv - 274 lines",
                 "MOCKDOUBLEAMP_dada2_stats.tsv - 14 lines",
                 "MOCKDOUBLEAMP_primer_validation.tsv - 5 lines",
                 "MOCKDOUBLEAMP_seqfu.tsv - 1 lines",
@@ -140,7 +140,7 @@
                 "rev_primers.fasta - 4 lines"
             ]
         ],
-        "timestamp": "2026-04-29T16:45:42.498449828",
+        "timestamp": "2026-09-15T17:01:22.874895387",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -192,9 +192,9 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-05-11T14:15:22.530125",
+        "timestamp": "2026-09-15T17:09:38.523722349",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -239,7 +239,7 @@
                 "ERRSFXHDFAIL_suffix_header_err.json - 358 bytes",
                 "MOCKDOUBLEAMP.16S.V3-V4.txt - 89946 bytes",
                 "MOCKDOUBLEAMP.18S.V9.txt - 90157 bytes",
-                "MOCKDOUBLEAMP.cutadapt.json - 5275 bytes",
+                "MOCKDOUBLEAMP.cutadapt.json - 5287 bytes",
                 "MOCKDOUBLEAMP.html - 227153 bytes",
                 "MOCKDOUBLEAMP.html - 227391 bytes",
                 "MOCKDOUBLEAMP.merged.fastq.gz - 1331679 bytes",
@@ -249,15 +249,15 @@
                 "MOCKDOUBLEAMP_16S-V3-V4.html - 227339 bytes",
                 "MOCKDOUBLEAMP_16S-V3-V4_DADA2-PR2_asv_krona_counts.txt - 279 bytes",
                 "MOCKDOUBLEAMP_16S-V3-V4_DADA2-SILVA_asv_krona_counts.txt - 39 bytes",
-                "MOCKDOUBLEAMP_16S-V3-V4_asv_read_counts.tsv - 1188 bytes",
+                "MOCKDOUBLEAMP_16S-V3-V4_asv_read_counts.tsv - 1199 bytes",
                 "MOCKDOUBLEAMP_18S-V9.html - 226721 bytes",
                 "MOCKDOUBLEAMP_18S-V9.html - 226722 bytes",
                 "MOCKDOUBLEAMP_18S-V9_DADA2-PR2_asv_krona_counts.txt - 40 bytes",
                 "MOCKDOUBLEAMP_18S-V9_DADA2-SILVA_asv_krona_counts.txt - 37 bytes",
-                "MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv - 1727 bytes",
+                "MOCKDOUBLEAMP_18S-V9_asv_read_counts.tsv - 1634 bytes",
                 "MOCKDOUBLEAMP_DADA2-PR2.mseq - 9292 bytes",
                 "MOCKDOUBLEAMP_DADA2-PR2_asv_tax.tsv - 4759 bytes",
-                "MOCKDOUBLEAMP_DADA2-SILVA.mseq - 9719 bytes",
+                "MOCKDOUBLEAMP_DADA2-SILVA.mseq - 9734 bytes",
                 "MOCKDOUBLEAMP_DADA2-SILVA_asv_tax.tsv - 4434 bytes",
                 "MOCKDOUBLEAMP_PR2.mseq - 645080 bytes",
                 "MOCKDOUBLEAMP_PR2.tsv - 496 bytes",
@@ -269,28 +269,28 @@
                 "MOCKDOUBLEAMP_SSU_rRNA_archaea.RF01959.fasta - 4374 bytes",
                 "MOCKDOUBLEAMP_SSU_rRNA_bacteria.RF00177.fasta - 3003201 bytes",
                 "MOCKDOUBLEAMP_SSU_rRNA_eukarya.RF01960.fasta - 1349279 bytes",
-                "MOCKDOUBLEAMP_asv_seqs.fasta - 71613 bytes",
+                "MOCKDOUBLEAMP_asv_seqs.fasta - 71360 bytes",
                 "MOCKDOUBLEAMP_concat.html - 226736 bytes",
                 "MOCKDOUBLEAMP_concat.html - 227342 bytes",
                 "MOCKDOUBLEAMP_concat_DADA2-PR2_asv_krona_counts.txt - 280 bytes",
                 "MOCKDOUBLEAMP_concat_DADA2-SILVA_asv_krona_counts.txt - 40 bytes",
-                "MOCKDOUBLEAMP_concat_asv_read_counts.tsv - 2905 bytes",
-                "MOCKDOUBLEAMP_dada2_stats.tsv - 494 bytes",
-                "MOCKDOUBLEAMP_primer_validation.tsv - 420 bytes",
+                "MOCKDOUBLEAMP_concat_asv_read_counts.tsv - 2823 bytes",
+                "MOCKDOUBLEAMP_dada2_stats.tsv - 495 bytes",
+                "MOCKDOUBLEAMP_primer_validation.tsv - 423 bytes",
                 "MOCKDOUBLEAMP_seqfu.tsv - 50 bytes",
                 "MOCKDOUBLEAMP_suffix_header_err.json - 0 bytes",
                 "fwd_primers.fasta - 24 bytes",
-                "fwd_primers.fasta - 48 bytes",
-                "primer_validation_summary.json - 1504 bytes",
+                "fwd_primers.fasta - 51 bytes",
+                "primer_validation_summary.json - 1507 bytes",
                 "qc_failed_runs.csv - 68 bytes",
                 "qc_passed_runs.csv - 49 bytes",
                 "rev_primers.fasta - 28 bytes",
                 "rev_primers.fasta - 56 bytes"
             ]
         ],
-        "timestamp": "2026-04-30T08:19:29.337417",
+        "timestamp": "2026-09-15T17:01:22.371493944",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -318,7 +318,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-04-29T17:05:18.718965075",
+        "timestamp": "2026-09-15T17:28:09.338150997",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -455,7 +455,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-29T16:45:41.812875781",
+        "timestamp": "2026-09-15T17:01:22.276219643",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -485,7 +485,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-04-29T17:11:59.917236769",
+        "timestamp": "2026-09-15T17:35:12.185102437",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -522,9 +522,9 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-05-11T14:15:22.558686",
+        "timestamp": "2026-09-15T17:09:38.547599328",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -559,9 +559,9 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-04-30T08:25:33.699525",
+        "timestamp": "2026-09-15T17:19:26.355936768",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -621,7 +621,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-29T17:05:18.656888449",
+        "timestamp": "2026-09-15T17:28:09.146445313",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -666,9 +666,9 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-04-30T08:31:59.395329",
+        "timestamp": "2026-09-15T17:35:12.101984053",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -711,9 +711,9 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-04-30T08:28:46.953476",
+        "timestamp": "2026-09-15T17:28:09.170639099",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.5",
             "nextflow": "25.10.4"
         }
     },
@@ -739,7 +739,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-04-29T16:58:37.178710891",
+        "timestamp": "2026-09-15T17:19:26.638914417",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -791,7 +791,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-04-29T16:58:37.079095813",
+        "timestamp": "2026-09-15T17:19:26.273032218",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"

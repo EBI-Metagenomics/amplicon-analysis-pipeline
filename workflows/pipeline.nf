@@ -375,29 +375,55 @@ workflow AMPLICON_PIPELINE {
     /****************************/
     rfam_masked_reads_mseq = MASK_FASTA_SWF.out.masked_out
         .filter{ _meta, masked_reads -> (masked_reads.size() > 0) }
-        
-    read_assignments = MAPSEQ_OTU_KRONA.out.mseq
-        .filter { meta, mseq ->
-            meta.db_label in ['ITSoneDB', 'UNITE']
-        }
-        .map { meta, mseq ->
-            [meta.subMap('id'), [(meta.db_label): mseq]]
-        }
-        .mix(
-            rfam_masked_reads_mseq
-                .map { meta, masked_reads ->
-                    [meta.subMap('id'), [('Rfam_SSU_LSU_5_8S'): masked_reads]]
+
+    its_mseq = MAPSEQ_OTU_KRONA.out.mseq
+    .filter { meta, mseq ->
+        meta.db_label in ['ITSoneDB', 'UNITE']
+    }
+    .map { meta, mseq ->
+        [
+            // if ITS dbs have been launched on more than one sequence, 
+            // allow for all results to be included, separated by target sequence
+            meta.subMap('id', 'target'),
+            [(meta.db_label): mseq]
+        ]
+    }
+    .groupTuple()
+    .map { meta, results_list ->
+        def results = [:]
+
+        results_list.each { result ->
+            result.each { label, mseq ->
+                // Make sure only non-empty mapseq files are included
+                if (mseq.readLines().size() > 1) {
+                    if (!results.containsKey(label))
+                        results[label] = mseq
                 }
-        )
-        // Merge all mseq and rfam results for the same sample into a single map
-        // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU_5_8S': masked_reads })
-        .groupTuple()
-        .map { meta, results_list ->
-            def results = [:]
-            results_list.each { it -> results.putAll(it) }
-            [meta, results]
+            }
         }
-        .filter { _meta, results -> results.containsKey('Rfam_SSU_LSU_5_8S') }
+        [meta, results]
+    }
+    // Exclude empty annotation files
+    .filter { meta, results ->
+        !results.isEmpty()
+    }
+
+    // Merge all mseq and rfam results for the same sample into a single map
+    // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU_5_8S': masked_reads })
+    read_assignments = its_mseq
+    .map { meta, results ->
+        tuple(meta.id, meta, results)
+    }
+    .join(
+        rfam_masked_reads_mseq
+            .map { meta, masked_reads ->
+                tuple(meta.id, masked_reads)
+            }
+    )
+    .map { id, meta, results, masked_reads ->
+        results['Rfam_SSU_LSU_5_8S'] = masked_reads
+        [meta, results]
+    }
 
     ITS_SANITY_CHECKER(read_assignments)
 

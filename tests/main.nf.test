@@ -83,7 +83,7 @@ nextflow_pipeline {
                         assert mix_amp_sample.primers.size() == 4 : "Expected 4 primers (2 for V3-V4, 2 for V9)"
                         assert mix_amp_sample.primers.any { p -> p.name == "341F" && p.strand == "fwd" }
                         assert mix_amp_sample.primers.any { p -> p.name == "805R" && p.strand == "rev" }
-                        assert mix_amp_sample.primers.any { p -> p.name == "1391F" && p.strand == "fwd" }
+                        assert mix_amp_sample.primers.any { p -> p.name == "V9F1F" && p.strand == "fwd" }
                         assert mix_amp_sample.primers.any { p -> p.name == "1510R" && p.strand == "rev" }
                     },
 
@@ -103,6 +103,7 @@ nextflow_pipeline {
                     },
 
                     // Verify ERR4334351 OTU taxonomy outputs have content, proper structure, and only publishes SSU tax files
+                    // ITS databases will have been launched too, but they shouldn't be published without annotations
                     {
                         def silva_ssu = path("${params.outdir}/ERR4334351/taxonomy-summary/SILVA-SSU/ERR4334351_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
@@ -115,9 +116,15 @@ nextflow_pipeline {
                         assert pr2.contains("d__Bacteria;sg__PVC;dv__Verrucomicrobia;sdv__Verrucomicrobia_X;c__Verrucomicrobiae;o__Chthoniobacterales;f__Chthoniobacteraceae;g__Candidatus_Udaeobacter;s__Candidatus_Udaeobacter_sp.")
                         assert pr2.contains("112.0")
                         assert pr2.contains("PR2")
+
+                        def itsone_mseq = path("${params.outdir}/ERR4334351/taxonomy-summary/ITSoneDB/ERR4334351_ITSoneDB.mseq")
+                        assert !itsone_mseq.exists() : "No ITSoneDB annotation expected"
+                        def unite_mseq = path("${params.outdir}/ERR4334351/taxonomy-summary/UNITE/ERR4334351_UNITE.mseq")
+                        assert !unite_mseq.exists() : "No UNITE annotation expected"
                     },
 
                     // Verify MOCKDOUBLEAMP OTU taxonomy outputs have content, proper structure, and only publishes SSU tax files
+                    // ITS databases will have been launched too, but they shouldn't be published without annotations
                     {
                         def silva_ssu = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/SILVA-SSU/MOCKDOUBLEAMP_SILVA-SSU.tsv").text
                         assert silva_ssu.contains("# Constructed from biom file")
@@ -130,6 +137,11 @@ nextflow_pipeline {
                         assert pr2.contains("d__Bacteria;sg__PVC;dv__Verrucomicrobia;sdv__Verrucomicrobia_X;c__Verrucomicrobiae;o__Chthoniobacterales;f__Chthoniobacteraceae;g__Candidatus_Udaeobacter")
                         assert pr2.contains("8.0")
                         assert pr2.contains("PR2")
+
+                        def itsone_mseq = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/ITSoneDB/MOCKDOUBLEAMP_ITSoneDB.mseq")
+                        assert !itsone_mseq.exists() : "No ITSoneDB annotation expected"
+                        def unite_mseq = path("${params.outdir}/MOCKDOUBLEAMP/taxonomy-summary/UNITE/MOCKDOUBLEAMP_UNITE.mseq")
+                        assert !unite_mseq.exists() : "No UNITE annotation expected"
                     },
 
                     // Verify ERR4334351 ASV sequence file contains FASTA format
@@ -232,7 +244,7 @@ nextflow_pipeline {
                         def asv_count_18s_lines_0 = asv_count_18s_lines[0].tokenize('\t') 
                         assert asv_count_18s_lines_0[0].contains("asv") && asv_count_18s_lines_0[1].contains("count")
                         def asv_count_18s_lines_1 = asv_count_18s_lines[1].tokenize('\t') 
-                        assert asv_count_18s_lines_1[0].contains("seq_4") && asv_count_18s_lines_1[1].contains("373")
+                        assert asv_count_18s_lines_1[0].contains("seq_4") && asv_count_18s_lines_1[1].contains("366")
 
                         def asv_counts_concat = path("${params.outdir}/MOCKDOUBLEAMP/asv/concat/MOCKDOUBLEAMP_concat_asv_read_counts.tsv").text
                         assert !asv_counts_concat.isEmpty()
@@ -240,7 +252,7 @@ nextflow_pipeline {
                         def asv_count_concat_lines_0 = asv_count_concat_lines[0].tokenize('\t') 
                         assert asv_count_concat_lines_0[0].contains("asv") && asv_count_concat_lines_0[1].contains("count")
                         def asv_count_concat_lines_1 = asv_count_concat_lines[1].tokenize('\t') 
-                        assert asv_count_concat_lines_1[0].contains("seq_4") && asv_count_concat_lines_1[1].contains("373")
+                        assert asv_count_concat_lines_1[0].contains("seq_4") && asv_count_concat_lines_1[1].contains("366")
                         def asv_count_concat_lines_18 = asv_count_concat_lines[18].tokenize('\t') 
                         assert asv_count_concat_lines_18[0].contains("seq_18") && asv_count_concat_lines_18[1].contains("102")
                     },
@@ -266,13 +278,13 @@ nextflow_pipeline {
                         assert primer_val.contains("Run")
                         assert primer_val.contains("MOCKDOUBLEAMP")
                         assert primer_val.contains("341F") && primer_val.contains("805R")
-                        assert primer_val.contains("1391F") && primer_val.contains("1510R")
+                        assert primer_val.contains("V9F1F") && primer_val.contains("1510R")
                         assert primer_val.contains("fwd") && primer_val.contains("rev")
 
                         def cutadapt_json = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.cutadapt.json").text
                         def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
                         assert cutadapt instanceof Map
-                        assert 5654 in cutadapt["adapters_read1"]["total_matches"]
+                        assert 5664 in cutadapt["adapters_read1"]["total_matches"]
                         assert 5650 in cutadapt["adapters_read2"]["total_matches"]
                     },
 
@@ -291,8 +303,8 @@ nextflow_pipeline {
                     {
                         def fwd_primers = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/fwd_primers.fasta").text
                         assert fwd_primers.contains(">341F")
-                        assert fwd_primers.contains(">1391F")
-                        assert fwd_primers.contains("GTACACACCGCCCGTC") : "Should contain specific DNA sequence"
+                        assert fwd_primers.contains(">V9F1F")
+                        assert fwd_primers.contains("CCCTGCCHTTTGTACACAC") : "Should contain specific DNA sequence"
                         assert fwd_primers.contains("CCTACGGGNGGCWGCAG") : "Should contain specific DNA sequence"
 
                         def rev_primers = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/rev_primers.fasta").text
@@ -534,9 +546,9 @@ nextflow_pipeline {
         }
     }
 
-    test("End-to-end ITS pipeline") {
+    test("End-to-end ITS pipeline, no LSU annotations") {
 
-        tag "its"
+        tag "its lsu"
 
         when {
             params {
@@ -550,31 +562,32 @@ nextflow_pipeline {
 
         then {
             with(workflow) {
-                assertAll(
-                    { assert success },
-                    {
-                        def unite_taxonomy = path("${params.outdir}/test_ITS/taxonomy-summary/UNITE/test_ITS_UNITE.tsv").readLines()
-                            .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
-                        def itsone_taxonomy = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.tsv").readLines()
-                            .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
+                assert success
 
-                        assert unite_taxonomy.size() == 2 : "Expected 7 UNITE annotations"
-                        assert itsone_taxonomy.size() == 2 : "Expected 7 ITSoneDB annotations"
-                    },
-                    {
-                        def itsone_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.mseq").readLines()
-                        def missing_mseq_annotations = itsone_mseq.drop(1).count { line ->
-                            def fields = line.split('\t', -1)
-                            fields.size() < 14 || fields[-1].trim().isEmpty()
-                        }
+                assert trace.succeeded().count{ task -> task.name.contains("MAPSEQ_OTU_KRONA:MAPSEQ (test_ITS)") } == 5 :
+                    "Expected 2 ITS executions (ITSoneDB+UNITE) and 3 LSU executions (SILVA-LSU+ITSoneDB+UNITE)"
 
-                        assert missing_mseq_annotations == 0 : "Expected no missing ITSoneDB mseq annotations"
-                    },
-                    {
-                        def amplified_region = path("${params.outdir}/ERR17721081/amplified-region-inference/test_ITS.tsv").readLines()
-                        assert amplified_region.size() == 1 : "Expected only the amplified-region-inference header"
-                    }
-                )
+                def lsu_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/SILVA-LSU/test_ITS_SILVA-LSU.mseq")
+                assert !lsu_mseq.exists() : "No LSU annotation expected"
+
+                def unite_taxonomy = path("${params.outdir}/test_ITS/taxonomy-summary/UNITE/test_ITS_UNITE.tsv").readLines()
+                    .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
+                def itsone_taxonomy = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.tsv").readLines()
+                    .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
+
+                assert unite_taxonomy.size() == 3 : "Expected 3 UNITE unique taxonomies"
+                assert itsone_taxonomy.size() == 3 : "Expected 3 ITSoneDB unique taxonomies"
+
+                def itsone_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.mseq").readLines()
+                    .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
+                def unite_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/UNITE/test_ITS_UNITE.mseq").readLines()
+                    .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
+
+                assert itsone_mseq.size() == 9 : "Expected 9 UNITE annotations"
+                assert unite_mseq.size() == 9 : "Expected 9 ITSoneDB annotations"
+
+                def amplified_region = path("${params.outdir}/test_ITS/amplified-region-inference/test_ITS.tsv").readLines()
+                assert amplified_region.size() == 1 : "Expected only the amplified-region-inference header"
             }
         }
     }
