@@ -1,6 +1,6 @@
 
 process FILTER_MASKED_N {
-    // Remove reads that have at least 10% N bases with seqkit commands
+    // Remove reads that have less than 50% nucleotides after excluding Ns with seqkit
     tag "$meta.id"
     label 'process_medium'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

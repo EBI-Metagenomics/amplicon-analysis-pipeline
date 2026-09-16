@@ -1,12 +1,26 @@
 # EBI-Metagenomics/amplicon-analysis-pipeline: Changelog
 
+## v6.2 - [2026/09/08]
+
+- The identification of ITS-containing sequences has been extended to include the 5.8S rRNA region. Previously, sequences matching SSU and LSU Rfam models had their corresponding regions masked before the remaining sequence was queried against ITS reference databases. The same approach is now applied to 5.8S regions, if provided, to allow the annotation of datasets targeting 5.8S+ITS.
+- Solved a bug that prevented the annotation of LSU sequences.
+- Introduced a target flag for reference databases, allowing the pipeline to identify which databases to apply to each sequence type, rather than launching all databases on all sequences.
+
+
+## v6.1 - [2026/04/23]
+
+- Update to publish all ASVs even if they do not have a taxonomic assignment.
+- Added additional dada2 summary stats including automatically-chosen truncation points and read counts at intermediate filtering steps.
+- Added flexibility for defining what MapSeq databases are used and how dada2 is run.
+
+
 ## v6.0 - [2025/10/31]
 
 Initial release of v6 amplicon-analysis-pipeline. Re-implements all of the existing features from v5.0:
 
 - Reads quality control
 - rRNA sequence extraction using [Infernal/cmsearch](https://github.com/EddyRivasLab/infernal/tree/master)
-- Closed-reference-based taxonomic classification and visualiation of rRNA using [MAPseq](https://github.com/meringlab/MAPseq) and [Krona](https://github.com/marbl/Krona)
+- Closed-reference-based taxonomic classification and visualisation of rRNA using [MAPseq](https://github.com/meringlab/MAPseq) and [Krona](https://github.com/marbl/Krona)
 
 v6.0 also contains multiple significant changes:
 
@@ -19,9 +33,3 @@ v6.0 also contains multiple significant changes:
 - Addition of [PR2](https://pr2-database.org/) as a reference database
 - Updating of existing reference databases ([SILVA](https://www.arb-silva.de/), [UNITE](https://unite.ut.ee/), [ITSoneDB](https://itsonedb.cloud.ba.infn.it), [Rfam](https://rfam.org/))
 
-
-## v6.1 - [2026/04/23]
-
-- Update to publish all ASVs even if they do not have a taxonomic assignment.
-- Added additional dada2 summary stats including automatically-chosen truncation points and read counts at intermediate filtering steps.
-- Added flexibility for defining what MapSeq databases are used and how dada2 is run.

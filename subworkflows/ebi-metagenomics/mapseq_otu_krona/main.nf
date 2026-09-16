@@ -16,7 +16,18 @@ workflow MAPSEQ_OTU_KRONA {
     input = ch_fasta
         .combine(ch_dbs)
         .filter { reads_meta, _reads, db_meta, _db_files ->
-            reads_meta.db_id == null || reads_meta.db_id == db_meta.id
+            // Respect an explicitly requested database, if present
+            def db_match = reads_meta.db_id == null || reads_meta.db_id == db_meta.id
+
+            // Match the corresponding target, (e.g. SSU for SSU dataset) and always add ITS to SSU and LSU
+            def target_match = (
+                reads_meta.target == db_meta.target ||
+                (
+                    reads_meta.target in ['SSU', 'LSU'] &&
+                    db_meta.target == 'ITS'
+                )
+            )
+            db_match && target_match
         }
         .map { reads_meta, reads, db_meta, db_files ->
             def meta = reads_meta + ['db_id': db_meta.id, 'db_label': db_meta.db_label]

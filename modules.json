@@ -98,7 +98,8 @@
           "mapseq_otu_krona": {
             "branch": "main",
             "git_sha": "f165749011d4fe61bd04f61c6cefa57fe8595b0f",
-            "installed_by": ["subworkflows"]
+            "installed_by": ["subworkflows"],
+            "patch": "subworkflows/ebi-metagenomics/mapseq_otu_krona/mapseq_otu_krona.diff"
           },
           "reads_qc": {
             "branch": "main",

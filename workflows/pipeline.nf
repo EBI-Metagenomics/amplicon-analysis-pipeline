@@ -85,6 +85,7 @@ workflow AMPLICON_PIPELINE {
             }
             def asv_meta = fields.run_asv ? ['asv_label': fields.asv_label, 'tax_ranks': fields.tax_ranks] : []
             def extra_meta = [
+                'target': fields.target,
                 'db_label': fields.label,
                 'run_asv': fields.run_asv,
                 'run_otu': fields.run_otu,
@@ -196,20 +197,42 @@ workflow AMPLICON_PIPELINE {
     // Masking subworkflow to find rRNA reads for ITS //
     MASK_FASTA_SWF(
         extended_reads_qc.qc_pass,
-        DETECT_RNA.out.concat_ssu_lsu_coords,
+        DETECT_RNA.out.all_identified_coords,
     )
     ch_versions = ch_versions.mix(MASK_FASTA_SWF.out.versions)
 
     
-    // Next five subworkflow calls are MAPseq annotation + Krona generation for SSU+LSU+ITS //
+    // The next subworkflow is MAPseq annotation + Krona generation for SSU+LSU+ITS //
+
+    // We launch it on all generated fasta files to which we associate one or two target databases:
+    // ssu_fasta for SSU and potential ITS (as 16S and 18S are followed by ITS)
+    // lsu_fasta for LSU and potential ITS (as 23S and 25S/28S are preceded by ITS)
+    // five_eightS_fasta for potential ITS (as it's inbetween ITS1 and ITS2)
+
+    ch_ssu_fasta = DETECT_RNA.out.ssu_fasta
+        .map { meta, fasta ->
+            tuple(meta + [target: 'SSU'], fasta)
+        }
+
+    ch_lsu_fasta = DETECT_RNA.out.lsu_fasta
+        .map { meta, fasta ->
+            tuple(meta + [target: 'LSU'], fasta)
+        }
+
+    ch_five_eightS_fasta = DETECT_RNA.out.five_eightS_fasta
+        .map { meta, fasta ->
+            tuple(meta + [target: 'ITS'], fasta)
+        }
+
+    def all_fasta = ch_ssu_fasta.mix(ch_lsu_fasta,
+                                     ch_five_eightS_fasta)
 
     mapseq_otu_dbs_in = mapseq_dbs_in.filter{ meta, _db -> meta.run_otu }
     MAPSEQ_OTU_KRONA(
-        DETECT_RNA.out.ssu_fasta,
+        all_fasta,
         mapseq_otu_dbs_in
     )
     ch_versions = ch_versions.mix(MAPSEQ_OTU_KRONA.out.versions)
-
 
     // Infer amplified variable regions for SSU, extract reads for each amplified region if there are more than one //
     AMP_REGION_INFERENCE(
@@ -352,26 +375,56 @@ workflow AMPLICON_PIPELINE {
     /****************************/
     rfam_masked_reads_mseq = MASK_FASTA_SWF.out.masked_out
         .filter{ _meta, masked_reads -> (masked_reads.size() > 0) }
-        
-    read_assignments = MAPSEQ_OTU_KRONA.out.mseq
-        .map { meta, mseq ->
-            [meta.subMap('id'), [(meta.db_label): mseq]]
-        }
-        .mix(
-            rfam_masked_reads_mseq
-                .map { meta, masked_reads ->
-                    [meta.subMap('id'), [('Rfam_SSU_LSU'): masked_reads]]
+
+    its_mseq = MAPSEQ_OTU_KRONA.out.mseq
+    .filter { meta, mseq ->
+        meta.db_label in ['ITSoneDB', 'UNITE']
+    }
+    .map { meta, mseq ->
+        [
+            // if ITS dbs have been launched on more than one sequence, 
+            // allow for all results to be included, separated by target sequence
+            meta.subMap('id', 'target'),
+            [(meta.db_label): mseq]
+        ]
+    }
+    .groupTuple()
+    .map { meta, results_list ->
+        def results = [:]
+
+        results_list.each { result ->
+            result.each { label, mseq ->
+                // Make sure only non-empty mapseq files are included
+                if (mseq.readLines().size() > 1) {
+                    if (!results.containsKey(label))
+                        results[label] = mseq
                 }
-        )
-        // Merge all mseq and rfam results for the same sample into a single map
-        // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU': masked_reads })
-        .groupTuple()
-        .map { meta, results_list ->
-            def results = [:]
-            results_list.each { it -> results.putAll(it) }
-            [meta, results]
+            }
         }
-        .filter { _meta, results -> results.containsKey('Rfam_SSU_LSU') }
+        [meta, results]
+    }
+    // Exclude empty annotation files
+    .filter { meta, results ->
+        !results.isEmpty()
+    }
+
+    // Merge all mseq and rfam results for the same sample into a single map
+    // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU_5_8S': masked_reads })
+    read_assignments = its_mseq
+    .map { meta, results ->
+        tuple(meta.id, meta, results)
+    }
+    .join(
+        rfam_masked_reads_mseq
+            .map { meta, masked_reads ->
+                tuple(meta.id, masked_reads)
+            }
+    )
+    .map { id, meta, results, masked_reads ->
+        results['Rfam_SSU_LSU_5_8S'] = masked_reads
+        [meta, results]
+    }
+
     ITS_SANITY_CHECKER(read_assignments)
 
     // Only keep runs that pass ITS sanity checking
@@ -413,7 +466,7 @@ workflow AMPLICON_PIPELINE {
     // Branch into ITS and non-ITS databases
     otu_branched = otu_all_results
         .branch { meta, _mseq, _krona_input, _biom_out, _html ->
-            its: meta.db_label in ["ITSone", "UNITE"]
+            its: meta.db_label in ["ITSoneDB", "UNITE"]
             non_its: true
         }
 

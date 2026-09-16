@@ -81,8 +81,7 @@ workflow DETECT_RNA {
         ch_cmsearchdeoverlap = CONCATENATE_CMSEARCH_DEOVERLAP.out.file_out
     }
 
-    ch_easel = ch_fasta
-                .join(ch_cmsearchdeoverlap)
+    ch_easel = ch_fasta.join(ch_cmsearchdeoverlap)
     EASEL_ESLSFETCH(
         ch_easel
     )
@@ -107,16 +106,17 @@ workflow DETECT_RNA {
     }
 
     emit:
-    cmsearch_deoverlap_coords = cmsearchdeoverlap_concat_coords          // channel: [ val(meta), [ deoverlapped ] ]
-    easel_coords              = EASEL_ESLSFETCH.out.easel_coords         // channel: [ val(meta), [ fasta ] ]
-    ssu_fasta                 = EXTRACTCOORDS.out.ssu_fasta              // channel: [ val(meta), [ fasta ] ]
-    lsu_fasta                 = EXTRACTCOORDS.out.lsu_fasta              // channel: [ val(meta), [ fasta ] ]
-    rrna_bacteria             = EXTRACTCOORDS.out.rrna_bacteria          // channel: [ val(meta), [ fasta ] ]
-    rrna_archaea              = EXTRACTCOORDS.out.rrna_archaea           // channel: [ val(meta), [ fasta ] ]
-    eukarya                   = EXTRACTCOORDS.out.eukarya                // channel: [ val(meta), [ fasta ] ]
-    fiveS_fasta               = EXTRACTCOORDS.out.fiveS_fasta            // channel: [ val(meta), [ fasta ] ]
-    five_eightS_fasta         = EXTRACTCOORDS.out.five_eightS_fasta      // channel: [ val(meta), [ fasta ] ]
-    ncrna_fasta               = EXTRACTCOORDS.out.ncrna_fasta            // channel: [ val(meta), [ fasta ] ]
-    concat_ssu_lsu_coords     = EXTRACTCOORDS.out.concat_ssu_lsu_coords  // channel: [ val(meta), [ txt ] ]
-    versions                  = ch_versions                              // channel: [ versions.yml ]
+    cmsearch_deoverlap_coords = cmsearchdeoverlap_concat_coords               // channel: [ val(meta), [ deoverlapped ] ]
+    easel_coords              = EASEL_ESLSFETCH.out.easel_coords              // channel: [ val(meta), [ fasta ] ]
+    ssu_fasta                 = EXTRACTCOORDS.out.ssu_fasta                   // channel: [ val(meta), [ fasta ] ]
+    lsu_fasta                 = EXTRACTCOORDS.out.lsu_fasta                   // channel: [ val(meta), [ fasta ] ]
+    rrna_bacteria             = EXTRACTCOORDS.out.rrna_bacteria               // channel: [ val(meta), [ fasta ] ]
+    rrna_archaea              = EXTRACTCOORDS.out.rrna_archaea                // channel: [ val(meta), [ fasta ] ]
+    eukarya                   = EXTRACTCOORDS.out.eukarya                     // channel: [ val(meta), [ fasta ] ]
+    fiveS_fasta               = EXTRACTCOORDS.out.fiveS_fasta                 // channel: [ val(meta), [ fasta ] ]
+    five_eightS_fasta         = EXTRACTCOORDS.out.five_eightS_fasta           // channel: [ val(meta), [ fasta ] ]
+    ncrna_fasta               = EXTRACTCOORDS.out.ncrna_fasta                 // channel: [ val(meta), [ fasta ] ]
+    concat_ssu_lsu_coords     = EXTRACTCOORDS.out.concat_ssu_lsu_coords       // channel: [ val(meta), [ txt ] ]
+    all_identified_coords     = EASEL_ESLSFETCH.out.matched_seqs_with_coords  // channel: [ val(meta), [ txt ] ]
+    versions                  = ch_versions                                   // channel: [ versions.yml ]
 }

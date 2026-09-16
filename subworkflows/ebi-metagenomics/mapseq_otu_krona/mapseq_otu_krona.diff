@@ -1,0 +1,36 @@
+Changes in component 'ebi-metagenomics/mapseq_otu_krona'
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/meta.yml' is unchanged
+Changes in 'mapseq_otu_krona/main.nf':
+--- subworkflows/ebi-metagenomics/mapseq_otu_krona/main.nf
++++ subworkflows/ebi-metagenomics/mapseq_otu_krona/main.nf
+@@ -16,7 +16,18 @@
+     input = ch_fasta
+         .combine(ch_dbs)
+         .filter { reads_meta, _reads, db_meta, _db_files ->
+-            reads_meta.db_id == null || reads_meta.db_id == db_meta.id
++            // Respect an explicitly requested database, if present
++            def db_match = reads_meta.db_id == null || reads_meta.db_id == db_meta.id
++
++            // Match the corresponding target, (e.g. SSU for SSU dataset) and always add ITS to SSU and LSU
++            def target_match = (
++                reads_meta.target == db_meta.target ||
++                (
++                    reads_meta.target in ['SSU', 'LSU'] &&
++                    db_meta.target == 'ITS'
++                )
++            )
++            db_match && target_match
+         }
+         .map { reads_meta, reads, db_meta, db_files ->
+             def meta = reads_meta + ['db_id': db_meta.id, 'db_label': db_meta.db_label]
+
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/main.nf.test' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/nextflow.config' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/tags.yml' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/subunit_silva_SSU.fasta' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/main.nf.test.snap' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.otu' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_filtered2.txt' is unchanged
+'subworkflows/ebi-metagenomics/mapseq_otu_krona/tests/silva_ssu/silva_ssu-20200130_SSU_trimmed.fasta.mscluster' is unchanged
+************************************************************
