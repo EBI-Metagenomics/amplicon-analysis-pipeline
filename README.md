@@ -8,16 +8,17 @@ This repository contains the v6.1 [MGnify](https://www.ebi.ac.uk/metagenomics) a
 
 ### Features
 
-The amplicon analysis pipeline v6.1 re-implements all of the existing features from v5.0:
+The amplicon analysis pipeline v6.2 re-implements all of the existing features from v5.0:
 
 - Reads quality control
 - rRNA sequence extraction using [Infernal/cmsearch](https://github.com/EddyRivasLab/infernal/tree/master)
 - Closed-reference-based taxonomic classification and visualiation of rRNA using [MAPseq](https://github.com/meringlab/MAPseq) and [Krona](https://github.com/marbl/Krona)
 
-The amplicon analysis pipeline v6.1 also contains multiple significant changes:
+The amplicon analysis pipeline v6.2 also contains multiple significant changes:
 
 - Refactoring from CWL to [Nextflow](https://www.nextflow.io/) for pipeline definition
 - Simplification of reads quality control using [fastp](https://github.com/OpenGene/fastp)
+- Addition of 5.8S to the regions analysed to identify ITS sequences.
 - Automatic amplified region inference for 16S and 18S rRNA
 - Automatic primer identification, trimming, and validation
 - Addition of Amplicon Sequence Variant (ASV) calling using [DADA2](https://benjjneb.github.io/dada2/index.html)

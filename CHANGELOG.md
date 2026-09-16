@@ -4,8 +4,11 @@
 
 - The identification of ITS-containing sequences has been extended to include the 5.8S rRNA region. Previously, sequences matching SSU and LSU Rfam models had their corresponding regions masked before the remaining sequence was queried against ITS reference databases. The same approach is now applied to 5.8S regions, if provided, to allow the annotation of datasets targeting 5.8S+ITS.
 - Solved a bug that prevented the annotation of LSU sequences.
-- Introduced a target flag for reference databases, allowing the pipeline to identify which databases to apply to each sequence type, rather than launching all databases on all sequences.
-
+- Introduced a target flag for reference databases, allowing the pipeline to identify which databases to apply to each sequence type, rather than launching all databases on all sequences. The pipeline uses this field to:
+  - Run SSU databases against SSU sequences only
+  - Run LSU databases against LSU sequences only
+  - Avoid running every reference database against every sequence type
+  - ITS database searches remain an exception: they are run for all relevant sequences regardless of the configured target. This is necessary because ITS sequences are identified by masking SSU, LSU, or 5.8S regions.
 
 ## v6.1 - [2026/04/23]
 
