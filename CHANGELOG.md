@@ -4,17 +4,21 @@
 
 - The identification of ITS-containing sequences has been extended to include the 5.8S rRNA region. Previously, sequences matching SSU and LSU Rfam models had their corresponding regions masked before the remaining sequence was queried against ITS reference databases. The same approach is now applied to 5.8S regions, if provided, to allow the annotation of datasets targeting 5.8S+ITS.
 - Solved a bug that prevented the annotation of LSU sequences.
-- Introduced a target flag for reference databases, allowing the pipeline to identify which databases to apply to each sequence type, rather than launching all databases on all sequences. The pipeline uses this field to:
+- Introduced a `target` flag for reference databases, allowing the pipeline to identify which databases to apply to each sequence type, rather than launching all databases on all sequences. The pipeline uses this field to:
   - Run SSU databases against SSU sequences only
   - Run LSU databases against LSU sequences only
   - Avoid running every reference database against every sequence type
-  - ITS database searches remain an exception: they are run for all relevant sequences regardless of the configured target. This is necessary because ITS sequences are identified by masking SSU, LSU, or 5.8S regions.
+  - ITS database searches remain an exception: they are run for all relevant sequences regardless of the configured target. This is necessary because ITS sequences are identified by masking SSU and LSU, including 5.8S regions.
 
 ## v6.1 - [2026/04/23]
 
 - Update to publish all ASVs even if they do not have a taxonomic assignment.
 - Added additional dada2 summary stats including automatically-chosen truncation points and read counts at intermediate filtering steps.
-- Added flexibility for defining what MapSeq databases are used and how dada2 is run.
+- Added flexibility for defining what MapSeq databases are used: instead of keeping a strict definition matching MGnify-specific database structure (e.g. UNITE and ITSoneDB for ITS), the new implementation allows for a different number of databases to be selected (e.g. only one db, which could be different from UNITE or ITSoneDB as long as it's similarly formatted). This also allows the usage of user-specific customised databases. 
+- To allow greater flexibility when performing bespoke analyses, we enabled three different merging modes in DADA2:
+  1. Merge (current behaviour)
+  2. Merge-with-gaps (keep ASVs that don't merge with an overlap, instead inserting a gap)
+  3. Keep separate and concatenate ASVs deriving from different paired-ends
 
 
 ## v6.0 - [2025/10/31]
