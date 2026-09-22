@@ -26,6 +26,7 @@ include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_
 include { MAKE_ASV_COUNT_TABLES            } from '../modules/local/make_asv_count_tables/main'
 include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
 include { PUBLISH_OTU_RESULTS              } from '../modules/local/publish_otu_results/main'
+include { PUBLISH_MASKED_ITS               } from '../modules/local/publish_masked_its/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -491,6 +492,20 @@ workflow AMPLICON_PIPELINE {
         .map { _id_meta, meta, mseq, krona_input, biom_out, html, _flag ->
             [meta, mseq, krona_input, biom_out, html]
         }
+
+    // Publish masked ITS reads only for runs that pass the ITS sanity check
+    passed_masked_out = MASK_FASTA_SWF.out.masked_out
+        .filter { _meta, masked_fasta -> (masked_fasta.size() > 0) }
+        .map { meta, masked_fasta ->
+            [meta.subMap('id'), meta, masked_fasta]
+        }
+        .combine(its_sanity_pass, by: 0)
+        .filter { _id_meta, _meta, _masked_fasta, passed -> passed }
+        .map { _id_meta, meta, masked_fasta, _passed ->
+            tuple(meta, masked_fasta)
+        }
+
+    PUBLISH_MASKED_ITS(passed_masked_out)
 
     // Publish all non-ITS results + ITS results that pass sanity check
     publish_otu_input = otu_branched.non_its.mix(filtered_its_results)
