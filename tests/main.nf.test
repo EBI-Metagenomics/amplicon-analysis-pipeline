@@ -578,6 +578,12 @@ nextflow_pipeline {
                 assert unite_taxonomy.size() == 3 : "Expected 3 UNITE unique taxonomies"
                 assert itsone_taxonomy.size() == 3 : "Expected 3 ITSoneDB unique taxonomies"
 
+                def fasta_5_8s = path("${params.outdir}/test_ITS/sequence-categorisation/test_ITS_5_8S.fasta")
+                def fasta_its = path("${params.outdir}/test_ITS/sequence-categorisation/test_ITS_ITS_rRNA.fa")
+
+                assert fasta_5_8s.exists() : "Original 5.8S fasta published"
+                assert fasta_its.exists() : "Masked ITS fasta derived from 5.8S published"
+
                 def itsone_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.mseq").readLines()
                     .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
                 def unite_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/UNITE/test_ITS_UNITE.mseq").readLines()
