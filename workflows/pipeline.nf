@@ -237,7 +237,7 @@ workflow AMPLICON_PIPELINE {
 
     // Infer amplified variable regions for SSU, extract reads for each amplified region if there are more than one //
     AMP_REGION_INFERENCE(
-        DETECT_RNA.out.cmsearch_deoverlap_coords,
+        DETECT_RNA.out.cmsearch_deoverlap_non_empty,
         READS_QC_MERGE.out.reads_se_and_merged
     )
     ch_versions = ch_versions.mix(AMP_REGION_INFERENCE.out.versions)
@@ -285,7 +285,7 @@ workflow AMPLICON_PIPELINE {
     // Run DADA2 ASV generation //
     DADA2_SWF(
         dada2_input,
-        DETECT_RNA.out.cmsearch_deoverlap_coords
+        DETECT_RNA.out.cmsearch_deoverlap_non_empty
     )
     ch_versions = ch_versions.mix(DADA2_SWF.out.versions)
 
@@ -704,6 +704,10 @@ workflow AMPLICON_PIPELINE {
     // Extract runs that had zero reads after fastp //
     no_reads_fails = extended_reads_qc.qc_empty
         .map { meta, __ -> "${meta.id},no_reads" }
+        .mix(
+            DETECT_RNA.out.cmsearch_deoverlap_empty
+                .map { meta, __ -> "${meta.id},no_reads" }
+        )
 
     // filter out runs that fail ITS sanity checking but have other taxonomy results
     failed_its_runs = its_sanity_check_fails

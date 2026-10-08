@@ -125,4 +125,41 @@ nextflow_workflow {
             nfcoreUnlink("${launchDir}/library/", "${baseDir}/modules/nf-core")
         }
     }
+
+    test("test_empty_deoverlap_output") {
+
+        options "-stub"
+
+        when {
+            params {
+                rfam = "${moduleDir}/tests/rfam"
+                rfam_clan = "${moduleDir}/tests/ribo.claninfo"
+            }
+            workflow {
+                """
+                input[0] = Channel.of( [ [ id:'test', single_end:true ], // meta map
+                    file('${moduleDir}/tests/test.fasta.gz', checkIfExists: true)
+                ])
+                input[1] = file(params.rfam)
+                input[2] = file(params.rfam_clan)
+                input[3] = "cmsearch"
+                input[4] = false
+                input[5] = true
+                """
+            }
+        }
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.cmsearch_deoverlap_coords.size() == 1 },
+                { assert workflow.out.cmsearch_deoverlap_non_empty.size() == 0 },
+                { assert workflow.out.cmsearch_deoverlap_empty.size() == 1 },
+                { assert workflow.out.easel_coords.size() == 0 },
+                { assert workflow.out.all_identified_coords.size() == 0 }
+            )
+        }
+        cleanup {
+            nfcoreUnlink("${launchDir}/library/", "${baseDir}/modules/nf-core")
+        }
+    }
 }
