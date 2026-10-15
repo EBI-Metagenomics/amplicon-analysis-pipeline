@@ -646,6 +646,12 @@ workflow AMPLICON_PIPELINE {
     all_taxonomy_results = has_dada2_results
         .mix(passed_its_checks, has_ssu_lsu_taxonomies)
         .groupTuple()
+        .branch {
+            _meta, results ->
+                invalid: results.size() == 1 && results[0] == "dada2_stats_fail"
+                valid: true
+            // to remove cases where the only result a run has is "dada2_stats_fail" i.e. no OTU results either
+        }
 
     // Extract passed runs, describe whether those passed runs also ASV results //
     // Rules are:
@@ -653,7 +659,7 @@ workflow AMPLICON_PIPELINE {
     //      if you don't have DADA2 results but have ITS/SSU/LSU results
     //          if you have the dada2_stats_fail status, you have `dada2_stats_fail`
     //          if you don't have the dada2_stats_fail status, it means you have `no_asvs`
-    final_passed_runs = all_taxonomy_results
+    final_passed_runs = all_taxonomy_results.valid
         .map { meta, results ->
             if ("has_dada2_results" in results && "has_ssu_lsu_taxonomies" in results) {
                 return "${meta.id},all_results"
@@ -676,7 +682,7 @@ workflow AMPLICON_PIPELINE {
     final_passed_runs
         .collectFile(name: "qc_passed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
-    runs_with_taxonomies = all_taxonomy_results
+    runs_with_taxonomies = all_taxonomy_results.valid
         .map{ meta, _results -> ["${meta.id}", "passed"] }
 
     // Extract runs that failed SeqFu check //
@@ -705,6 +711,10 @@ workflow AMPLICON_PIPELINE {
     no_reads_fails = extended_reads_qc.qc_empty
         .map { meta, __ -> "${meta.id},no_reads" }
 
+    // Extract runs that have no OTU results and a "dada2_stats_fail" status for ASVs
+    no_otus_dada2_stats_fails = all_taxonomy_results.invalid
+        .map { meta, __ -> "${meta.id}, no_otus_dada2_stats_fail"}
+
     // filter out runs that fail ITS sanity checking but have other taxonomy results
     failed_its_runs = its_sanity_check_fails
         .mix(runs_with_taxonomies)
@@ -718,7 +728,7 @@ workflow AMPLICON_PIPELINE {
 
     // Save all failed runs to file //
     seqfu_fails
-        .concat(sfxhd_fails, libstrat_fails, no_reads_fails, failed_its_runs)
+        .concat(sfxhd_fails, libstrat_fails, no_reads_fails, failed_its_runs, no_otus_dada2_stats_fails)
         .collectFile(name: "qc_failed_runs.csv", storeDir: "${params.outdir}", newLine: true, cache: false)
 
     // Summarise primer validation information into study-wide JSON file //
