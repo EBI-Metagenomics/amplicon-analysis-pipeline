@@ -32,6 +32,12 @@
                     "versions.yml:md5,ee08705ca84ba0942119be25a75078c8",
                     "versions.yml:md5,fdc5c063d7d2ee2a7f09d934f4e129c9"
                 ],
+                "12": [
+                    "test.tblout.deoverlapped:md5,eece0ccb016a5631dc33de1d0bb101d8"
+                ],
+                "13": [
+
+                ],
                 "2": [
                     [
                         {
@@ -63,6 +69,12 @@
                     
                 ],
                 "cmsearch_deoverlap_coords": [
+                    "test.tblout.deoverlapped:md5,eece0ccb016a5631dc33de1d0bb101d8"
+                ],
+                "cmsearch_deoverlap_empty": [
+
+                ],
+                "cmsearch_deoverlap_non_empty": [
                     "test.tblout.deoverlapped:md5,eece0ccb016a5631dc33de1d0bb101d8"
                 ],
                 "concat_ssu_lsu_coords": [
@@ -162,6 +174,12 @@
                     "versions.yml:md5,a6952ee01b76cf35d351bc654cec094a",
                     "versions.yml:md5,fdc5c063d7d2ee2a7f09d934f4e129c9"
                 ],
+                "12": [
+                    "test.tblout.deoverlapped:md5,2ff422ba8581127bc95262d9751dbcba"
+                ],
+                "13": [
+
+                ],
                 "2": [
                     [
                         {
@@ -193,6 +211,12 @@
                     
                 ],
                 "cmsearch_deoverlap_coords": [
+                    "test.tblout.deoverlapped:md5,2ff422ba8581127bc95262d9751dbcba"
+                ],
+                "cmsearch_deoverlap_empty": [
+
+                ],
+                "cmsearch_deoverlap_non_empty": [
                     "test.tblout.deoverlapped:md5,2ff422ba8581127bc95262d9751dbcba"
                 ],
                 "concat_ssu_lsu_coords": [
@@ -295,6 +319,18 @@
                     "versions.yml:md5,65638944226376bf03ace12b80a196a5",
                     "versions.yml:md5,a1ccd53172c56b58c83e08a977e0f3f6"
                 ],
+                "12": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test.tblout.deoverlapped:md5,2ff422ba8581127bc95262d9751dbcba"
+                    ]
+                ],
+                "13": [
+
+                ],
                 "2": [
                     [
                         {
@@ -332,6 +368,18 @@
                     
                 ],
                 "cmsearch_deoverlap_coords": [
+                    [
+                        {
+                            "id": "test",
+                            "single_end": false
+                        },
+                        "test.tblout.deoverlapped:md5,2ff422ba8581127bc95262d9751dbcba"
+                    ]
+                ],
+                "cmsearch_deoverlap_empty": [
+
+                ],
+                "cmsearch_deoverlap_non_empty": [
                     [
                         {
                             "id": "test",
