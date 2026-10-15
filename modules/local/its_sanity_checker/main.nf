@@ -1,6 +1,6 @@
 
 process ITS_SANITY_CHECKER {
-    tag "$meta.id"
+    tag "${meta.id}:${meta.target ?: 'unknown'}"
     label 'light'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         "https://depot.galaxyproject.org/singularity/mgnify-pipelines-toolkit:${params.mpt_version}":
@@ -21,6 +21,7 @@ process ITS_SANITY_CHECKER {
     def tax_assignment_count_test_threshold = params.tax_assignment_count_test_threshold
     def mapping_proportion_test_threshold = params.mapping_proportion_test_threshold
     def rank_proportion_test_threshold = params.rank_proportion_test_threshold
+    def output_prefix = meta.target ? "${meta.id}_${meta.target}" : meta.id
     """
     echo '${read_assignments_json}' > read_assignments.json
     its_sanity_checker.py \\
@@ -28,7 +29,7 @@ process ITS_SANITY_CHECKER {
         --tax_assignment_count_test_threshold ${tax_assignment_count_test_threshold} \\
         --mapping_proportion_test_threshold ${mapping_proportion_test_threshold} \\
         --rank_proportion_test_threshold ${rank_proportion_test_threshold} \\
-        -p ${meta.id}
+        -p ${output_prefix}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
