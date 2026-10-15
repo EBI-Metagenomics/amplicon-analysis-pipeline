@@ -31,7 +31,6 @@ process MERGE_MAPSEQ {
     """
     ${target_symlinks}
     mseq_files=( ${input_files} )
-    : > ${merged_mseq}
 
     for index in "\${!mseq_files[@]}"
     do
