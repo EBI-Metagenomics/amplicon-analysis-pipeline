@@ -25,8 +25,13 @@ include { DADA2_SWF                        } from '../subworkflows/local/dada2_s
 include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
 include { MAKE_ASV_COUNT_TABLES            } from '../modules/local/make_asv_count_tables/main'
 include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
+include { FILTER_MAPSEQ_BY_MASK            } from '../modules/local/filter_mapseq_by_mask/main'
+include { MERGE_MAPSEQ                     } from '../modules/local/merge_mapseq/main'
 include { PUBLISH_OTU_RESULTS              } from '../modules/local/publish_otu_results/main'
 include { PUBLISH_MASKED_ITS               } from '../modules/local/publish_masked_its/main'
+
+include { MAPSEQ2BIOM as MAPSEQ2BIOM_MERGED } from '../modules/ebi-metagenomics/mapseq2biom/main'
+include { KRONA_KTIMPORTTEXT as KRONA_KTIMPORTTEXT_MERGED } from '../modules/ebi-metagenomics/krona/ktimporttext/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -374,23 +379,41 @@ workflow AMPLICON_PIPELINE {
     /*****************************/
     /* ITS sanity check */
     /****************************/
+    // Keep empty mask files in this channel as well: an empty mask must produce
+    // empty filtered mseq files, rather than allowing the original annotations
+    // to bypass this filtering step.
     rfam_masked_reads_mseq = MASK_FASTA_SWF.out.masked_out
-        .filter{ _meta, masked_reads -> (masked_reads.size() > 0) }
 
-    its_mseq = MAPSEQ_OTU_KRONA.out.mseq
-    .filter { meta, mseq ->
-        meta.db_label in ['ITSoneDB', 'UNITE']
-    }
+    its_mseq_to_filter = MAPSEQ_OTU_KRONA.out.mseq
+        .filter { meta, _mseq ->
+            meta.db_label in ['ITSoneDB', 'UNITE']
+        }
+        .map { meta, mseq ->
+            tuple(meta.id, meta, mseq)
+        }
+        .combine(
+            rfam_masked_reads_mseq
+                .map { meta, masked_reads ->
+                    tuple(meta.id, masked_reads)
+                },
+            by: 0
+        )
+        .map { _id, meta, mseq, masked_reads ->
+            tuple(meta, mseq, masked_reads)
+        }
+
+    FILTER_MAPSEQ_BY_MASK(its_mseq_to_filter)
+
+    filtered_its_mseq = FILTER_MAPSEQ_BY_MASK.out.mseq
+
+    its_mseq = filtered_its_mseq
     .map { meta, mseq ->
-        [
-            // if ITS dbs have been launched on more than one sequence, 
-            // allow for all results to be included, separated by target sequence
-            meta.subMap('id', 'target'),
-            [(meta.db_label): mseq]
-        ]
+        // Use meta.id+target for the grouping key. This keeps one group per run+target,
+        // even when ITS dbs are launched several times on the same run id.
+        tuple(meta.id, meta.target, [(meta.db_label): mseq])
     }
-    .groupTuple()
-    .map { meta, results_list ->
+    .groupTuple(by: [0, 1])
+    .map { id, target, results_list ->
         def results = [:]
 
         results_list.each { result ->
@@ -402,24 +425,28 @@ workflow AMPLICON_PIPELINE {
                 }
             }
         }
-        [meta, results]
+        tuple([id: id, target: target], results)
     }
     // Exclude empty annotation files
     .filter { meta, results ->
         !results.isEmpty()
     }
 
-    // Merge all mseq and rfam results for the same sample into a single map
-    // keyed by db label (e.g. { 'SILVA-SSU': mseq, 'Rfam_SSU_LSU_5_8S': masked_reads })
+    // Merge all mseq and rfam results for the same sample and target into a
+    // single map keyed by db label (e.g. { 'ITSoneDB': mseq, 'UNITE': mseq,
+    // 'Rfam_SSU_LSU_5_8S': masked_reads })
     read_assignments = its_mseq
     .map { meta, results ->
         tuple(meta.id, meta, results)
     }
-    .join(
+    // Rfam masking is produced once per run, so combine it with every
+    // target-specific ITS group rather than joining duplicate run ids.
+    .combine(
         rfam_masked_reads_mseq
             .map { meta, masked_reads ->
                 tuple(meta.id, masked_reads)
-            }
+            },
+        by: 0
     )
     .map { id, meta, results, masked_reads ->
         results['Rfam_SSU_LSU_5_8S'] = masked_reads
@@ -428,30 +455,33 @@ workflow AMPLICON_PIPELINE {
 
     ITS_SANITY_CHECKER(read_assignments)
 
-    // Only keep runs that pass ITS sanity checking
-    // Which only happens for runs that pass all three tests
-    real_its_runs = ITS_SANITY_CHECKER.out.its_sanity_check_out
+    // Keep one target-aware representation of every sanity-check result.
+    // ITSoneDB and UNITE results for the same run+target are checked together,
+    // while different targets remain separate.
+    its_sanity_pass = ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitJson()
-        .filter { _meta, test_results ->
-            (
+        .map { meta, test_results ->
+            def pass = (
                 test_results["tax_assignment_count_test"] &&
                 test_results["mapping_proportion_test"] &&
                 test_results["rank_proportion_test"]
             )
+            tuple(meta.id, meta.target, pass)
         }
-        .map { meta, _test_results -> meta  }
 
-    // Identify potential ITS runs that don't pass ITS sanity checking
-    its_sanity_check_fails = ITS_SANITY_CHECKER.out.its_sanity_check_out
-        .splitJson()
-        .filter { _meta, test_results ->
-            (
-                !test_results["tax_assignment_count_test"] ||
-                !test_results["mapping_proportion_test"] ||
-                !test_results["rank_proportion_test"]
-            )
-        }
-        .map { meta, _test_results -> ["${meta.id}", "failed"] }
+    // Derive run-level status from the target-aware sanity results. A run is
+    // considered to have ITS taxonomies when at least one target passes.
+    real_its_runs = its_sanity_pass
+        .filter { _id, _target, passed -> passed }
+        .map { id, _target, _passed -> [id: id] }
+        .unique()
+
+    // Identify target-specific ITS sanity checks that failed. The later run-level
+    // status logic suppresses this failure when another target has taxonomy results.
+    its_sanity_check_fails = its_sanity_pass
+        .filter { _id, _target, passed -> !passed }
+        .map { id, _target, _failed -> ["${id}", "failed"] }
+        .unique()
 
     /*****************************/
     /* Publish OTU results */
@@ -468,38 +498,74 @@ workflow AMPLICON_PIPELINE {
     otu_branched = otu_all_results
         .branch { meta, _mseq, _krona_input, _biom_out, _html ->
             its: meta.db_label in ["ITSoneDB", "UNITE"]
-            non_its: true
+            non_its: meta.db_label !in ["ITSoneDB", "UNITE"]
         }
 
-    // Filter ITS results to only include samples that pass ITS sanity check
-    its_sanity_pass = ITS_SANITY_CHECKER.out.its_sanity_check_out
-        .splitJson()
-        .map { meta, test_results ->
-            def pass = (
-                test_results["tax_assignment_count_test"] &&
-                test_results["mapping_proportion_test"] &&
-                test_results["rank_proportion_test"]
+    // Retain only passing target instances, then merge the surviving MAPseq
+    // files separately by database before regenerating their taxonomy outputs.
+    merged_its_mseq = filtered_its_mseq
+        .map { meta, mseq ->
+            tuple(meta.id, meta.target, meta, mseq)
+        }
+        .combine(its_sanity_pass, by: [0, 1])
+        .filter { _id, _target, _meta, mseq, passed -> passed && mseq.readLines().size() > 1 }
+        .map { _id, _target, meta, mseq, _passed ->
+            [meta.id, meta.db_id, meta.db_label, meta.target, mseq]
+        }
+        .groupTuple(by: [0, 1, 2])
+        .map { id, db_id, db_label, targets, mseq_files ->
+            tuple(
+                [id: id, db_id: db_id, db_label: db_label, targets: targets],
+                mseq_files
             )
-            return [meta.subMap('id'), pass]
         }
 
-    filtered_its_results = otu_branched.its
-        .map { meta, mseq, krona_input, biom_out, html ->
-            [meta.subMap('id'), meta, mseq, krona_input, biom_out, html]
+    MERGE_MAPSEQ(merged_its_mseq)
+
+    its_db_inputs = mapseq_dbs_in
+        .filter { meta, _db_files -> meta.db_label in ['ITSoneDB', 'UNITE'] }
+        .map { meta, db_files ->
+            def (_fasta, _tax, otu, _mscluster, _label) = db_files
+            tuple(meta.id, otu, meta.db_label)
         }
-        .combine(its_sanity_pass, by: 0)
-        .filter { _id_meta, _meta, _mseq, _krona_input, _biom_out, _html, flag -> flag }
-        .map { _id_meta, meta, mseq, krona_input, biom_out, html, _flag ->
+
+    merged_its_mapseq2biom_input = MERGE_MAPSEQ.out.mseq
+        .map { meta, mseq -> tuple(meta.db_id, meta, mseq) }
+        .join(its_db_inputs)
+        .multiMap { db_id, meta, mseq, otu, db_label ->
+            mseq_ch: [meta, mseq]
+            db_ch: [otu, db_label]
+        }
+
+    MAPSEQ2BIOM_MERGED(
+        merged_its_mapseq2biom_input.mseq_ch,
+        merged_its_mapseq2biom_input.db_ch,
+    )
+    ch_versions = ch_versions.mix(MAPSEQ2BIOM_MERGED.out.versions)
+
+    KRONA_KTIMPORTTEXT_MERGED(MAPSEQ2BIOM_MERGED.out.krona_input)
+    ch_versions = ch_versions.mix(KRONA_KTIMPORTTEXT_MERGED.out.versions)
+
+    merged_its_results = MERGE_MAPSEQ.out.mseq
+        .join(MAPSEQ2BIOM_MERGED.out.krona_input)
+        .join(MAPSEQ2BIOM_MERGED.out.biom_out)
+        .join(KRONA_KTIMPORTTEXT_MERGED.out.html)
+        .map { meta, mseq, krona_input, biom_out, html ->
             [meta, mseq, krona_input, biom_out, html]
         }
 
-    // Publish masked ITS reads only for runs that pass the ITS sanity check
+    // Publish masked ITS reads once if at least one target instance passes.
+    its_run_sanity_pass = its_sanity_pass
+        .filter { _id, _target, passed -> passed }
+        .map { id, _target, _passed -> [id, true] }
+        .unique()
+
     passed_masked_out = MASK_FASTA_SWF.out.masked_out
         .filter { _meta, masked_fasta -> (masked_fasta.size() > 0) }
         .map { meta, masked_fasta ->
-            [meta.subMap('id'), meta, masked_fasta]
+            [meta.id, meta, masked_fasta]
         }
-        .combine(its_sanity_pass, by: 0)
+        .combine(its_run_sanity_pass, by: 0)
         .filter { _id_meta, _meta, _masked_fasta, passed -> passed }
         .map { _id_meta, meta, masked_fasta, _passed ->
             tuple(meta, masked_fasta)
@@ -508,7 +574,7 @@ workflow AMPLICON_PIPELINE {
     PUBLISH_MASKED_ITS(passed_masked_out)
 
     // Publish all non-ITS results + ITS results that pass sanity check
-    publish_otu_input = otu_branched.non_its.mix(filtered_its_results)
+    publish_otu_input = otu_branched.non_its.mix(merged_its_results)
     PUBLISH_OTU_RESULTS(publish_otu_input)
     ch_versions = ch_versions.mix(PUBLISH_OTU_RESULTS.out.versions.first())
 
@@ -547,13 +613,15 @@ workflow AMPLICON_PIPELINE {
         .map { meta, final_inputs -> [meta.id, meta, final_inputs] }
         .join(
             ITS_SANITY_CHECKER.out.its_sanity_check_out_mqc
-                .map { meta, mqc -> [meta.id, mqc] },
+                .map { meta, mqc -> [meta.id, mqc] }
+                .groupTuple(),
             remainder: true
         )
         .map { _id, meta, final_inputs, its_sanity_check_mqc ->
             def all_inputs = final_inputs instanceof List ? final_inputs.collect() : [final_inputs]
             if (its_sanity_check_mqc) {
-                all_inputs.add(its_sanity_check_mqc)
+                def sanity_check_files = its_sanity_check_mqc instanceof List ? its_sanity_check_mqc : [its_sanity_check_mqc]
+                all_inputs.addAll(sanity_check_files)
             }
             [meta, all_inputs]
         }
@@ -655,7 +723,8 @@ workflow AMPLICON_PIPELINE {
     //          if you don't have the dada2_stats_fail status, it means you have `no_asvs`
     final_passed_runs = all_taxonomy_results
         .map { meta, results ->
-            if ("has_dada2_results" in results && "has_ssu_lsu_taxonomies" in results) {
+            if ("has_dada2_results" in results &&
+                ("has_ssu_lsu_taxonomies" in results || "has_its_taxonomies" in results)) {
                 return "${meta.id},all_results"
             }
             else if ("has_dada2_results" in results) {
