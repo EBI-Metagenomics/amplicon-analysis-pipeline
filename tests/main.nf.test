@@ -463,6 +463,36 @@ nextflow_pipeline {
         }
     }
 
+    test("End-to-end pipeline flags no-OTU DADA2 stats failures") {
+
+        tag "no_otu_dada2_stats_fail"
+
+        options "-c ${projectDir}/conf/test_no_otu_dbs.config"
+
+        when {
+            params {
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_ERR13747404.csv"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    {
+                        def failed_runs = path("${params.outdir}/qc_failed_runs.csv").readLines()
+                        assert failed_runs.size() == 1 : "Expected one failed run"
+                        assert failed_runs[0].split(",", -1)[1].trim() == "no_otus_dada2_stats_fail"
+                    },
+                    {
+                        assert !path("${params.outdir}/qc_passed_runs.csv").exists() : "qc_passed_runs.csv should not be created"
+                    }
+                )
+            }
+        }
+    }
+
     test("End-to-end pipeline with no databases") {
 
         tag "no_dbs"
