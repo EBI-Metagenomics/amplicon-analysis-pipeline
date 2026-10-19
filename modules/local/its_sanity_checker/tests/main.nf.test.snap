@@ -1,0 +1,26 @@
+{
+    "unite_only_output_json": {
+        "content": [
+            [
+                {
+                    "tax_assignment_count_test": true,
+                    "mapping_proportion_test": true,
+                    "rank_proportion_test": true,
+                    "rrna_readcount": 1199,
+                    "itsonedb_linecount": 0,
+                    "unite_linecount": 1004,
+                    "itsonedb_reads_mapping": 0.0,
+                    "unite_reads_mapping": 0.8373644703919934,
+                    "itsone_ranks_below_kingdom": 0,
+                    "unite_ranks_below_kingdom": 0.9462151394422311,
+                    "run": "unite_only"
+                }
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-10-19T14:24:34.271876"
+    }
+}
