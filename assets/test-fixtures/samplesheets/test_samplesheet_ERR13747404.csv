@@ -1,2 +1,2 @@
 sample,fastq_1,fastq_2,single_end
-ERR13747404,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/blob/f4d9fb3ff07ae60a30bbb249958e01233f4bb4ab/assets/test-fixtures/test-reads/ERR13747404_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/blob/f4d9fb3ff07ae60a30bbb249958e01233f4bb4ab/assets/test-fixtures/test-reads/ERR13747404_2.fastq.gz,false
+ERR13747404,https://raw.githubusercontent.com/EBI-Metagenomics/amplicon-analysis-pipeline/f4d9fb3ff07ae60a30bbb249958e01233f4bb4ab/assets/test-fixtures/test-reads/ERR13747404_1.fastq.gz,https://raw.githubusercontent.com/EBI-Metagenomics/amplicon-analysis-pipeline/f4d9fb3ff07ae60a30bbb249958e01233f4bb4ab/assets/test-fixtures/test-reads/ERR13747404_2.fastq.gz,false
