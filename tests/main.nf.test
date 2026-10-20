@@ -627,4 +627,46 @@ nextflow_pipeline {
             }
         }
     }
+
+    test("Paired-end reads that run through the amplicon have primers trimmed from both ends") {
+
+        tag "readthrough"
+
+        // 16S V4 (515F/806R) reads from assets/test-fixtures/test-reads/make_readthrough_reads.py:
+        // the 292 bp amplicon (253 bp without primers) is shorter than the 2x300 reads,
+        // so each read ends in the other primer, reverse-complemented, then adapter.
+
+        when {
+            params {
+                // Written at runtime so the fixture is read from this checkout, not GitHub
+                def reads = "${projectDir}/assets/test-fixtures/test-reads"
+                def sheet = new File("${outputDir}/test_samplesheet_readthrough.csv")
+                sheet.parentFile.mkdirs()
+                sheet.text = "sample,fastq_1,fastq_2,single_end\nREADTHROUGH,${reads}/READTHROUGH_1.fastq.gz,${reads}/READTHROUGH_2.fastq.gz,false\n"
+                input  = sheet.toString()
+                outdir = "$outputDir/results"
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    { assert path("${params.outdir}/qc_passed_runs.csv").text.contains("READTHROUGH,all_results") },
+                    {
+                        def asvs = path("${params.outdir}/READTHROUGH/asv/READTHROUGH_asv_seqs.fasta").readLines()
+                            .findAll { line -> !line.startsWith(">") && !line.trim().isEmpty() }
+                        assert !asvs.isEmpty() : "Expected ASVs"
+                        def problems = []
+                        asvs.each { seq ->
+                            if (seq =~ /^GTG[CT]CAGC[AC]GCCGCGGTAA/) problems << "starts with 515F (${seq.length()} bp)"
+                            if (seq =~ /ATTAGA[AT]ACCC[CGT].GTAGTCC$/) problems << "ends with RC(806R) (${seq.length()} bp)"
+                            if (seq.length() < 250 || seq.length() > 256) problems << "length ${seq.length()}, expected 250-256"
+                        }
+                        assert problems.isEmpty() : "${asvs.size()} ASVs, ${problems.size()} problems:\n" + problems.join('\n')
+                    }
+                )
+            }
+        }
+    }
 }
