@@ -15,9 +15,8 @@ process PRIMER_VALIDATION_CLASSIFY_VAR_REGIONS {
     path "versions.yml"                            , emit: versions
 
     script:
-    def se_flag = meta.single_end ? "--se" : ""
     """
-    primer_val_classification -i $cmsearch_deoverlap_out -f $concat_primers_fasta -s ${meta.id} ${se_flag}
+    primer_val_classification -i $cmsearch_deoverlap_out -f $concat_primers_fasta -s ${meta.id}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

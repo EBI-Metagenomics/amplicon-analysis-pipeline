@@ -3,6 +3,7 @@ include { CONCAT_PRIMERS          } from '../../modules/local/concat_primers/mai
 include { FINAL_CONCAT_PRIMERS    } from '../../modules/local/final_concat_primers/main.nf'
 include { SPLIT_PRIMERS_BY_STRAND } from '../../modules/local/split_primers_by_strand.nf'
 include { PRIMER_VALIDATION       } from '../../subworkflows/local/primer_validation_swf.nf'
+include { PREP_CUTADAPT_PRIMERS   } from '../../modules/local/prep_cutadapt_primers/main.nf'
 
 include { CUTADAPT                } from '../../modules/ebi-metagenomics/cutadapt/main.nf'
 
@@ -54,7 +55,17 @@ workflow CONCAT_PRIMER_CUTADAPT {
         )
         ch_versions = ch_versions.mix(PRIMER_VALIDATION.out.versions)
 
-        post_primer_validation_filter = PRIMER_VALIDATION.out.validated_primers
+        // validated_primers always holds fwd_primers.fasta and rev_primers.fasta (either may be empty)
+        PREP_CUTADAPT_PRIMERS(
+            PRIMER_VALIDATION.out.validated_primers
+                .map{ meta, primers ->
+                    [ meta, primers.find{ f -> f.name.startsWith('fwd_') }, primers.find{ f -> f.name.startsWith('rev_') } ]
+                }
+        )
+        ch_versions = ch_versions.mix(PREP_CUTADAPT_PRIMERS.out.versions.first())
+
+        post_primer_validation_filter = PREP_CUTADAPT_PRIMERS.out.cutadapt_prepared_primers
+                                        .map{ meta, f, r, f_rc, r_rc -> [ meta, [f, r, f_rc, r_rc] ] }
                                         .mix(runs_without_primers)
 
         cutadapt_input = post_primer_validation_filter

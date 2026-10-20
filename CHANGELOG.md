@@ -1,5 +1,9 @@
 # EBI-Metagenomics/amplicon-analysis-pipeline: Changelog
 
+## Unreleased
+
+- Single-end runs now publish `primer-identification/rev_primers.fasta` in the primer's own orientation, as paired-end runs do. Previously it was reverse-complemented. Cutadapt primer files (forward, reverse and their reverse complements, padded and anchored) are now generated from it by the new `PREP_CUTADAPT_PRIMERS` step, controlled by `--bases_allowed_before_primer` (default 25).
+
 ## v6.2 - [2026/09/08]
 
 - The identification of ITS-containing sequences has been extended to include the 5.8S rRNA region. Previously, sequences matching SSU and LSU Rfam models had their corresponding regions masked before the remaining sequence was queried against ITS reference databases. The same approach is now applied to 5.8S regions, if provided, to allow the annotation of datasets targeting 5.8S+ITS.

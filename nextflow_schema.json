@@ -48,6 +48,13 @@
           "description": "Skip standardisation of reads FASTQ files which involves normalising the headers and de-interleaving when appropriate.",
           "default": true
         },
+        "bases_allowed_before_primer": {
+          "type": "integer",
+          "description": "Number of bases allowed before a primer at either end of a read for cutadapt to trim it.",
+          "default": 25,
+          "minimum": 0,
+          "help_text": "Primers are padded with this many `N` wildcards and anchored to the read end, so cutadapt only trims a primer (or the reverse-complemented primer of the other mate, in read-through) that starts within this many bases of the 5' end or ends within this many bases of the 3' end."
+        },
         "pair_header_dot_suffix": {
           "type": "boolean",
           "description": "Rewrite paired-end header suffixes from '/1' or ' /1' and '/2' or ' /2' to '.1' and '.2' after read standardisation.",
