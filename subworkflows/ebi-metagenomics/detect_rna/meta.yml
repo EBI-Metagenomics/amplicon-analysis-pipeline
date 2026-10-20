@@ -198,6 +198,32 @@ output:
         type: file
         description: "non-coding RNA nucleotide sequences"
         ontologies: []
+  - cmsearch_deoverlap_non_empty:
+      description: |
+        Non-empty de-overlapped cmsearch .tblout files
+        Structure: [ val(meta), path("*.tblout.deoverlapped") ]
+      meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+      "*.tblout.deoverlapped":
+        type: file
+        description: Non-empty de-overlapped .tblout file
+        pattern: "*.tblout.deoverlapped"
+  - cmsearch_deoverlap_empty:
+      description: |
+        Empty de-overlapped cmsearch .tblout files
+        Structure: [ val(meta), path("*.tblout.deoverlapped") ]
+      meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
+      "*.tblout.deoverlapped":
+        type: file
+        description: Empty de-overlapped .tblout file
+        pattern: "*.tblout.deoverlapped"
 
 authors:
   - "@Kate_Sakharova"

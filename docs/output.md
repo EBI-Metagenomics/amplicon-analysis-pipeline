@@ -6,7 +6,7 @@ The pipeline functions on a per-run/sample basis, and the outputs are shaped in 
 
 ## Per-run output files
 
-There are six general categories of results, which are separated into six different output directories by the pipeline, and each successful run/sample should have all six of these directories:
+There are six general categories of results, which are separated into six different output directories by the pipeline, and each successful run/sample should have up to six of these directories:
 
 ```bash
 ├── qc
@@ -45,10 +45,11 @@ The `qc` directory contains output files related to the quality control steps of
 - **ERR4334351.merged.fastq.gz**: This compressed `fastq` file contains the cleaned and merged reads from the `fastp` run. _Note: if the run is single-end, this file won't exist._
 - **ERR1718805.fastp.fastq.gz**: This compressed `fastq` file contains the cleaned reads from the `fastp` run. This file can be seen as the equivalent of the previous merged file for single-end runs.
 - **ERR4334351_dada2_errors.txt**: This `txt` file contains the DADA2 error log, generated if the process fails. This can be used to help diagnose issues with your data (e.g. lack of valid ASV sequences) and causes of failure in the script. _Note: if the process succeeded, this file won't exist._
-- **ERR4334351_dada2_stats.tsv**: This `tsv` file is used by `MultiQC` to generate its report files. It provides multiple data points to help determine the reliability of the analysis (usually limited by the quality of input data), in particular:
-    - _read counts_ are reported at multiple stages, in particular after the filter, trim, de-replication, merge, and ASV computation steps. We recommend reconsidering the reliability of this analysis if less than 90% of the initial reads contain ASV sequences, as these spurious results may indicate low quality input raw reads.
-    - _truncation points_ for forward and reverse paired-ends (if appropriate). DADA2 truncates all reads to the same length to keep error modeling consistent across positions and ensure sequences are directly comparable during variant inference. This avoids biases from variable read quality and prevents shorter reads from being misinterpreted as biological variants rather than sequencing artifacts. A detected truncation point too far ahead in the read may explain a lack of ASVs in the analysis. 
-    - _chimeric reads_ are likely artifacts that do not mirror real biological sequences. We recommend reconsidering the reliability of this analysis if dada2_stats reports more than 25% of chimeric reads.
+- **ERR4334351_dada2_stats.tsv**: This `tsv` file is used by `MultiQC` to generate its report files. As it comes from the ASV identification subworklow, it will only exist for SSU sequences where ASVs were detected. It provides multiple data points to help determine the reliability of the analysis (usually limited by the quality of input data), in particular:
+  - _read counts_ are reported at multiple stages: before the DADA2 analysis (`initial_read_count`), after DADA2 filtering and trimming (`filtered_trimmed_read_count`), after de-replication (`dereplicated_read_count`), after merging (`merged_read_pair_count`), after ASV computation (`reads_with_asv_read_count`), and after chimeric evaluation (`final_nonchimeric_read_count`) steps. We recommend reconsidering the reliability of this analysis if less than 90% of the initial reads contain ASV sequences (`proportion_reads_matched`), as these spurious results may indicate low quality input raw reads.
+  - _truncation points_ for forward and reverse paired-ends (if appropriate, respectively `truncation_point_forward` and `truncation_point_reverse`). These fields will report `-1` if no truncation occurred. DADA2 truncates all reads to the same length to keep error modeling consistent across positions and ensure sequences are directly comparable during variant inference. This avoids biases from variable read quality and prevents shorter reads from being misinterpreted as biological variants rather than sequencing artifacts. A detected truncation point too far ahead in the read may explain a lack of ASVs in the analysis.
+  - _sequence variants_ counts are also reported at different stages of the pipeline: those inferred from forward and reverse reads (`forward_denoised_sequence_variant_count` and `reverse_denoised_sequence_variant_count`), after merging forward and reverse sequences (`merged_sequence_variant_count`), and finally after checking for chimeras (`final_nonchimeric_sequence_variant_count`).
+  - _chimeric reads_ are likely artifacts that do not mirror real biological sequences. We recommend reconsidering the reliability of this analysis if dada2_stats reports more than 25% of chimeric reads by comparing the number of original reads with final non-chimeric reads (reported under `proportion_reads_chimeric`) and sequence variants (`final_nonchimeric_sequence_variant_count`).
 - **ERR4334351_multiqc_report.html**: This `html` file contains the `MultiQC` report for that run. It will combine outputs from three different tools into the report; `fastp`, `cutadapt`, and `DADA2`.
 - **ERR4334351_seqfu.tsv**: This `tsv` file contains the output from the sanity checking performed by `SeqFu`. `SeqFu` makes a few checks of whether the given fastq files are correctly structured, and if this QC step fails, the contents of this file will indicate the reasons why. The contents of the tsv file are described in [seqfu's documentation](https://telatin.github.io/seqfu2/tools/check.html#output).
 - **ERR4334351_suffix_header_err.json**: This `json` file contains the output from the sanity checking performed on the suffixes and headers of fastq files. It is expected that the fastq files ending with the suffix `_1` should contain the `/1` tag in the headers inside the file, and vice versa for the suffix `_2` and tag `/2`. _Note: if the run is single-end, the header check should be to have no suffix, but still contain the `/1` tag as is standard._
@@ -269,12 +270,13 @@ SRRLIBSTRATFAIL,libstrat_fail
 
 The different exclusion messages are:
 
-| Exclusion message |                                                                                        Description                                                                                        |
-| :---------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|   `seqfu_fail`    |                                       Run had an error after running `seqfu check`. Check the log file in `qc/${id}_seqfu.tsv` for the exact reason                                       |
-|   `sfxhd_fail`    | Run had an error related to the suffix of the file `_1/_2` not matching the headers inside the fastq file. Check the log file in `qc/${id}_suffix_header_err.json` for the reads at fault |
-|  `libstrat_fail`  |                                  Run was predicted to likely not be of AMPLICON sequencing based on base-conservation patterns at the beginning of reads                                  |
-|    `no_reads`     |                                                                        Run had no reads left after running `fastp`                                                                        |
+|     Exclusion message      |                                                                                        Description                                                                                        |
+| :------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|        `seqfu_fail`        |                                       Run had an error after running `seqfu check`. Check the log file in `qc/${id}_seqfu.tsv` for the exact reason                                       |
+|        `sfxhd_fail`        | Run had an error related to the suffix of the file `_1/_2` not matching the headers inside the fastq file. Check the log file in `qc/${id}_suffix_header_err.json` for the reads at fault |
+|      `libstrat_fail`       |                                  Run was predicted to likely not be of AMPLICON sequencing based on base-conservation patterns at the beginning of reads                                  |
+|         `no_reads`         |                                                                        Run had no reads left after running `fastp`                                                                        |
+| `no_otus_dada2_stats_fail` |                                                Run had no OTU mappings, and had a DADA2 stats fail, resulting in no valid taxonomy results                                                |
 
 ### QC passed runs
 
