@@ -8,7 +8,8 @@ nextflow_process {
     tag "modules"
     tag "cutadapt"
 
-    // Fixtures come from assets/test-fixtures/test-reads/make_readthrough_reads.py:
+    // Reads come from assets/test-fixtures/test-reads/make_readthrough_reads.py; primer
+    // files are 515F/806R as PREP_CUTADAPT_PRIMERS writes them (bases_allowed_before_primer = 25):
     // 16S V4 (515F/806R) pairs whose 292 bp amplicon (253 bp without primers) is
     // labelled by class in each read header. After trimming, both primers must be
     // gone from every read: classes through/edge/partial end at 253 nt; long and
@@ -26,8 +27,10 @@ nextflow_process {
                         file("${moduleDir}/tests/data/readthrough_2.fastq.gz", checkIfExists: true)
                     ],
                     [
-                        file("${moduleDir}/tests/data/fwd_primers.fasta", checkIfExists: true),
-                        file("${moduleDir}/tests/data/rev_primers.fasta", checkIfExists: true)
+                        file("${moduleDir}/tests/data/readthrough_F.fasta", checkIfExists: true),
+                        file("${moduleDir}/tests/data/readthrough_R.fasta", checkIfExists: true),
+                        file("${moduleDir}/tests/data/readthrough_F_RC.fasta", checkIfExists: true),
+                        file("${moduleDir}/tests/data/readthrough_R_RC.fasta", checkIfExists: true)
                     ]
                 ]
                 """
@@ -73,8 +76,10 @@ nextflow_process {
                     [ id:'readthrough_se', single_end:true ],
                     file("${moduleDir}/tests/data/readthrough_se.fastq.gz", checkIfExists: true),
                     [
-                        file("${moduleDir}/tests/data/fwd_primers.fasta", checkIfExists: true),
-                        file("${moduleDir}/tests/data/rev_primers_se.fasta", checkIfExists: true)
+                        file("${moduleDir}/tests/data/readthrough_F.fasta", checkIfExists: true),
+                        file("${moduleDir}/tests/data/readthrough_R.fasta", checkIfExists: true),
+                        file("${moduleDir}/tests/data/readthrough_F_RC.fasta", checkIfExists: true),
+                        file("${moduleDir}/tests/data/readthrough_R_RC.fasta", checkIfExists: true)
                     ]
                 ]
                 """

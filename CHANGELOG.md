@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Single-end runs now publish `primer-identification/rev_primers.fasta` in the primer's own orientation, as paired-end runs do. Previously it was reverse-complemented. Cutadapt primer files (forward, reverse and their reverse complements, padded and anchored) are now generated from it by the new `PREP_CUTADAPT_PRIMERS` step, controlled by `--bases_allowed_before_primer` (default 25).
+- Cutadapt now trims primers in two passes: each read's own primer from its 5' end, then the other primer (reverse-complemented) from its 3' end, so paired-end reads that run through a short amplicon no longer keep the other primer and ASVs no longer start or end with primers. Both passes are anchored within `--bases_allowed_before_primer` of the read end and use `-e 0.2` (previously `-n 2` with the default 0.1). Each run now writes `*.first_pass.cutadapt.json` and `*.second_pass.cutadapt.json` instead of `*.cutadapt.json`.
 
 ## v6.2 - [2026/09/08]
 

@@ -30,13 +30,12 @@ input:
   - primers:
       type: file
       description: |
-        List of at most two primer fasta files
-        The first file should be the forward strand
-        The second file should be the reverse strand
-        If you only want to trim a primer from one strand,
-        then use an empty file as a standin for the second
-        e.g. `[ path/to/fwd_primer, empty.txt ]` for only using
-        the forward primer
+        List of four primer fasta files, any of which may be empty:
+        `[ fwd, rev, fwd_rc, rev_rc ]`, as written by PREP_CUTADAPT_PRIMERS
+        (`XN{n}PRIMER` for fwd/rev, `RC(PRIMER)N{n}X` for the _rc files).
+        A first pass trims fwd (and rev from R2) from the 5' end, a second
+        pass trims rev_rc (and fwd_rc from R2) from the 3' end.
+        An empty list skips trimming and writes empty placeholder outputs.
       pattern: "*.fasta"
 
 output:
@@ -53,6 +52,10 @@ output:
       type: file
       description: Log file containing stdout from cutadapt
       pattern: "*.log"
+  - json:
+      type: file
+      description: cutadapt JSON reports, one per pass
+      pattern: "*.{first_pass,second_pass}.cutadapt.json"
   - versions:
       type: file
       description: File containing software versions
