@@ -125,7 +125,8 @@ The `primer-identification` directory contains output files related to the autom
 ├── primer-identification
     ├── fwd_primers.fasta
     ├── rev_primers.fasta
-    ├── ERR4334351.cutadapt.json
+    ├── ERR4334351.first_pass.cutadapt.json
+    ├── ERR4334351.second_pass.cutadapt.json
     └── ERR4334351_primer_validation.tsv
 ├── asv
 └── taxonomy-summary
@@ -134,8 +135,8 @@ The `primer-identification` directory contains output files related to the autom
 #### Output files
 
 - **fwd_primers.fasta**: This `fasta` file contains the sequences of any forward (5'-3')identified primers that were then trimmed off using `cutadapt`.
-- **rev_primers.fasta**: This `fasta` file contains the sequences of any forward (3'-5')identified primers that were then trimmed off using `cutadapt`.
-- **ERR4334351.cutadapt.json**: This `json` file contains the summary output of the `cutadapt` run, including which primers were trimmed off, how many bases were trimmed off in the process, etc. This `json` file is also used later by `MultiQC` to generate its report files.
+- **rev_primers.fasta**: This `fasta` file contains the sequences of any identified reverse primers, in their own (5'-3') orientation, that were then trimmed off using `cutadapt`.
+- **ERR4334351.first_pass.cutadapt.json** and **ERR4334351.second_pass.cutadapt.json**: These `json` files contain the summary output of the two `cutadapt` passes, including which primers were trimmed off, how many bases were trimmed off in the process, etc. The first pass trims each read's own primer from its 5' end. The second pass trims the other primer, reverse-complemented, from the 3' end, where it is left on paired-end reads that run through an amplicon shorter than the read. Both passes only trim primers within `--bases_allowed_before_primer` (default 25) bases of the read end. These `json` files are also used later by `MultiQC` to generate its report files.
 - **ERR4334351_primer_validation.tsv**: This `tsv` file contains the summary output of the primer validation module. Any primers that were trimmed off will have successfully been validated as primers using `infernal/cmsearch`, and this output file summarises these findings.
 
 ### asv

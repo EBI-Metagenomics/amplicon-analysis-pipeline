@@ -13,8 +13,26 @@ skip_versions_section: true
 export_plots: false # TODO: False because it will hang at plot generation when True in certain circumstances (https://community.seqera.io/t/multiqc-timing-out/2074). Need to fix the container for it probably
 module_order:
   - fastp
-  - cutadapt
+  - cutadapt:
+      name: "Cutadapt (First Pass)"
+      anchor: "cutadapt_first_pass"
+      info: "Trimming of each read's own primer from its 5' end."
+      path_filters:
+        - "*first_pass.cutadapt.json"
+  - cutadapt:
+      name: "Cutadapt (Second Pass)"
+      anchor: "cutadapt_second_pass"
+      info: "Trimming of the other primer (reverse-complemented) from the 3' end of reads that run through the amplicon."
+      path_filters:
+        - "*second_pass.cutadapt.json"
   - custom_content
 top_modules:
   - fastp
+  - cutadapt_first_pass
+  - cutadapt_second_pass
+# Name cutadapt samples after their JSON (the second pass's inputs are pass-1 files)
+use_filename_as_sample_name:
   - cutadapt
+extra_fn_clean_exts:
+  - ".first_pass.cutadapt"
+  - ".second_pass.cutadapt"

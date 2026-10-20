@@ -534,15 +534,8 @@ workflow AMPLICON_PIPELINE {
         .join(DADA2_SWF.out.dada2_report.map{ meta, tsv ->
             [['id':meta.id, 'single_end':meta.single_end], tsv]}, remainder:true)
         .map{ meta, cutadapt, fastp, dada2 ->
-            def final_inputs = [cutadapt, fastp, dada2]
-            if (!cutadapt){
-                final_inputs -= cutadapt
-            }
-            if (!dada2){
-                final_inputs -= dada2
-            }
-
-            [meta, final_inputs]
+            // cutadapt is a [first_pass, second_pass] JSON pair; drop inputs missing for this run
+            [meta, [cutadapt, fastp, dada2].flatten().findAll { f -> f }]
         }
         .map { meta, final_inputs -> [meta.id, meta, final_inputs] }
         .join(
