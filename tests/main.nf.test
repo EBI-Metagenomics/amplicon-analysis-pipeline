@@ -265,11 +265,14 @@ nextflow_pipeline {
                         assert primer_val.contains("341F") && primer_val.contains("16S")
                         assert primer_val.contains("fwd") && primer_val.contains("rev")
 
-                        def cutadapt_json = path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.cutadapt.json").text
-                        def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
+                        def cutadapt = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.first_pass.cutadapt.json").text)
                         assert cutadapt instanceof Map
-                        assert 5674 in cutadapt["adapters_read1"]["total_matches"]
-                        assert 5756 in cutadapt["adapters_read2"]["total_matches"]
+                        assert 5774 in cutadapt["adapters_read1"]["total_matches"]
+                        assert 5781 in cutadapt["adapters_read2"]["total_matches"]
+                        // V3-V4 amplicon is longer than the reads: next to no 3' read-through hits
+                        def cutadapt_3p = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.second_pass.cutadapt.json").text)
+                        assert cutadapt_3p["adapters_read1"]["total_matches"].sum() <= 5
+                        assert cutadapt_3p["adapters_read2"]["total_matches"].sum() <= 5
                     },
 
                     // Verify MOCKDOUBLEAMP primer identification outputs
@@ -281,11 +284,14 @@ nextflow_pipeline {
                         assert primer_val.contains("V9F1F") && primer_val.contains("1510R")
                         assert primer_val.contains("fwd") && primer_val.contains("rev")
 
-                        def cutadapt_json = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.cutadapt.json").text
-                        def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
+                        def cutadapt = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.first_pass.cutadapt.json").text)
                         assert cutadapt instanceof Map
                         assert 5664 in cutadapt["adapters_read1"]["total_matches"]
-                        assert 5650 in cutadapt["adapters_read2"]["total_matches"]
+                        assert 5666 in cutadapt["adapters_read2"]["total_matches"]
+                        // V9 pairs read through the short amplicon: RC(1510R) on R1, RC(V9F1F) on R2
+                        def cutadapt_3p = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.second_pass.cutadapt.json").text)
+                        assert cutadapt_3p["adapters_read1"].find { a -> a.name == "1510R" }.total_matches == 163
+                        assert cutadapt_3p["adapters_read2"].find { a -> a.name == "V9F1F" }.total_matches == 118
                     },
 
                     // Verify ERR4334351 primer FASTA files contain sequences

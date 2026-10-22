@@ -20,8 +20,11 @@ Changes in 'cutadapt/main.nf':
      path "versions.yml"                     , emit: versions
  
      when:
-@@ -23,44 +24,69 @@
+@@ -21,46 +22,72 @@
+ 
+     script:
      def args = task.ext.args ?: ''
++    def args2 = task.ext.args2 ?: args // second pass; defaults to args
      def prefix = task.ext.prefix ?: "${meta.id}"
  
 -    def trimmed = "-o ${prefix}.trim.fastq.gz"
@@ -80,7 +83,7 @@ Changes in 'cutadapt/main.nf':
 -    def primer_arg = "$fwd_primer $rev_primer"
 +        cutadapt \\
 +            --cores $task.cpus \\
-+            $args \\
++            $args2 \\
 +            $trimmed_out \\
 +            $second_primer_args \\
 +            ${first_pass.join(' ')} \\

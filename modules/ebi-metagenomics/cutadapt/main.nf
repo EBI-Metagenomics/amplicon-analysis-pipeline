@@ -22,6 +22,7 @@ process CUTADAPT {
 
     script:
     def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: args // second pass; defaults to args
     def prefix = task.ext.prefix ?: "${meta.id}"
 
     // primers convention: [fwd, rev, fwd_rc, rev_rc], any of which may be empty
@@ -67,7 +68,7 @@ process CUTADAPT {
 
         cutadapt \\
             --cores $task.cpus \\
-            $args \\
+            $args2 \\
             $trimmed_out \\
             $second_primer_args \\
             ${first_pass.join(' ')} \\
