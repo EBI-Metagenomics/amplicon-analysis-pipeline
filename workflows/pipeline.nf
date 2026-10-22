@@ -436,7 +436,7 @@ workflow AMPLICON_PIPELINE {
     // Keep one target-aware representation of every sanity-check result.
     // ITSoneDB and UNITE results for the same run+target are checked together,
     // while different targets remain separate.
-    its_sanity_pass = ITS_SANITY_CHECKER.out.its_sanity_check_out
+    its_sanity_pass_boolean = ITS_SANITY_CHECKER.out.its_sanity_check_out
         .splitJson()
         .map { meta, test_results ->
             def pass = (
@@ -449,14 +449,14 @@ workflow AMPLICON_PIPELINE {
 
     // Derive run-level status from the target-aware sanity results. A run is
     // considered to have ITS taxonomies when at least one target passes.
-    real_its_runs = its_sanity_pass
+    real_its_runs = its_sanity_pass_boolean
         .filter { _id, _target, passed -> passed }
         .map { id, _target, _passed -> [id: id] }
         .unique()
 
     // Identify target-specific ITS sanity checks that failed. The later run-level
     // status logic suppresses this failure when another target has taxonomy results.
-    its_sanity_check_fails = its_sanity_pass
+    its_sanity_check_fails = its_sanity_pass_boolean
         .filter { _id, _target, passed -> !passed }
         .map { id, _target, _failed -> ["${id}", "failed"] }
         .unique()
@@ -486,7 +486,7 @@ workflow AMPLICON_PIPELINE {
         .map { meta, mseq ->
             tuple(meta.id, meta.target, meta, mseq)
         }
-        .combine(its_sanity_pass, by: [0, 1])
+        .combine(its_sanity_pass_boolean, by: [0, 1])
         .filter { _id, _target, _meta, mseq, passed -> passed && mseq.readLines().size() > 1 }
         .map { _id, _target, meta, mseq, _passed ->
             [meta.id, meta.db_id, meta.db_label, meta.target, mseq]
@@ -508,6 +508,8 @@ workflow AMPLICON_PIPELINE {
             tuple(meta.id, otu, meta.db_label)
         }
 
+    // MAPSEQ2BIOM needs the .OTU file from the input db
+    // this step only involves ITS dbs as SSU+LSU mseq files stayed the same
     merged_its_mapseq2biom_input = MERGE_MAPSEQ.out.mseq
         .map { meta, mseq -> tuple(meta.db_id, meta, mseq) }
         .join(its_db_inputs)
@@ -534,7 +536,8 @@ workflow AMPLICON_PIPELINE {
         }
 
     // Publish masked ITS reads once if at least one target instance passes.
-    its_run_sanity_pass = its_sanity_pass
+    // List of unique runs passing one or more ITS sanity checks
+    its_run_sanity_pass = its_sanity_pass_boolean
         .filter { _id, _target, passed -> passed }
         .map { id, _target, _passed -> [id, true] }
         .unique()
