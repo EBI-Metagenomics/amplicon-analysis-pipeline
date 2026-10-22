@@ -257,6 +257,8 @@ The pipeline generates two [MultiQC](https://seqera.io/multiqc/) reports: one pe
 - cutadapt
 - DADA2 (as a custom report)
 
+Both report types also include the pipeline version, Nextflow version, a methods description with linked citations for the core analysis tools, and software versions collected during the run. The methods describe pipeline capabilities; some steps may not run for every sample. Commands and parameter summaries are omitted to avoid exposing filesystem paths.
+
 ### QC failed runs
 
 The pipeline runs a couple of sanity and QC checks on every input run. In the case where a run fails, it will be added to a top-level report (`qc_failed_runs.csv`) that aggregates the IDs of any other run that failed, along with the particular reason it failed. For example:

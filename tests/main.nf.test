@@ -46,6 +46,28 @@ nextflow_pipeline {
                         assert snapshot(lineCounts).match("line_counts")
                     },
 
+                    // Shared methods metadata must be present in both report types.
+                    {
+                        [
+                            "${params.outdir}/ERR4334351/qc/ERR4334351_multiqc_report.html",
+                            "${params.outdir}/study_multiqc_report.html"
+                        ].each { report ->
+                            def html = path(report).text
+                            assert html.contains('ebi-metagenomics-amplicon-analysis-pipeline-methods-description')
+                            def manifest = path("${projectDir}/nextflow.config").text
+                            def version = (manifest =~ /version\s*=\s*'([^']+)'/)[0][1]
+                            assert html.contains("ebi-metagenomics/amplicon-analysis-pipeline v${version}")
+                            assert html.contains('Nextflow v')
+                            assert html.contains('https://doi.org/10.1038/nmeth.3869')
+                            assert html.contains('https://doi.org/10.1093/bioinformatics/btx517')
+                            assert html.contains('https://doi.org/10.3390/bioengineering8050059')
+                            assert html.contains('https://doi.org/10.1002/imt2.191')
+                            assert html.contains('https://doi.org/10.1093/gigascience/giag083')
+                            assert html.contains('https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit')
+                            assert !html.contains('nf-core/amplicon-analysis-pipeline v')
+                        }
+                    },
+
                     // Verify qc_passed_runs.csv content
                     {
                         def content = path("${params.outdir}/qc_passed_runs.csv").text
