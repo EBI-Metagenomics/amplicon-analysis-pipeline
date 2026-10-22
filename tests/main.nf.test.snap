@@ -55,7 +55,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-09-22T21:00:15.09057888",
+        "timestamp": "2026-10-20T12:17:16.04185864",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -83,7 +83,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-09-22T20:35:36.6820196",
+        "timestamp": "2026-10-20T11:56:56.879887105",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -140,7 +140,7 @@
                 "rev_primers.fasta - 4 lines"
             ]
         ],
-        "timestamp": "2026-09-22T20:27:10.697680102",
+        "timestamp": "2026-10-20T11:50:14.642670234",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -192,7 +192,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-09-22T20:35:36.564126865",
+        "timestamp": "2026-10-20T11:56:56.773678623",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -288,7 +288,7 @@
                 "rev_primers.fasta - 56 bytes"
             ]
         ],
-        "timestamp": "2026-09-22T20:27:10.278865103",
+        "timestamp": "2026-10-20T11:50:13.962327918",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -318,7 +318,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-09-22T20:51:35.628316532",
+        "timestamp": "2026-10-20T12:10:50.425951561",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -455,7 +455,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-09-22T20:27:10.185004656",
+        "timestamp": "2026-10-20T11:50:13.791469603",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -485,7 +485,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-09-22T21:00:15.223401443",
+        "timestamp": "2026-10-20T12:17:16.102321116",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -522,7 +522,7 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-09-22T20:35:36.591071326",
+        "timestamp": "2026-10-20T11:56:56.79200936",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -559,7 +559,7 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-09-22T20:43:55.719817175",
+        "timestamp": "2026-10-20T12:04:02.585319723",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -621,7 +621,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-09-22T20:51:35.523359379",
+        "timestamp": "2026-10-20T12:10:50.35925108",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -666,7 +666,7 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-09-22T21:00:15.123184005",
+        "timestamp": "2026-10-20T12:17:16.05788681",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -711,7 +711,7 @@
                 "rev_primers.fasta - 28 bytes"
             ]
         ],
-        "timestamp": "2026-09-22T20:51:35.547913752",
+        "timestamp": "2026-10-20T12:10:50.376605699",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -739,7 +739,7 @@
                 "rev_primers.fasta - 2 lines"
             ]
         ],
-        "timestamp": "2026-09-22T20:43:55.80951387",
+        "timestamp": "2026-10-20T12:04:02.676160553",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"
@@ -791,7 +791,7 @@
                 "study_multiqc_report.html"
             ]
         ],
-        "timestamp": "2026-09-22T20:43:55.69712509",
+        "timestamp": "2026-10-20T12:04:02.567172452",
         "meta": {
             "nf-test": "0.9.5",
             "nextflow": "25.10.4"

@@ -78,8 +78,8 @@ def tax_assignment_count_test(
     Tax Assignment Count test will check whether the number of reads with assignments
     is above the `TAX_ASSIGNMENT_COUNT_TEST_THRESHOLD` threshold
     """
-    itsonedb_pass = itsonedb_linecount > tax_assignment_count_test_threshold
-    unite_pass = unite_linecount > tax_assignment_count_test_threshold
+    itsonedb_pass = itsonedb_linecount >= tax_assignment_count_test_threshold
+    unite_pass = unite_linecount >= tax_assignment_count_test_threshold
 
     return itsonedb_pass or unite_pass
 
@@ -105,7 +105,7 @@ def mapping_proportion_test(
     else:
         itsonedb_reads_mapping = itsonedb_linecount / float(rrna_readcount)
         logger.info(f"ITSoneDB Mapping Proportion: {itsonedb_reads_mapping}")
-        itsonedb_pass = itsonedb_reads_mapping > mapping_proportion_test_threshold
+        itsonedb_pass = itsonedb_reads_mapping >= mapping_proportion_test_threshold
     if unite_linecount == 0:
         logger.info("UNITE Mapping Proportion: 0")
         unite_pass = False
@@ -113,7 +113,7 @@ def mapping_proportion_test(
     else:
         unite_reads_mapping = unite_linecount / float(rrna_readcount)
         logger.info(f"UNITE Mapping Proportion: {unite_reads_mapping}")
-        unite_pass = unite_reads_mapping > mapping_proportion_test_threshold
+        unite_pass = unite_reads_mapping >= mapping_proportion_test_threshold
 
     return itsonedb_pass or unite_pass, itsonedb_reads_mapping, unite_reads_mapping
 
@@ -150,12 +150,12 @@ def rank_proportion_test(
         logger.info(f"UNITE Rank Proportion: {unite_ranks_below_kingdom}")
 
     itsonedb_pass = (
-        itsone_ranks_below_kingdom > rank_proportion_test_threshold
-        and itsonedb_linecount > tax_assignment_count_test_threshold
+        itsone_ranks_below_kingdom >= rank_proportion_test_threshold
+        and itsonedb_linecount >= tax_assignment_count_test_threshold
     )
     unite_pass = (
-        unite_ranks_below_kingdom > rank_proportion_test_threshold
-        and unite_linecount > tax_assignment_count_test_threshold
+        unite_ranks_below_kingdom >= rank_proportion_test_threshold
+        and unite_linecount >= tax_assignment_count_test_threshold
     )
 
     return (
