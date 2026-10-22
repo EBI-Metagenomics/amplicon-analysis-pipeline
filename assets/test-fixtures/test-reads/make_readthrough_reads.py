@@ -3,8 +3,7 @@
 
 The amplicon is 292 bp with primers (253 bp without), so 2x300 reads end in the
 other primer, reverse-complemented, followed by adapter. Used to test that
-primers are trimmed from both ends of each read (see
-docs/primer_readthrough_trimming_plan.md).
+primers are trimmed from both ends of each read.
 
 Read classes, written as `class=<name>` in each read's header:
     through   insert shorter than the read: ... RC(primer) + adapter + G fill
