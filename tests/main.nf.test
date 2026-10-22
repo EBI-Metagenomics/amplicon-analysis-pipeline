@@ -637,7 +637,7 @@ nextflow_pipeline {
         }
     }
 
-    test("End-to-end ITS pipeline, no LSU annotations") {
+    test("End-to-end ITS pipeline with LSU annotations") {
 
         tag "its + lsu annotations"
 
