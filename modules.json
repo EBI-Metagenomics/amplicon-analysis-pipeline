@@ -125,7 +125,7 @@
           },
           "custom/dumpsoftwareversions": {
             "branch": "master",
-            "git_sha": "76cc4938c1f6ea5c7d83fed1eeffc146787f9543",
+            "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
             "installed_by": ["modules"]
           },
           "fastp": {

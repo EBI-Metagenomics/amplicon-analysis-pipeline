@@ -56,6 +56,14 @@ nextflow_pipeline {
                             assert html.contains('ebi-metagenomics-amplicon-analysis-pipeline-methods-description')
                             def manifest = path("${projectDir}/nextflow.config").text
                             def version = (manifest =~ /version\s*=\s*'([^']+)'/)[0][1]
+                            def softwareTable = (html =~ /(?s)<table[^>]*id="nf-core-versions".*?<\/table>/)[0]
+                            assert softwareTable.contains('<th> Process Name </th>')
+                            assert softwareTable.contains('<samp>FASTP</samp>')
+                            assert softwareTable.contains('<samp>Workflow</samp>')
+                            assert softwareTable.contains('<samp>Nextflow</samp>')
+                            assert softwareTable.contains('<samp>ebi-metagenomics/amplicon-analysis-pipeline</samp>')
+                            assert softwareTable.contains("<samp>${version}</samp>")
+                            assert html.indexOf('id="software_versions"') < html.indexOf('id="ebi-metagenomics-amplicon-analysis-pipeline-methods-description"')
                             assert html.contains("ebi-metagenomics/amplicon-analysis-pipeline v${version}")
                             assert html.contains('Nextflow v')
                             assert html.contains('https://doi.org/10.1038/nmeth.3869')

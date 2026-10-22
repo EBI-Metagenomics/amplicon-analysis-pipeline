@@ -4,9 +4,9 @@ report_comment: >
   <a href="https://docs.mgnify.org" target="_blank">documentation</a>.
 report_section_order:
   "ebi-metagenomics-amplicon-analysis-pipeline-methods-description":
-    order: -1000
-  software_versions:
     order: -1001
+  software_versions:
+    order: -1000
   "ebi-metagenomics-amplicon-analysis-pipeline-summary":
     order: -1002
 
