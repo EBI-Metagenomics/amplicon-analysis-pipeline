@@ -9,7 +9,10 @@ report_section_order:
     order: -1001
   "ebi-metagenomics-amplicon-analysis-pipeline-summary":
     order: -1002
+
 skip_versions_section: true
+show_analysis_paths: false
+
 export_plots: false # TODO: False because it will hang at plot generation when True in certain circumstances (https://community.seqera.io/t/multiqc-timing-out/2074). Need to fix the container for it probably
 module_order:
   - fastp
