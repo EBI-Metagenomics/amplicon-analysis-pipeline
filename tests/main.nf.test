@@ -226,7 +226,9 @@ nextflow_pipeline {
                         def asv_count_lines = asv_counts.readLines()
                         assert asv_count_lines[0].contains("asv") && asv_count_lines[0].contains("count")
                         assert asv_count_lines[1].contains("seq_1") && asv_count_lines[1].contains("88")
-                        assert asv_count_lines[10].contains("seq_8") && asv_count_lines[10].contains("42")
+                        // seq_8 and seq_9 tie at 42 reads, so their order isn't stable
+                        assert asv_count_lines[10].endsWith("\t42")
+                        assert "seq_8\t42" in asv_count_lines
                     },
 
                     // Verify MOCKDOUBLEAMP ASV read counts for both amplified regions
