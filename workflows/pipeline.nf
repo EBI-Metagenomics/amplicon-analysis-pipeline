@@ -25,6 +25,7 @@ include { DADA2_SWF                        } from '../subworkflows/local/dada2_s
 include { MAPSEQ_ASV_KRONA                 } from '../subworkflows/local/mapseq_asv_krona_swf.nf'
 include { MAKE_ASV_COUNT_TABLES            } from '../modules/local/make_asv_count_tables/main'
 include { ITS_SANITY_CHECKER               } from '../modules/local/its_sanity_checker/main'
+include { FILTER_MAPSEQ_BY_MASK            } from '../modules/local/filter_mapseq_by_mask/main'
 include { MERGE_MAPSEQ                     } from '../modules/local/merge_mapseq/main'
 include { PUBLISH_OTU_RESULTS              } from '../modules/local/publish_otu_results/main'
 include { PUBLISH_MASKED_ITS               } from '../modules/local/publish_masked_its/main'
@@ -378,13 +379,34 @@ workflow AMPLICON_PIPELINE {
     /*****************************/
     /* ITS sanity check */
     /****************************/
+    // Keep empty mask files in this channel as well: an empty mask must produce
+    // empty filtered mseq files, rather than allowing the original annotations
+    // to bypass this filtering step.
     rfam_masked_reads_mseq = MASK_FASTA_SWF.out.masked_out
-        .filter{ _meta, masked_reads -> (masked_reads.size() > 0) }
 
-    its_mseq = MAPSEQ_OTU_KRONA.out.mseq
-    .filter { meta, mseq ->
-        meta.db_label in ['ITSoneDB', 'UNITE']
-    }
+    its_mseq_to_filter = MAPSEQ_OTU_KRONA.out.mseq
+        .filter { meta, _mseq ->
+            meta.db_label in ['ITSoneDB', 'UNITE']
+        }
+        .map { meta, mseq ->
+            tuple(meta.id, meta, mseq)
+        }
+        .combine(
+            rfam_masked_reads_mseq
+                .map { meta, masked_reads ->
+                    tuple(meta.id, masked_reads)
+                },
+            by: 0
+        )
+        .map { _id, meta, mseq, masked_reads ->
+            tuple(meta, mseq, masked_reads)
+        }
+
+    FILTER_MAPSEQ_BY_MASK(its_mseq_to_filter)
+
+    filtered_its_mseq = FILTER_MAPSEQ_BY_MASK.out.mseq
+
+    its_mseq = filtered_its_mseq
     .map { meta, mseq ->
         // Use meta.id+target for the grouping key. This keeps one group per run+target,
         // even when ITS dbs are launched several times on the same run id.
@@ -481,8 +503,7 @@ workflow AMPLICON_PIPELINE {
 
     // Retain only passing target instances, then merge the surviving MAPseq
     // files separately by database before regenerating their taxonomy outputs.
-    merged_its_mseq = MAPSEQ_OTU_KRONA.out.mseq
-        .filter { meta, _mseq -> meta.db_label in ['ITSoneDB', 'UNITE'] }
+    merged_its_mseq = filtered_its_mseq
         .map { meta, mseq ->
             tuple(meta.id, meta.target, meta, mseq)
         }
