@@ -261,7 +261,7 @@ if (merge_mode == "separate") {
   unmatched_count = if (is_paired){
     sum(mapply(function(f, r){
       ov = intersect(f, r)
-      length(ov) == 0 || ov == 0
+      length(ov) == 0 || all(ov == 0)
     }, final_f_map, final_r_map))
   } else 0
 

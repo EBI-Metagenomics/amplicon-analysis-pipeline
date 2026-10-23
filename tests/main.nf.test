@@ -463,6 +463,36 @@ nextflow_pipeline {
         }
     }
 
+    test("End-to-end pipeline flags no-OTU DADA2 stats failures") {
+
+        tag "no_otu_dada2_stats_fail"
+
+        options "-c ${projectDir}/conf/test_no_otu_dbs.config"
+
+        when {
+            params {
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_ERR13747404.csv"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    {
+                        def failed_runs = path("${params.outdir}/qc_failed_runs.csv").readLines()
+                        assert failed_runs.size() == 1 : "Expected one failed run"
+                        assert failed_runs[0].split(",", -1)[1].trim() == "no_otus_dada2_stats_fail"
+                    },
+                    {
+                        assert !path("${params.outdir}/qc_passed_runs.csv").exists() : "qc_passed_runs.csv should not be created"
+                    }
+                )
+            }
+        }
+    }
+
     test("End-to-end pipeline with no databases") {
 
         tag "no_dbs"
@@ -548,7 +578,7 @@ nextflow_pipeline {
 
     test("End-to-end ITS pipeline, no LSU annotations") {
 
-        tag "its lsu"
+        tag "its + no lsu annotations"
 
         when {
             params {
@@ -575,8 +605,8 @@ nextflow_pipeline {
                 def itsone_taxonomy = path("${params.outdir}/test_ITS/taxonomy-summary/ITSoneDB/test_ITS_ITSoneDB.tsv").readLines()
                     .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
 
-                assert unite_taxonomy.size() == 3 : "Expected 3 UNITE unique taxonomies"
-                assert itsone_taxonomy.size() == 3 : "Expected 3 ITSoneDB unique taxonomies"
+                assert unite_taxonomy.size() == 4 : "Expected 4 UNITE unique taxonomies"
+                assert itsone_taxonomy.size() == 4 : "Expected 4 ITSoneDB unique taxonomies"
 
                 def fasta_5_8s = path("${params.outdir}/test_ITS/sequence-categorisation/test_ITS_5_8S.fasta")
                 def fasta_its = path("${params.outdir}/test_ITS/sequence-categorisation/test_ITS_ITS_rRNA.fa")
@@ -589,11 +619,51 @@ nextflow_pipeline {
                 def unite_mseq = path("${params.outdir}/test_ITS/taxonomy-summary/UNITE/test_ITS_UNITE.mseq").readLines()
                     .findAll { line -> !line.startsWith("#") && !line.trim().isEmpty() }
 
-                assert itsone_mseq.size() == 9 : "Expected 9 UNITE annotations"
-                assert unite_mseq.size() == 9 : "Expected 9 ITSoneDB annotations"
+                // numbers will change after the MASKING filter PR
+                assert itsone_mseq.size() == 18 : "Expected 18 UNITE annotations"
+                assert unite_mseq.size() == 18 : "Expected 18 ITSoneDB annotations"
 
                 def amplified_region = path("${params.outdir}/test_ITS/amplified-region-inference/test_ITS.tsv").readLines()
                 assert amplified_region.size() == 1 : "Expected only the amplified-region-inference header"
+            }
+        }
+    }
+
+    test("End-to-end ITS pipeline, no LSU annotations") {
+
+        tag "its + lsu annotations"
+
+        when {
+            params {
+                input  = "${projectDir}/assets/test-fixtures/samplesheets/test_samplesheet_ITS_with_LSU.csv"
+                outdir = "$outputDir"
+                tax_assignment_count_test_threshold = 0
+                mapping_proportion_test_threshold   = 0
+                rank_proportion_test_threshold      = 0
+            }
+        }
+
+        then {
+            with(workflow) {
+                assert success
+
+                assert trace.succeeded().count{ task -> task.name.contains("MAPSEQ_OTU_KRONA:MAPSEQ (ITS_LSU)") } == 5 :
+                    "Expected 2 ITS executions (ITSoneDB+UNITE) and 3 LSU executions (SILVA-LSU+ITSoneDB+UNITE)"
+
+                assert trace.succeeded().count{ task -> task.name.contains("ITS_SANITY_CHECKER") } == 2 :
+                    "Expected 2 ITS_SANITY_CHECKER executions (ITS+LSU)"
+
+                def fasta_5_8s = path("${params.outdir}/ITS_LSU/sequence-categorisation/ITS_LSU_5_8S.fasta")
+                def fasta_lsu = path("${params.outdir}/ITS_LSU/sequence-categorisation/ITS_LSU_LSU.fasta")
+                def fasta_its = path("${params.outdir}/ITS_LSU/sequence-categorisation/ITS_LSU_ITS_rRNA.fa")
+
+                assert fasta_5_8s.exists() : "Raw reads contained 5.8S - fasta file published"
+                assert fasta_lsu.exists() : "Raw reads contained LSU - fasta file published"
+                assert fasta_its.exists() : "Masked ITS fasta derived from 5.8S and LSU published"
+
+                def unite_mseq = path("${params.outdir}/ITS_LSU/taxonomy-summary/UNITE/ITS_LSU_UNITE.mseq").text.trim().split('\n')
+                assert unite_mseq.any { line -> line.contains("5_8S_rRNA") } : "UNITE annotations come from 5.8S"
+                assert unite_mseq.any { line -> line.contains("LSU_rRNA_eukarya") } : "UNITE annotations come from LSU"
             }
         }
     }

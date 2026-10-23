@@ -1,0 +1,40 @@
+nextflow_process {
+
+    name "Test Process FILTER_MAPSEQ_BY_MASK"
+    script "../main.nf"
+    process "FILTER_MAPSEQ_BY_MASK"
+    tag "modules"
+    tag "filter_mapseq_by_mask"
+
+    test("filters MAPseq rows to reads retained by the mask") {
+
+        when {
+            process {
+                """
+                def mseq_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_UNITE.mseq', checkIfExists: true)
+                def masked_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_rRNA.fa', checkIfExists: true)
+
+                input[0] = [
+                    [id: 'test', db_label: 'UNITE', target: 'ITS'],
+                    mseq_fp,
+                    masked_fp,
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                {
+                    def output = path(process.out.mseq[0][1])
+                    def lines = output.readLines()
+                    assert lines[0].startsWith('#query')
+                    assert lines.count { !it.startsWith('#') } == 921
+                    assert lines.every { it.startsWith('#') || it.split('\t')[0].startsWith('ERR2237853.') }
+                }
+            )
+        }
+    }
+
+}

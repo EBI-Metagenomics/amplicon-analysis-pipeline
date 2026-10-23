@@ -114,4 +114,42 @@ nextflow_process {
 
     }
 
+    test("its_sanity_checker succeeds with UNITE-only input") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                def unite_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_UNITE.mseq', checkIfExists: true)
+                def rfam_ssu_lsu_fp = file('${projectDir}/modules/local/its_sanity_checker/tests/data/test_ITS_rRNA.fa', checkIfExists: true)
+
+                input[0] = [
+                    [ id:'unite_only', single_end:false ],
+                    [
+                        'UNITE': unite_fp,
+                        'Rfam_SSU_LSU_5_8S': rfam_ssu_lsu_fp,
+                    ]
+                ]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                {
+                    def output_json = path(process.out.its_sanity_check_out[0][1])
+                    def task_log = file("${output_json.parent}/.command.err").text
+                    assert task_log.contains('ITSoneDB is missing from the inputs, will treat it as an empty MAPseq result')
+                },
+                {
+                    assert snapshot(path(process.out.its_sanity_check_out[0][1]).json).match("unite_only_output_json")
+                }
+            )
+        }
+
+    }
+
 }
