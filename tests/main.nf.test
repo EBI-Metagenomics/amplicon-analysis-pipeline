@@ -226,7 +226,9 @@ nextflow_pipeline {
                         def asv_count_lines = asv_counts.readLines()
                         assert asv_count_lines[0].contains("asv") && asv_count_lines[0].contains("count")
                         assert asv_count_lines[1].contains("seq_1") && asv_count_lines[1].contains("88")
-                        assert asv_count_lines[10].contains("seq_8") && asv_count_lines[10].contains("42")
+                        // seq_8 and seq_9 tie at 42 reads, so their order isn't stable
+                        assert asv_count_lines[10].endsWith("\t42")
+                        assert "seq_8\t42" in asv_count_lines
                     },
 
                     // Verify MOCKDOUBLEAMP ASV read counts for both amplified regions
@@ -265,11 +267,14 @@ nextflow_pipeline {
                         assert primer_val.contains("341F") && primer_val.contains("16S")
                         assert primer_val.contains("fwd") && primer_val.contains("rev")
 
-                        def cutadapt_json = path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.cutadapt.json").text
-                        def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
+                        def cutadapt = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.first_pass.cutadapt.json").text)
                         assert cutadapt instanceof Map
-                        assert 5674 in cutadapt["adapters_read1"]["total_matches"]
-                        assert 5756 in cutadapt["adapters_read2"]["total_matches"]
+                        assert 5774 in cutadapt["adapters_read1"]["total_matches"]
+                        assert 5781 in cutadapt["adapters_read2"]["total_matches"]
+                        // V3-V4 amplicon is longer than the reads: next to no 3' read-through hits
+                        def cutadapt_3p = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/ERR4334351/primer-identification/ERR4334351.second_pass.cutadapt.json").text)
+                        assert cutadapt_3p["adapters_read1"]["total_matches"].sum() <= 5
+                        assert cutadapt_3p["adapters_read2"]["total_matches"].sum() <= 5
                     },
 
                     // Verify MOCKDOUBLEAMP primer identification outputs
@@ -281,11 +286,14 @@ nextflow_pipeline {
                         assert primer_val.contains("V9F1F") && primer_val.contains("1510R")
                         assert primer_val.contains("fwd") && primer_val.contains("rev")
 
-                        def cutadapt_json = path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.cutadapt.json").text
-                        def cutadapt = new groovy.json.JsonSlurper().parseText(cutadapt_json)
+                        def cutadapt = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.first_pass.cutadapt.json").text)
                         assert cutadapt instanceof Map
                         assert 5664 in cutadapt["adapters_read1"]["total_matches"]
-                        assert 5650 in cutadapt["adapters_read2"]["total_matches"]
+                        assert 5666 in cutadapt["adapters_read2"]["total_matches"]
+                        // V9 pairs read through the short amplicon: RC(1510R) on R1, RC(V9F1F) on R2
+                        def cutadapt_3p = new groovy.json.JsonSlurper().parseText(path("${params.outdir}/MOCKDOUBLEAMP/primer-identification/MOCKDOUBLEAMP.second_pass.cutadapt.json").text)
+                        assert cutadapt_3p["adapters_read1"].find { a -> a.name == "1510R" }.total_matches == 163
+                        assert cutadapt_3p["adapters_read2"].find { a -> a.name == "V9F1F" }.total_matches == 118
                     },
 
                     // Verify ERR4334351 primer FASTA files contain sequences
@@ -629,7 +637,7 @@ nextflow_pipeline {
         }
     }
 
-    test("End-to-end ITS pipeline, no LSU annotations") {
+    test("End-to-end ITS pipeline with LSU annotations") {
 
         tag "its + lsu annotations"
 
@@ -664,6 +672,48 @@ nextflow_pipeline {
                 def unite_mseq = path("${params.outdir}/ITS_LSU/taxonomy-summary/UNITE/ITS_LSU_UNITE.mseq").text.trim().split('\n')
                 assert unite_mseq.any { line -> line.contains("5_8S_rRNA") } : "UNITE annotations come from 5.8S"
                 assert unite_mseq.any { line -> line.contains("LSU_rRNA_eukarya") } : "UNITE annotations come from LSU"
+            }
+        }
+    }
+
+    test("Paired-end reads that run through the amplicon have primers trimmed from both ends") {
+
+        tag "readthrough"
+
+        // 16S V4 (515F/806R) reads from assets/test-fixtures/test-reads/make_readthrough_reads.py:
+        // the 292 bp amplicon (253 bp without primers) is shorter than the 2x300 reads,
+        // so each read ends in the other primer, reverse-complemented, then adapter.
+
+        when {
+            params {
+                // Written at runtime so the fixture is read from this checkout, not GitHub
+                def reads = "${projectDir}/assets/test-fixtures/test-reads"
+                def sheet = new File("${outputDir}/test_samplesheet_readthrough.csv")
+                sheet.parentFile.mkdirs()
+                sheet.text = "sample,fastq_1,fastq_2,single_end\nREADTHROUGH,${reads}/READTHROUGH_1.fastq.gz,${reads}/READTHROUGH_2.fastq.gz,false\n"
+                input  = sheet.toString()
+                outdir = "$outputDir/results"
+            }
+        }
+
+        then {
+            with(workflow) {
+                assertAll(
+                    { assert success },
+                    { assert path("${params.outdir}/qc_passed_runs.csv").text.contains("READTHROUGH,all_results") },
+                    {
+                        def asvs = path("${params.outdir}/READTHROUGH/asv/READTHROUGH_asv_seqs.fasta").readLines()
+                            .findAll { line -> !line.startsWith(">") && !line.trim().isEmpty() }
+                        assert !asvs.isEmpty() : "Expected ASVs"
+                        def problems = []
+                        asvs.each { seq ->
+                            if (seq =~ /^GTG[CT]CAGC[AC]GCCGCGGTAA/) problems << "starts with 515F (${seq.length()} bp)"
+                            if (seq =~ /ATTAGA[AT]ACCC[CGT].GTAGTCC$/) problems << "ends with RC(806R) (${seq.length()} bp)"
+                            if (seq.length() < 250 || seq.length() > 256) problems << "length ${seq.length()}, expected 250-256"
+                        }
+                        assert problems.isEmpty() : "${asvs.size()} ASVs, ${problems.size()} problems:\n" + problems.join('\n')
+                    }
+                )
             }
         }
     }

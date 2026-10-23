@@ -20,32 +20,75 @@ Changes in 'cutadapt/main.nf':
      path "versions.yml"                     , emit: versions
  
      when:
-@@ -29,38 +30,72 @@
-     }
+@@ -21,46 +22,72 @@
  
-     def fwd_primer = ""
+     script:
+     def args = task.ext.args ?: ''
++    def args2 = task.ext.args2 ?: args // second pass; defaults to args
+     def prefix = task.ext.prefix ?: "${meta.id}"
+ 
+-    def trimmed = "-o ${prefix}.trim.fastq.gz"
+-    if (!meta.single_end){
+-        trimmed = "-o ${prefix}_1.trim.fastq.gz -p ${prefix}_2.trim.fastq.gz"
+-    }
++    // primers convention: [fwd, rev, fwd_rc, rev_rc], any of which may be empty
++    def (fwd_primer, rev_primer, fwd_primer_rc, rev_primer_rc) = primers ?: []
+ 
+-    def fwd_primer = ""
 -    if (primers[0].size() > 0){
 -        fwd_primer = "-g file:${primers[0]}"
--    }
-+    def rev_primer = ""
++    // Pass 1 trims each read's own primer from its 5' end, pass 2 the other
++    // primer (reverse-complemented) from its 3' end, left by read-through
++    def first_primer_args  = fwd_primer?.size() ? "-g file:${fwd_primer}" : ''
++    def second_primer_args = rev_primer_rc?.size() ? "-a file:${rev_primer_rc}" : ''
++    if (!meta.single_end) {
++        first_primer_args  += rev_primer?.size() ? " -G file:${rev_primer}" : ''
++        second_primer_args += fwd_primer_rc?.size() ? " -A file:${fwd_primer_rc}" : ''
+     }
  
 -    def rev_primer = ""
 -    if (primers[1].size() > 0  && meta.single_end){
 -        rev_primer = "-a file:${primers[1]}"
 -    } else if (primers[1].size() > 0  && !meta.single_end){
 -        rev_primer = "-G file:${primers[1]}"
-+    if (primers){
-+        if (primers[0].size() > 0){
-+            fwd_primer = "-g file:${primers[0]}"
-+        }
-+        if (primers[1].size() > 0  && meta.single_end){
-+            rev_primer = "-a file:${primers[1]}"
-+        } else if (primers[1].size() > 0  && !meta.single_end){
-+            rev_primer = "-G file:${primers[1]}"
-+        }
++    def suffixes = meta.single_end ? [""] : ["_1", "_2"]
++    def first_pass = suffixes.collect { s -> "${prefix}${s}.first_pass.fastq.gz" }
++    def trimmed    = suffixes.collect { s -> "${prefix}${s}.trim.fastq.gz" }
++    def first_pass_out = meta.single_end ? "-o ${first_pass[0]}" : "-o ${first_pass[0]} -p ${first_pass[1]}"
++    def trimmed_out    = meta.single_end ? "-o ${trimmed[0]}" : "-o ${trimmed[0]} -p ${trimmed[1]}"
++
++    if (!first_primer_args && !second_primer_args) {
++        """
++        touch ${prefix}.first_pass.cutadapt.log ${prefix}.second_pass.cutadapt.log
++        touch ${prefix}.first_pass.cutadapt.json ${prefix}.second_pass.cutadapt.json
++        touch ${trimmed.join(' ')}
++
++        cat <<-END_VERSIONS > versions.yml
++        "${task.process}":
++            cutadapt: \$(cutadapt --version)
++        END_VERSIONS
++        """
      }
++    else {
++        """
++        cutadapt \\
++            --cores $task.cpus \\
++            $args \\
++            $first_pass_out \\
++            $first_primer_args \\
++            $reads \\
++            --json ${prefix}.first_pass.cutadapt.json \\
++            > ${prefix}.first_pass.cutadapt.log
  
-     def primer_arg = "$fwd_primer $rev_primer"
+-    def primer_arg = "$fwd_primer $rev_primer"
++        cutadapt \\
++            --cores $task.cpus \\
++            $args2 \\
++            $trimmed_out \\
++            $second_primer_args \\
++            ${first_pass.join(' ')} \\
++            --json ${prefix}.second_pass.cutadapt.json \\
++            > ${prefix}.second_pass.cutadapt.log
  
 -    """
 -    cutadapt \\
@@ -60,44 +103,6 @@ Changes in 'cutadapt/main.nf':
 -        cutadapt: \$(cutadapt --version)
 -    END_VERSIONS
 -    """
-+    if(fwd_primer == "" && rev_primer == ""){
-+        if (!meta.single_end){
-+            """
-+            touch ${prefix}.cutadapt.log
-+            touch ${prefix}_1.trim.fastq.gz
-+            touch ${prefix}_2.trim.fastq.gz
-+            touch ${prefix}.cutadapt.json
-+
-+            cat <<-END_VERSIONS > versions.yml
-+            "${task.process}":
-+                cutadapt: \$(cutadapt --version)
-+            END_VERSIONS
-+            """
-+        }
-+        else{
-+            """
-+            touch ${prefix}.cutadapt.log
-+            touch ${prefix}.trim.fastq.gz
-+            touch ${prefix}.cutadapt.json
-+
-+            cat <<-END_VERSIONS > versions.yml
-+            "${task.process}":
-+                cutadapt: \$(cutadapt --version)
-+            END_VERSIONS
-+            """
-+
-+        }
-+    }
-+    else{
-+        """
-+        cutadapt \\
-+            --cores $task.cpus \\
-+            $args \\
-+            $trimmed \\
-+            $primer_arg \\
-+            $reads \\
-+            --json ${prefix}.cutadapt.json \\
-+            > ${prefix}.cutadapt.log
 +        cat <<-END_VERSIONS > versions.yml
 +        "${task.process}":
 +            cutadapt: \$(cutadapt --version)
@@ -109,11 +114,44 @@ Changes in 'cutadapt/main.nf':
      def prefix  = task.ext.prefix ?: "${meta.id}"
      def trimmed = meta.single_end ? "${prefix}.trim.fastq.gz" : "${prefix}_1.trim.fastq.gz ${prefix}_2.trim.fastq.gz"
      """
-     touch ${prefix}.cutadapt.log
-+    touch ${prefix}.cutadapt.json
+-    touch ${prefix}.cutadapt.log
++    touch ${prefix}.first_pass.cutadapt.log ${prefix}.second_pass.cutadapt.log
++    touch ${prefix}.first_pass.cutadapt.json ${prefix}.second_pass.cutadapt.json
      touch ${trimmed}
  
      cat <<-END_VERSIONS > versions.yml
-
-'modules/ebi-metagenomics/cutadapt/meta.yml' is unchanged
+Changes in 'cutadapt/meta.yml':
+--- modules/ebi-metagenomics/cutadapt/meta.yml
++++ modules/ebi-metagenomics/cutadapt/meta.yml
+@@ -30,13 +30,12 @@
+   - primers:
+       type: file
+       description: |
+-        List of at most two primer fasta files
+-        The first file should be the forward strand
+-        The second file should be the reverse strand
+-        If you only want to trim a primer from one strand,
+-        then use an empty file as a standin for the second
+-        e.g. `[ path/to/fwd_primer, empty.txt ]` for only using
+-        the forward primer
++        List of four primer fasta files, any of which may be empty:
++        `[ fwd, rev, fwd_rc, rev_rc ]`, as written by PREP_CUTADAPT_PRIMERS
++        (`XN{n}PRIMER` for fwd/rev, `RC(PRIMER)N{n}X` for the _rc files).
++        A first pass trims fwd (and rev from R2) from the 5' end, a second
++        pass trims rev_rc (and fwd_rc from R2) from the 3' end.
++        An empty list skips trimming and writes empty placeholder outputs.
+       pattern: "*.fasta"
+ 
+ output:
+@@ -53,6 +52,10 @@
+       type: file
+       description: Log file containing stdout from cutadapt
+       pattern: "*.log"
++  - json:
++      type: file
++      description: cutadapt JSON reports, one per pass
++      pattern: "*.{first_pass,second_pass}.cutadapt.json"
+   - versions:
+       type: file
+       description: File containing software versions
 ************************************************************

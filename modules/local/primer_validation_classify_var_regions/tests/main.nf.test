@@ -32,7 +32,7 @@ nextflow_process {
 
     }
 
-    test("primer_validation_classify_var_regions but with SE flag so it does the rev comp of the reverse primer seq") {
+    test("primer_validation_classify_var_regions - single-end, primers in their own orientation") {
 
         when {
             params {

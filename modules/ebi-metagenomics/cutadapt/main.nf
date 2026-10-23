@@ -22,67 +22,59 @@ process CUTADAPT {
 
     script:
     def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: args // second pass; defaults to args
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    def trimmed = "-o ${prefix}.trim.fastq.gz"
-    if (!meta.single_end){
-        trimmed = "-o ${prefix}_1.trim.fastq.gz -p ${prefix}_2.trim.fastq.gz"
+    // primers convention: [fwd, rev, fwd_rc, rev_rc], any of which may be empty
+    def (fwd_primer, rev_primer, fwd_primer_rc, rev_primer_rc) = primers ?: []
+
+    // Pass 1 trims each read's own primer from its 5' end, pass 2 the other
+    // primer (reverse-complemented) from its 3' end, left by read-through
+    def first_primer_args  = fwd_primer?.size() ? "-g file:${fwd_primer}" : ''
+    def second_primer_args = rev_primer_rc?.size() ? "-a file:${rev_primer_rc}" : ''
+    if (!meta.single_end) {
+        first_primer_args  += rev_primer?.size() ? " -G file:${rev_primer}" : ''
+        second_primer_args += fwd_primer_rc?.size() ? " -A file:${fwd_primer_rc}" : ''
     }
 
-    def fwd_primer = ""
-    def rev_primer = ""
+    def suffixes = meta.single_end ? [""] : ["_1", "_2"]
+    def first_pass = suffixes.collect { s -> "${prefix}${s}.first_pass.fastq.gz" }
+    def trimmed    = suffixes.collect { s -> "${prefix}${s}.trim.fastq.gz" }
+    def first_pass_out = meta.single_end ? "-o ${first_pass[0]}" : "-o ${first_pass[0]} -p ${first_pass[1]}"
+    def trimmed_out    = meta.single_end ? "-o ${trimmed[0]}" : "-o ${trimmed[0]} -p ${trimmed[1]}"
 
-    if (primers){
-        if (primers[0].size() > 0){
-            fwd_primer = "-g file:${primers[0]}"
-        }
-        if (primers[1].size() > 0  && meta.single_end){
-            rev_primer = "-a file:${primers[1]}"
-        } else if (primers[1].size() > 0  && !meta.single_end){
-            rev_primer = "-G file:${primers[1]}"
-        }
+    if (!first_primer_args && !second_primer_args) {
+        """
+        touch ${prefix}.first_pass.cutadapt.log ${prefix}.second_pass.cutadapt.log
+        touch ${prefix}.first_pass.cutadapt.json ${prefix}.second_pass.cutadapt.json
+        touch ${trimmed.join(' ')}
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            cutadapt: \$(cutadapt --version)
+        END_VERSIONS
+        """
     }
-
-    def primer_arg = "$fwd_primer $rev_primer"
-
-    if(fwd_primer == "" && rev_primer == ""){
-        if (!meta.single_end){
-            """
-            touch ${prefix}.cutadapt.log
-            touch ${prefix}_1.trim.fastq.gz
-            touch ${prefix}_2.trim.fastq.gz
-            touch ${prefix}.cutadapt.json
-
-            cat <<-END_VERSIONS > versions.yml
-            "${task.process}":
-                cutadapt: \$(cutadapt --version)
-            END_VERSIONS
-            """
-        }
-        else{
-            """
-            touch ${prefix}.cutadapt.log
-            touch ${prefix}.trim.fastq.gz
-            touch ${prefix}.cutadapt.json
-
-            cat <<-END_VERSIONS > versions.yml
-            "${task.process}":
-                cutadapt: \$(cutadapt --version)
-            END_VERSIONS
-            """
-
-        }
-    }
-    else{
+    else {
         """
         cutadapt \\
             --cores $task.cpus \\
             $args \\
-            $trimmed \\
-            $primer_arg \\
+            $first_pass_out \\
+            $first_primer_args \\
             $reads \\
-            --json ${prefix}.cutadapt.json \\
-            > ${prefix}.cutadapt.log
+            --json ${prefix}.first_pass.cutadapt.json \\
+            > ${prefix}.first_pass.cutadapt.log
+
+        cutadapt \\
+            --cores $task.cpus \\
+            $args2 \\
+            $trimmed_out \\
+            $second_primer_args \\
+            ${first_pass.join(' ')} \\
+            --json ${prefix}.second_pass.cutadapt.json \\
+            > ${prefix}.second_pass.cutadapt.log
+
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             cutadapt: \$(cutadapt --version)
@@ -94,8 +86,8 @@ process CUTADAPT {
     def prefix  = task.ext.prefix ?: "${meta.id}"
     def trimmed = meta.single_end ? "${prefix}.trim.fastq.gz" : "${prefix}_1.trim.fastq.gz ${prefix}_2.trim.fastq.gz"
     """
-    touch ${prefix}.cutadapt.log
-    touch ${prefix}.cutadapt.json
+    touch ${prefix}.first_pass.cutadapt.log ${prefix}.second_pass.cutadapt.log
+    touch ${prefix}.first_pass.cutadapt.json ${prefix}.second_pass.cutadapt.json
     touch ${trimmed}
 
     cat <<-END_VERSIONS > versions.yml
