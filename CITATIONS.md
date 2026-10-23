@@ -1,4 +1,8 @@
-# nf-core/ampliconpipeline: Citations
+# ebi-metagenomics/amplicon-analysis-pipeline: Citations
+
+## [MGnify](https://doi.org/10.1093/nar/gkac1080)
+
+> Richardson L, Allen B, Baldi G, Beracochea M, Bileschi ML, Burdett T, et al. MGnify: the microbiome sequence data analysis resource in 2023. Nucleic Acids Research. 2023;51(D1):D753–D759. doi: 10.1093/nar/gkac1080.
 
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 
@@ -10,17 +14,79 @@
 
 ## Pipeline tools
 
-- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
-
-  > Andrews, S. (2010). FastQC: A Quality Control Tool for High Throughput Sequence Data [Online]. Available online https://www.bioinformatics.babraham.ac.uk/projects/fastqc/.
-
-- [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
-
-  > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.
-
-- [bbmap](https://sourceforge.net/projects/bbmap)
+- [BBMap](https://sourceforge.net/projects/bbmap)
 
   > Bushnell, B. (2014). BBMap: A Fast, Accurate, Splice-Aware Aligner. Lawrence Berkeley National Laboratory. LBNL Report Number : LBNL-7065E. Retrieved from https://escholarship.org/uc/item/1h3515gn
+
+- [BEDTools](https://doi.org/10.1093/bioinformatics/btq033)
+
+  > Quinlan, A. R., & Hall, I. M. (2010). BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics, 26(6), 841–842. doi: 10.1093/bioinformatics/btq033.
+
+- [cmsearch_tblout_deoverlap](https://github.com/nawrockie/cmsearch_tblout_deoverlap)
+
+- [Cutadapt](https://doi.org/10.14806/ej.17.1.200)
+
+  > Martin, M. (2011). Cutadapt removes adapter sequences from high-throughput sequencing reads. EMBnet.journal, 17, 10–12. doi: 10.14806/ej.17.1.200.
+
+- [Easel](https://doi.org/10.1371/journal.pcbi.1002195)
+
+  > Eddy SR. Accelerated Profile HMM Searches. PLoS Computational Biology. 2011;7(10):e1002195. doi: 10.1371/journal.pcbi.1002195.
+
+- [fastp](https://doi.org/10.1093/bioinformatics/bty560)
+
+  > Chen, S., Zhou, Y., Chen, Y., & Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics, 34, i884–i890. doi: 10.1093/bioinformatics/bty560.
+
+- [Infernal](https://doi.org/10.1093/bioinformatics/btt509)
+
+  > Nawrocki, E. P., & Eddy, S. R. (2013). Infernal 1.1: 100-fold faster RNA homology searches. Bioinformatics, 29, 2933–2935. doi: 10.1093/bioinformatics/btt509.
+
+- [Krona](https://doi.org/10.1186/1471-2105-12-385)
+
+  > Ondov, B. D., Bergman, N. H., & Phillippy, A. M. (2011). Interactive metagenomic visualization in a Web browser. BMC Bioinformatics, 12, 385. doi: 10.1186/1471-2105-12-385.
+
+- [MAPseq](https://doi.org/10.1093/bioinformatics/btx517)
+
+  > Matias Rodrigues, J. F., Schmidt, T. S. B., Tackmann, J., & von Mering, C. (2017). MAPseq: highly efficient k-mer search with confidence estimates, for rRNA sequence analysis. Bioinformatics, 33, 3808–3810. doi: 10.1093/bioinformatics/btx517.
+
+- [mgnify-pipelines-toolkit](https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit)
+
+- [MultiQC](https://doi.org/10.1093/bioinformatics/btw354)
+
+  > Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics, 32, 3047–3048. doi: 10.1093/bioinformatics/btw354.
+
+- [PIMENTO](https://doi.org/10.1093/gigascience/giag083)
+
+  > Atallah, C., Richardson, L., Beracochea, M., & Finn, R. D. (2026). PIMENTO: a primer inference toolkit to facilitate large-scale calling of amplicon sequence variants. GigaScience, giag083. doi: 10.1093/gigascience/giag083.
+
+- [SeqFu](https://doi.org/10.3390/bioengineering8050059)
+
+  > Telatin, A., Fariselli, P., & Birolo, G. (2021). SeqFu: A Suite of Utilities for the Robust and Reproducible Manipulation of Sequence Files. Bioengineering, 8(5), 59. doi: 10.3390/bioengineering8050059.
+
+- [SeqKit](https://doi.org/10.1002/imt2.191)
+
+  > Shen, W., Sipos, B., & Zhao, L. (2024). SeqKit2: A Swiss Army Knife for Sequence and Alignment Processing. iMeta, e191. doi: 10.1002/imt2.191.
+
+- [seqtk](https://github.com/lh3/seqtk)
+
+## R packages
+
+- [R](https://www.r-project.org/)
+
+  > R Core Team. R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria.
+
+- [box](https://klmr.me/box/)
+
+- [data.table](https://rdatatable.gitlab.io/data.table/)
+
+- [DADA2](https://doi.org/10.1038/nmeth.3869)
+
+  > Callahan, B. J., et al. (2016). DADA2: High-resolution sample inference from Illumina amplicon data. Nature Methods, 13, 581–583. doi: 10.1038/nmeth.3869.
+
+- [ShortRead](https://doi.org/10.1093/bioinformatics/btp450)
+
+- [tidyverse](https://doi.org/10.21105/joss.01686)
+
+  > Wickham H, et al. Welcome to the Tidyverse. Journal of Open Source Software. 2019;4(43):1686. doi: 10.21105/joss.01686.
 
 ## Software packaging/containerisation tools
 

@@ -590,6 +590,19 @@ workflow AMPLICON_PIPELINE {
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
+    // Shared metadata is staged into every per-run and study report.
+    ch_methods_description = Channel.value(
+        WorkflowAmpliconpipeline.methodsDescriptionText(
+            workflow,
+            file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true),
+            params
+        )
+    ).collectFile(name: 'methods_description_mqc.yaml')
+
+    ch_multiqc_base_files = CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml
+        .mix(ch_methods_description)
+        .collect()
+
     multiqc_input = CONCAT_PRIMER_CUTADAPT.out.cutadapt_json
         .map{ meta, json ->
             [meta.subMap('id', 'single_end'), json]
@@ -633,7 +646,7 @@ workflow AMPLICON_PIPELINE {
     // MultiQC for individual runs //
     MULTIQC_RUN(
         multiqc_input,
-        CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.first(),
+        ch_multiqc_base_files,
         params.multiqc_config,
         [],
         [],
@@ -662,7 +675,7 @@ workflow AMPLICON_PIPELINE {
 
     MULTIQC_STUDY(
         multiqc_study,
-        CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml,
+        ch_multiqc_base_files,
         params.multiqc_config,
         [],
         [],

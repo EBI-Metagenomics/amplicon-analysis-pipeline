@@ -3,7 +3,6 @@
 
 """Provide functions to merge multiple versions.yml files."""
 
-
 import platform
 from textwrap import dedent
 
@@ -12,7 +11,6 @@ import yaml
 
 def _make_versions_html(versions):
     """Generate a tabular HTML output of all versions for MultiQC."""
-    already_seen_tools = []
     html = [
         dedent(
             """\\
@@ -24,6 +22,7 @@ def _make_versions_html(versions):
             <table class="table" style="width:100%" id="nf-core-versions">
                 <thead>
                     <tr>
+                        <th> Process Name </th>
                         <th> Software </th>
                         <th> Version  </th>
                     </tr>
@@ -34,19 +33,17 @@ def _make_versions_html(versions):
     for process, tmp_versions in sorted(versions.items()):
         html.append("<tbody>")
         for i, (tool, version) in enumerate(sorted(tmp_versions.items())):
-            print(f"{tool}-{version}")
-            if f"{tool}-{version}" not in already_seen_tools:
-                html.append(
-                    dedent(
-                        f"""\\
-                        <tr>
-                            <td><samp>{tool}</samp></td>
-                            <td><samp>{version}</samp></td>
-                        </tr>
-                        """
-                    )
+            html.append(
+                dedent(
+                    f"""\\
+                    <tr>
+                        <td><samp>{process if (i == 0) else ''}</samp></td>
+                        <td><samp>{tool}</samp></td>
+                        <td><samp>{version}</samp></td>
+                    </tr>
+                    """
                 )
-            already_seen_tools.append(f"{tool}-{version}")
+            )
         html.append("</tbody>")
     html.append("</table>")
     return "\\n".join(html)
@@ -79,6 +76,7 @@ def main():
 
     versions_by_module["Workflow"] = {
         "Nextflow": "$workflow.nextflow.version",
+        "$workflow.manifest.name": "$workflow.manifest.version",
     }
 
     versions_mqc = {
@@ -87,7 +85,7 @@ def main():
         "section_href": "https://github.com/${workflow.manifest.name}",
         "plot_type": "html",
         "description": "are collected at run time from the software output.",
-        "data": _make_versions_html(versions_by_module)
+        "data": _make_versions_html(versions_by_module),
     }
 
     with open("software_versions.yml", "w") as f:

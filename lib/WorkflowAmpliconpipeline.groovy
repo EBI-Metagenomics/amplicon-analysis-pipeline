@@ -53,28 +53,46 @@ class WorkflowAmpliconpipeline {
 
     public static String toolCitationText(params) {
 
-        // TODO Optionally add in-text citation tools to this list.
-        // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
-        // Uncomment function in methodsDescriptionText to render in MultiQC report
         def citation_text = [
-                "Tools used in the workflow included:",
-                "FastQC (Andrews 2010),",
-                "MultiQC (Ewels et al. 2016)",
-                "."
-            ].join(' ').trim()
+            "The pipeline supports read quality control with fastp (Chen et al. 2018),",
+            "primer trimming with Cutadapt (Martin 2011),",
+            "RNA homology searches with Infernal (Nawrocki &amp; Eddy 2013),",
+            "amplicon sequence variant inference with DADA2 (Callahan et al. 2016),",
+            "taxonomic classification with MAPseq (Matias Rodrigues et al. 2017),",
+            "taxonomic visualisation with Krona (Ondov et al. 2011),",
+            "and report aggregation with MultiQC (Ewels et al. 2016).",
+            "Supporting steps use SeqFu for FASTQ validation (Telatin et al. 2021),",
+            "SeqKit for sequence processing (Shen et al. 2024),",
+            "BEDTools for sequence masking (Quinlan &amp; Hall 2010),",
+            "PIMENTO for primer inference (Atallah et al. 2026),",
+            "and BBMap for optional read standardisation (Bushnell 2014).",
+            "Sequence extraction and result processing also use seqtk, Easel (Eddy 2011),",
+            "cmsearch_tblout_deoverlap, and mgnify-pipelines-toolkit."
+        ].join(' ')
 
         return citation_text
     }
 
     public static String toolBibliographyText(params) {
 
-        // TODO Optionally add bibliographic entries to this list.
-        // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
-        // Uncomment function in methodsDescriptionText to render in MultiQC report
         def reference_text = [
-                "<li>Andrews S, (2010) FastQC, URL: https://www.bioinformatics.babraham.ac.uk/projects/fastqc/).</li>",
-                "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
-            ].join(' ').trim()
+            '<li>Chen, S., Zhou, Y., Chen, Y., &amp; Gu, J. (2018). fastp: an ultra-fast all-in-one FASTQ preprocessor. Bioinformatics, 34, i884–i890. doi: <a href="https://doi.org/10.1093/bioinformatics/bty560">10.1093/bioinformatics/bty560</a></li>',
+            '<li>Martin, M. (2011). Cutadapt removes adapter sequences from high-throughput sequencing reads. EMBnet.journal, 17, 10–12. doi: <a href="https://doi.org/10.14806/ej.17.1.200">10.14806/ej.17.1.200</a></li>',
+            '<li>Nawrocki, E. P., &amp; Eddy, S. R. (2013). Infernal 1.1: 100-fold faster RNA homology searches. Bioinformatics, 29, 2933–2935. doi: <a href="https://doi.org/10.1093/bioinformatics/btt509">10.1093/bioinformatics/btt509</a></li>',
+            '<li>Callahan, B. J., et al. (2016). DADA2: High-resolution sample inference from Illumina amplicon data. Nature Methods, 13, 581–583. doi: <a href="https://doi.org/10.1038/nmeth.3869">10.1038/nmeth.3869</a></li>',
+            '<li>Matias Rodrigues, J. F., Schmidt, T. S. B., Tackmann, J., &amp; von Mering, C. (2017). MAPseq: highly efficient k-mer search with confidence estimates, for rRNA sequence analysis. Bioinformatics, 33, 3808–3810. doi: <a href="https://doi.org/10.1093/bioinformatics/btx517">10.1093/bioinformatics/btx517</a></li>',
+            '<li>Ondov, B. D., Bergman, N. H., &amp; Phillippy, A. M. (2011). Interactive metagenomic visualization in a Web browser. BMC Bioinformatics, 12, 385. doi: <a href="https://doi.org/10.1186/1471-2105-12-385">10.1186/1471-2105-12-385</a></li>',
+            '<li>Ewels, P., Magnusson, M., Lundin, S., &amp; Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics, 32, 3047–3048. doi: <a href="https://doi.org/10.1093/bioinformatics/btw354">10.1093/bioinformatics/btw354</a></li>',
+            '<li>Telatin, A., Fariselli, P., &amp; Birolo, G. (2021). SeqFu: A Suite of Utilities for the Robust and Reproducible Manipulation of Sequence Files. Bioengineering, 8(5), 59. <a href="https://doi.org/10.3390/bioengineering8050059">SeqFu</a>.</li>',
+            '<li>Shen, W., Sipos, B., &amp; Zhao, L. (2024). SeqKit2: A Swiss Army Knife for Sequence and Alignment Processing. iMeta, e191. <a href="https://doi.org/10.1002/imt2.191">SeqKit</a>.</li>',
+            '<li>Li, H. seqtk: toolkit for processing sequences in FASTA/Q formats. Software project. <a href="https://github.com/lh3/seqtk">seqtk</a>.</li>',
+            '<li>Quinlan, A. R., &amp; Hall, I. M. (2010). BEDTools: a flexible suite of utilities for comparing genomic features. Bioinformatics, 26(6), 841–842. <a href="https://doi.org/10.1093/bioinformatics/btq033">BEDTools</a>.</li>',
+            '<li>Eddy, S. R. (2011). Accelerated Profile HMM Searches. PLoS Computational Biology, 7(10), e1002195. doi: <a href="https://doi.org/10.1371/journal.pcbi.1002195">10.1371/journal.pcbi.1002195</a> (Easel / HMMER).</li>',
+            '<li>Nawrocki, E. cmsearch_tblout_deoverlap: remove lower-scoring overlaps from Infernal cmsearch results. Software project. <a href="https://github.com/nawrockie/cmsearch_tblout_deoverlap">cmsearch_tblout_deoverlap</a>.</li>',
+            '<li>Atallah, C., Richardson, L., Beracochea, M., &amp; Finn, R. D. (2026). PIMENTO: a primer inference toolkit to facilitate large-scale calling of amplicon sequence variants. GigaScience, giag083. <a href="https://doi.org/10.1093/gigascience/giag083">PIMENTO</a>.</li>',
+            '<li>EMBL-EBI Microbiome Informatics Team. mgnify-pipelines-toolkit: scripts and tools for MGnify pipelines. Software project. <a href="https://github.com/EBI-Metagenomics/mgnify-pipelines-toolkit">mgnify-pipelines-toolkit</a>.</li>',
+            '<li>Bushnell, B. (2014). BBMap: A Fast, Accurate, Splice-Aware Aligner. Lawrence Berkeley National Laboratory, LBNL-7065E. <a href="https://escholarship.org/uc/item/1h3515gn">BBMap</a>.</li>'
+        ].join('\n  ')
 
         return reference_text
     }
@@ -89,21 +107,16 @@ class WorkflowAmpliconpipeline {
         meta["doi_text"] = meta.manifest_map.doi ? "(doi: <a href=\'https://doi.org/${meta.manifest_map.doi}\'>${meta.manifest_map.doi}</a>)" : ""
         meta["nodoi_text"] = meta.manifest_map.doi ? "": "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
-        // Tool references
-        meta["tool_citations"] = ""
-        meta["tool_bibliography"] = ""
-
-        // TODO Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-        //meta["tool_citations"] = toolCitationText(params).replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-        //meta["tool_bibliography"] = toolBibliographyText(params)
-
+        // Core capabilities are described here; the software versions section records tools used in this run.
+        meta["tool_citations"] = toolCitationText(params)
+        meta["tool_bibliography"] = toolBibliographyText(params)
 
         def methods_text = mqc_methods_yaml.text
 
         def engine =  new SimpleTemplateEngine()
         def description_html = engine.createTemplate(methods_text).make(meta)
 
-        return description_html
+        return description_html.toString()
     }
 
     //
