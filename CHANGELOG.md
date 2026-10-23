@@ -1,5 +1,9 @@
 # EBI-Metagenomics/amplicon-analysis-pipeline: Changelog
 
+## Unreleased
+
+- Include pipeline and Nextflow versions, a methods description, and core tool citations in per-run and study MultiQC reports alongside the existing software versions, without including command lines or parameter paths.
+
 ## v6.2 - [2026/09/08]
 
 - The identification of ITS-containing sequences has been extended to include the 5.8S rRNA region. Previously, sequences matching SSU and LSU Rfam models had their corresponding regions masked before the remaining sequence was queried against ITS reference databases. The same approach is now applied to 5.8S regions, if provided, to allow the annotation of datasets targeting 5.8S+ITS.
@@ -14,12 +18,11 @@
 
 - Update to publish all ASVs even if they do not have a taxonomic assignment.
 - Added additional dada2 summary stats including automatically-chosen truncation points and read counts at intermediate filtering steps.
-- Added flexibility for defining what MapSeq databases are used: instead of keeping a strict definition matching MGnify-specific database structure (e.g. UNITE and ITSoneDB for ITS), the new implementation allows for a different number of databases to be selected (e.g. only one db, which could be different from UNITE or ITSoneDB as long as it's similarly formatted). This also allows the usage of user-specific customised databases. 
+- Added flexibility for defining what MapSeq databases are used: instead of keeping a strict definition matching MGnify-specific database structure (e.g. UNITE and ITSoneDB for ITS), the new implementation allows for a different number of databases to be selected (e.g. only one db, which could be different from UNITE or ITSoneDB as long as it's similarly formatted). This also allows the usage of user-specific customised databases.
 - To allow greater flexibility when performing bespoke analyses, we enabled three different merging modes in DADA2:
   1. Merge (current behaviour)
   2. Merge-with-gaps (keep ASVs that don't merge with an overlap, instead inserting a gap)
   3. Keep separate and concatenate ASVs deriving from different paired-ends
-
 
 ## v6.0 - [2025/10/31]
 
@@ -39,4 +42,3 @@ v6.0 also contains multiple significant changes:
 - Taxonomic classification and visualisation of ASVs using [MAPseq](https://github.com/meringlab/MAPseq) and [Krona](https://github.com/marbl/Krona) to complement the existing closed-reference analysis
 - Addition of [PR2](https://pr2-database.org/) as a reference database
 - Updating of existing reference databases ([SILVA](https://www.arb-silva.de/), [UNITE](https://unite.ut.ee/), [ITSoneDB](https://itsonedb.cloud.ba.infn.it), [Rfam](https://rfam.org/))
-

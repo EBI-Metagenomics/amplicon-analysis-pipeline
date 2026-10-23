@@ -1,2 +1,2 @@
 sample,fastq_1,fastq_2,single_end
-ITS_LSU,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/bugfix/results_overriding_bugfix/assets/test-fixtures/test-reads/ITS_with_LSU_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/bugfix/results_overriding_bugfix/assets/test-fixtures/test-reads/ITS_with_LSU_2.fastq.gz,false
+ITS_LSU,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/main/assets/test-fixtures/test-reads/ITS_with_LSU_1.fastq.gz,https://github.com/EBI-Metagenomics/amplicon-analysis-pipeline/raw/refs/heads/main/assets/test-fixtures/test-reads/ITS_with_LSU_2.fastq.gz,false
