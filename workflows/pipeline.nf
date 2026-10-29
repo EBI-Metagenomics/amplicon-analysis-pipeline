@@ -533,7 +533,7 @@ workflow AMPLICON_PIPELINE {
     // this step only involves ITS dbs as SSU+LSU mseq files stayed the same
     merged_its_mapseq2biom_input = MERGE_MAPSEQ.out.mseq
         .map { meta, mseq -> tuple(meta.db_id, meta, mseq) }
-        .join(its_db_inputs)
+        .combine(its_db_inputs, by: 0)
         .multiMap { db_id, meta, mseq, otu, db_label ->
             mseq_ch: [meta, mseq]
             db_ch: [otu, db_label]
@@ -591,7 +591,7 @@ workflow AMPLICON_PIPELINE {
     )
 
     // Shared metadata is staged into every per-run and study report.
-    ch_methods_description = Channel.value(
+    ch_methods_description = channel.value(
         WorkflowAmpliconpipeline.methodsDescriptionText(
             workflow,
             file("${projectDir}/assets/methods_description_template.yml", checkIfExists: true),
