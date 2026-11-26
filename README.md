@@ -2,7 +2,10 @@
 
 This repository contains the v6 [MGnify](https://www.ebi.ac.uk/metagenomics) amplicon analysis pipeline. It is, first and foremost, a refactor of the existing [v5.0 amplicon analysis pipeline](https://github.com/EBI-Metagenomics/pipeline-v5), replacing CWL with [Nextflow](https://www.nextflow.io/) as its workflow management system. This pipeline re-implements all [existing closed-reference v5.0 features](https://docs.mgnify.org/src/docs/analysis.html#amplicon-analysis-pipeline), and makes multiple significant changes and additions.
 
-![V6 Schema](assets/v6_amplicon_schema.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/visuals/amplicon-analysis-pipeline_metromap_dark.png">
+  <img alt="amplicon-analysis-pipeline metro map" src="assets/visuals/amplicon-analysis-pipeline_metromap.png">
+</picture>
 
 ## Pipeline description
 
@@ -63,13 +66,13 @@ At this stage, the only sequence amplicons that this pipeline is built for are:
 
 This pipeline uses five different reference databases. The files the pipeline uses are processed from the raw files available on each database's website, for use by MAPseq and cmsearch. We provide ready-made versions of these processed files on our FTP, which you can find here:
 
-| Reference database                            | Version | Purpose                               | Processed file paths                                                                                                                                          |
-| --------------------------------------------- | ------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Reference database                            | Version | Purpose                           | Processed file paths                                                                                                                                          |
+| --------------------------------------------- | ------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [SILVA](https://www.arb-silva.de/)            | 138.1   | SSU+LSU rRNA database             | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/silva-ssu/ https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/silva-lsu/ |
 | [PR2](https://pr2-database.org/)              | 5.0     | Protist-focused SSU rRNA database | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/pr2/                                                                                      |
-| [UNITE](https://unite.ut.ee/)                 | 9.0     | ITS database                          | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/unite/                                                                                    |
-| [ITSoneDB](https://itsonedb.cloud.ba.infn.it) | 1.141   | ITS database                          | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/itsonedb/                                                                                 |
-| [Rfam](https://rfam.org/)                     | 14.10   | rRNA covariance models                | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/rfam/                                                                                     |
+| [UNITE](https://unite.ut.ee/)                 | 9.0     | ITS database                      | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/unite/                                                                                    |
+| [ITSoneDB](https://itsonedb.cloud.ba.infn.it) | 1.141   | ITS database                      | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/itsonedb/                                                                                 |
+| [Rfam](https://rfam.org/)                     | 14.10   | rRNA covariance models            | https://ftp.ebi.ac.uk/pub/databases/metagenomics/pipelines/tool-dbs/rfam/                                                                                     |
 
 > [!NOTE]  
 > The preprocessed databases are generated with the [Microbiome Informatics reference-databases-preprocessing-pipeline](https://github.com/EBI-Metagenomics/reference-databases-preprocessing-pipeline).
