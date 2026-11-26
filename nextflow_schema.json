@@ -55,6 +55,12 @@
           "minimum": 0,
           "help_text": "Primers are padded with this many `N` wildcards and anchored to the read end, so cutadapt only trims a primer (or the reverse-complemented primer of the other mate, in read-through) that starts within this many bases of the 5' end or ends within this many bases of the 3' end."
         },
+        "long_reads": {
+          "type": "boolean",
+          "description": "Input is long reads (PacBio or ONT): QC filters whole reads on mean quality instead of trimming them with a sliding window.",
+          "default": false,
+          "help_text": "fastp's sliding-window trim (4 bases, mean Q15) is built for Illumina. On ONT reads it cuts at the first low-quality window, which leaves fragments or nothing. With this set, reads are dropped if their mean quality is under 7 and are otherwise kept whole; adapter trimming is off, and reads are oriented along the gene before primer identification. Single-end input only."
+        },
         "pair_header_dot_suffix": {
           "type": "boolean",
           "description": "Rewrite paired-end header suffixes from '/1' or ' /1' and '/2' or ' /2' to '.1' and '.2' after read standardisation.",

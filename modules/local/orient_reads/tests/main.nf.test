@@ -1,0 +1,44 @@
+nextflow_process {
+
+    name "Test Process ORIENT_READS"
+    script "../main.nf"
+    process "ORIENT_READS"
+    tag "modules"
+    tag "orient_reads"
+
+    test("Reverse-complements minus-strand reads and keeps plus-strand reads") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+            }
+            process {
+                """
+                input[0] = [
+                    [ id:'test', single_end:true ], // meta map
+                    file('${projectDir}/modules/local/orient_reads/tests/data/test_mixed.fastq.gz', checkIfExists: true),
+                    file('${projectDir}/modules/local/orient_reads/tests/data/test_mixed.tblout.deoverlapped', checkIfExists: true),
+                ]
+                """
+            }
+        }
+
+        then {
+            // 10 plus-strand and 10 minus-strand reads in; after orienting, each minus read is the reverse complement
+            // of its input
+            def rc = { String s -> s.reverse().tr('ACGTN', 'TGCAN') }
+            def fastq = { p -> path(p).linesGzip.collate(4).collectEntries { [ (it[0].substring(1).tokenize(' ')[0]): it[1] ] } }
+            def input  = fastq("${projectDir}/modules/local/orient_reads/tests/data/test_mixed.fastq.gz")
+            def output = fastq(process.out.reads[0][1])
+            def minus  = path("${projectDir}/modules/local/orient_reads/tests/data/test_mixed.tblout.deoverlapped")
+                .readLines().collect { it.tokenize(' ') }.findAll { it[9] == '-' }.collect { it[0] } as Set
+            assertAll(
+                { assert process.success },
+                { assert output.keySet() == input.keySet() },
+                { assert minus.size() == 10 },
+                { assert output.every { id, seq -> seq == (id in minus ? rc(input[id]) : input[id]) } },
+                { assert snapshot(process.out.reads).match("reads") }
+            )
+        }
+    }
+}

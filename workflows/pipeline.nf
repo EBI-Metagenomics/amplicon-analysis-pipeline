@@ -29,6 +29,7 @@ include { FILTER_MAPSEQ_BY_MASK            } from '../modules/local/filter_mapse
 include { MERGE_MAPSEQ                     } from '../modules/local/merge_mapseq/main'
 include { PUBLISH_OTU_RESULTS              } from '../modules/local/publish_otu_results/main'
 include { PUBLISH_MASKED_ITS               } from '../modules/local/publish_masked_its/main'
+include { ORIENT_READS                     } from '../modules/local/orient_reads/main'
 
 include { MAPSEQ2BIOM as MAPSEQ2BIOM_MERGED } from '../modules/ebi-metagenomics/mapseq2biom/main'
 include { KRONA_KTIMPORTTEXT as KRONA_KTIMPORTTEXT_MERGED } from '../modules/ebi-metagenomics/krona/ktimporttext/main'
@@ -200,6 +201,25 @@ workflow AMPLICON_PIPELINE {
     )
     ch_versions = ch_versions.mix(DETECT_RNA.out.versions)
 
+    // Long reads come in both orientations, and primer identification and cutadapt only look for each primer at one
+    // end. Orient every read along the gene using its cmsearch strand. For single-end input the two QC runs above
+    // produce the same reads, so one oriented set stands in for both.
+    ch_qc_reads     = READS_QC.out.reads
+    ch_merged_reads = READS_QC_MERGE.out.reads_se_and_merged
+    if (params.long_reads) {
+        ORIENT_READS(
+            READS_QC_MERGE.out.reads_se_and_merged
+                .map { meta, reads ->
+                    if (!meta.single_end) { error("--long_reads expects single-end reads, but ${meta.id} is paired-end") }
+                    [ meta, reads ]
+                }
+                .join(DETECT_RNA.out.cmsearch_deoverlap_non_empty)
+        )
+        ch_versions     = ch_versions.mix(ORIENT_READS.out.versions)
+        ch_qc_reads     = ORIENT_READS.out.reads
+        ch_merged_reads = ORIENT_READS.out.reads
+    }
+
     // Masking subworkflow to find rRNA reads for ITS //
     MASK_FASTA_SWF(
         extended_reads_qc.qc_pass,
@@ -243,7 +263,7 @@ workflow AMPLICON_PIPELINE {
     // Infer amplified variable regions for SSU, extract reads for each amplified region if there are more than one //
     AMP_REGION_INFERENCE(
         DETECT_RNA.out.cmsearch_deoverlap_non_empty,
-        READS_QC_MERGE.out.reads_se_and_merged
+        ch_merged_reads
     )
     ch_versions = ch_versions.mix(AMP_REGION_INFERENCE.out.versions)
 
@@ -274,7 +294,7 @@ workflow AMPLICON_PIPELINE {
     // Concatenate all primers for for a run, send them to cutadapt with original QCd reads for primer trimming //
     CONCAT_PRIMER_CUTADAPT(
         concat_input,
-        READS_QC.out.reads
+        ch_qc_reads
     )
     ch_versions = ch_versions.mix(CONCAT_PRIMER_CUTADAPT.out.versions)
 
@@ -285,7 +305,7 @@ workflow AMPLICON_PIPELINE {
             [ meta.subMap('id', 'single_end'), meta['var_region'], meta['var_regions_size'], reads ]
         }
 
-    dada2_input = dada2_input_preparation_function(concat_input, READS_QC.out.reads, cutadapt_channel)
+    dada2_input = dada2_input_preparation_function(concat_input, ch_qc_reads, cutadapt_channel)
     
     // Run DADA2 ASV generation //
     DADA2_SWF(

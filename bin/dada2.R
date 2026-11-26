@@ -257,13 +257,15 @@ if (merge_mode == "separate") {
     }
   )
 
-  # Count reads where forward and reverse map to different ASVs (quality check; expected to be near zero)
+  # Count reads not tracked to an ASV: for PE, also reads whose forward and reverse map to different ASVs
   unmatched_count = if (is_paired){
     sum(mapply(function(f, r){
       ov = intersect(f, r)
       length(ov) == 0 || all(ov == 0)
     }, final_f_map, final_r_map))
-  } else 0
+  } else {
+    sum(sapply(final_f_map, function(f) is.na(f[[1]]) || f[[1]] == 0))
+  }
 
   f_map_out = lapply(final_f_map, `[`, 1)
   r_map_out = if (is_paired) lapply(final_f_map, `[`, 1) else NULL  # both strands carry the same merged ASV index
@@ -275,7 +277,7 @@ if (merge_mode == "separate") {
 
   total_dada2_reads   = sum(seqtab_out)
   proportion_chimeric = 1 - total_dada2_reads / sum(seqtab)
-  final_matched_perc  = (length(final_f_map) - unmatched_count) / total_dada2_reads
+  final_matched_perc  = (length(final_f_map) - unmatched_count) / length(final_f_map)
   final_nonchimeric_sequence_variant_count = ncol(seqtab_out)
 
 }
