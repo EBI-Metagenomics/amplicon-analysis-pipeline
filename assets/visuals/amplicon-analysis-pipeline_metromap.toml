@@ -1,0 +1,269 @@
+# Metro map of ebi-metagenomics/amplicon-analysis-pipeline.
+# Render: python3 assets/visuals/make_metromap.py assets/visuals/amplicon-analysis-pipeline_metromap.toml \
+#     --font MavenPro.ttf --png assets/visuals/amplicon-analysis-pipeline_metromap.png
+#
+# The black line is the reads before rRNA detection: the pipeline cannot tell the rRNA types apart yet.
+# The rRNA lines (SSU, LSU, ITS) start at cmsearch and go to the OTU lane for closed-reference taxonomy.
+# The ITS line goes through the masking and the ITS sanity check.
+# The ASV line starts at the variable region inference of the SSU reads. It goes to the ASV lane
+# for region extraction, primer trimming and DADA2.
+# All coloured lines join again for the MultiQC reports.
+
+[title]
+org = "ebi-metagenomics/"
+name = "amplicon-analysis-pipeline"
+subtitle = "MGnify v6 analysis of amplicon sequencing reads"
+
+[legend]
+optional = "Optional (depends on parameters / samplesheet / data)"
+
+[[lines]]
+id = "reads"
+label = "Amplicon reads (before rRNA detection)"
+color = "#000"  # neutral: the dark theme shows it in light grey
+end = "station"
+
+[[lines]]
+id = "ssu"
+label = "SSU rRNA (16S, 18S): OTUs"
+color = "#1C7ED6"
+start = "station"
+
+[[lines]]
+id = "lsu"
+label = "LSU rRNA: OTUs"
+color = "#FAB005"
+start = "station"
+
+[[lines]]
+id = "its"
+label = "ITS: OTUs"
+color = "#F76707"
+start = "station"
+
+[[lines]]
+id = "asv"
+label = "16S / 18S variable regions: ASVs"
+color = "#AE3EC9"
+start = "station"
+
+[style]
+font_delta = 4  # all text 4 larger than the default (not the pipeline name or the icon labels)
+name_size = 76  # the pipeline name (default 86)
+
+# Fold the map into a U so that it is more square: the QC and rRNA stages go down on the
+# left, the ASV and taxonomy stages are the bottom row, and the reporting stage goes up on
+# the right.
+[layout]
+down = ["qc", "rrna"]
+up = ["reporting"]
+
+# Lanes of the bottom row, from top to bottom.
+[[lanes]]
+id = "otu"
+lines = ["ssu", "lsu", "its"]
+
+[[lanes]]
+id = "trunk"
+lines = [["reads", "ssu"], "lsu", "its", "asv"]
+
+[[lanes]]
+id = "asv"
+lines = ["asv"]
+
+# Stages from left to right.
+[[stages]]
+id = "qc"
+title = "Reads QC"
+
+[[stages]]
+id = "rrna"
+title = "rRNA detection\n& extraction"
+
+[[stages]]
+id = "primers"
+title = "Region extraction &\nprimer trimming"
+
+[[stages]]
+id = "dada2"
+title = "ASV calling"
+
+[[stages]]
+id = "taxonomy"
+title = "Taxonomic classification"
+
+[[stages]]
+id = "reporting"
+title = "Reporting"
+
+# 1. Reads QC
+[[stations]]
+stage = "qc"
+lane = "trunk"
+lines = ["reads"]
+tool = "BBMap"
+desc = "Standardise"
+note = "(--skip_standardise)"
+optional = true
+
+[[stations]]
+stage = "qc"
+lane = "trunk"
+lines = ["reads"]
+tool = "SeqFu\nfastp\nmgnify-pipelines-\ntoolkit"
+desc = "Sanity check,\nmerge & QC,\nlibrary check"
+rewrap = false
+
+# 2. rRNA detection & extraction
+[[stations]]
+stage = "rrna"
+lane = "trunk"
+lines = ["reads", "ssu", "lsu", "its"]
+tool = "Infernal cmsearch\ncmsearch-deoverlap"
+desc = "rRNA\ndetection"
+input = { label = "CM", caption = "Rfam\nmodels" }
+
+[[stations]]
+stage = "rrna"
+lane = "trunk"
+lines = ["ssu", "lsu", "its"]
+tool = "easel"
+desc = "Extract SSU,\nLSU & 5.8S"
+
+[[stations]]
+stage = "rrna"
+lane = "trunk"
+lines = ["its"]
+tool = "bedtools"
+desc = "Mask SSU &\nLSU in reads"
+
+[[stations]]
+stage = "rrna"
+lane = "trunk"
+lines = ["ssu", "asv"]
+tool = "mgnify-pipelines-\ntoolkit"
+desc = "Infer variable\nregions"
+
+# 3. Region inference & primer trimming
+[[stations]]
+stage = "primers"
+lane = "asv"
+tool = "seqtk"
+desc = "Extract\nvariable\nregions"
+
+[[stations]]
+stage = "primers"
+lane = "asv"
+tool = "PIMENTO"
+desc = "Find standard\nlibrary primers"
+input = { label = "FASTA", caption = "Primer\nlibrary", note = "(--std_primer_library)" }
+
+[[stations]]
+stage = "primers"
+lane = "asv"
+tool = "PIMENTO"
+desc = "Predict\nprimers"
+note = "(no standard\nprimer found)"
+optional = true
+
+[[stations]]
+stage = "primers"
+lane = "asv"
+tool = "Infernal cmsearch\ncutadapt"
+desc = "Primer\nvalidation\n& trimming"
+optional = true
+
+# 4. ASV calling
+[[stations]]
+stage = "dada2"
+lane = "asv"
+tool = "DADA2"
+desc = "ASV calling"
+
+# 5. Taxonomic classification: OTUs (closed reference) and ASVs
+[[stations]]
+stage = "taxonomy"
+lane = "otu"
+col = 1
+tool = "MAPseq"
+desc = "OTU\nclassification"
+input = { label = "FASTA", caption = "SILVA, PR2,\nUNITE, ITSoneDB" }
+
+[[stations]]
+stage = "taxonomy"
+lane = "otu"
+col = 2
+lines = ["its"]
+tool = "mgnify-pipelines-\ntoolkit"
+desc = "ITS sanity\ncheck & merge"
+
+[[stations]]
+stage = "taxonomy"
+lane = "otu"
+col = 3
+tool = "Krona"
+desc = "BIOM tables &\nKrona charts"
+
+[[stations]]
+stage = "taxonomy"
+lane = "asv"
+col = 1
+tool = "MAPseq"
+desc = "ASV\nclassification"
+input = { label = "FASTA", caption = "SILVA, PR2" }
+
+[[stations]]
+stage = "taxonomy"
+lane = "asv"
+col = 2
+tool = "mgnify-pipelines-\ntoolkit"
+desc = "ASV count &\ntaxonomy tables"
+
+[[stations]]
+stage = "taxonomy"
+lane = "asv"
+col = 3
+tool = "Krona"
+desc = "Krona charts"
+
+# 6. Reporting
+[[stations]]
+stage = "reporting"
+lane = "trunk"
+lines = ["ssu", "lsu", "its", "asv"]
+tool = "MultiQC"
+desc = "Run & study\nreports"
+
+[[inputs]]
+label = "CSV"
+caption = "Samplesheet"
+
+[[inputs]]
+label = "FASTQ"
+caption = "Amplicon\nreads"
+
+# The output icons are in rows above the right column: reports, tables, sequences.
+[[outputs]]
+row = 1
+label = "HTML"
+caption = "Krona &\nMultiQC"
+
+[[outputs]]
+row = 1
+label = "CSV"
+caption = "QC passed /\nfailed runs"
+
+[[outputs]]
+row = 2
+label = "TSV"
+caption = "OTU & ASV\ntaxonomy"
+
+[[outputs]]
+row = 2
+label = "JSON"
+caption = "Primer\nvalidation"
+
+[[outputs]]
+row = 3
+label = "FASTA"
+caption = "rRNA &\nregion reads"
